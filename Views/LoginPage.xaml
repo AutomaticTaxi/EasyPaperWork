@@ -4,28 +4,45 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:EasyPaperWork.ViewModel"
-    Title="LoginPage">
+    Title="">
     <ContentPage.BindingContext>
         <vm:LoginPageViewModel/>
     </ContentPage.BindingContext>
-    <VerticalStackLayout Margin="20">
-        <Image Source="logo.png" VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="300" WidthRequest="300"/>
-
-        <Label Text="Entrar" HorizontalOptions="Start" VerticalOptions="Center" FontSize="Header"  />
-        <Label Text="E-mail" HorizontalOptions="Start" VerticalOptions="Center" FontSize="Title"/>
-        <Entry Placeholder="name@example.com" Text="{Binding User.Email}"/>
-        <Label Text="E-mail inválido" TextColor="Red" FontSize="Subtitle" IsVisible="False"  />
-        <Label Text="Senha" HorizontalOptions="Start" VerticalOptions="Center" FontSize="Title"/>
-        <Entry Placeholder="*********" Text="{Binding User.Password}" />
-        <Label Text="Senha incorreta" TextColor="Red" FontSize="Subtitle" IsVisible="False"  />
-        <Button Text="Entrar" WidthRequest="200" HeightRequest="50" HorizontalOptions="Center" VerticalOptions="Center" Margin="20" Command="{Binding  LoginCommand}" />
-        <Label Text="Ou entre com sua conta Google" HorizontalOptions="Center" VerticalOptions="Center" FontSize="Subtitle"/>
-        <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
-            <Image Source="google.png" VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="40" WidthRequest="40" Margin="20"/>
-            <Button Text="Entre com o Google" WidthRequest="200" HeightRequest="40" BackgroundColor="Blue"/>
-
-        </HorizontalStackLayout>
+    <FlexLayout Margin ="20" Direction="Column" AlignItems="Center">
        
+        <Image Source="logo.png"  HeightRequest="300" WidthRequest="300"/>
+        <Label Text="Entrar" FlexLayout.AlignSelf="Start"  FontSize="Header"  />
+        <Label Text="E-mail" FlexLayout.AlignSelf="Start" FontSize="Title"/>
+        <Entry Placeholder="name@example.com" WidthRequest="500" FlexLayout.AlignSelf="Start" Text="{Binding User.Email}"/>
+        <Label Text="E-mail inválido" TextColor="Red" FlexLayout.AlignSelf="Start" FontSize="Subtitle" IsVisible="False"  />
+        <Label Text="Senha" FlexLayout.AlignSelf="Start" FontSize="Title"/>
+        <Entry  Placeholder="*********" WidthRequest="500"  Text="{Binding User.Password}" FlexLayout.AlignSelf="Start"/>
+        <Label Text="Senha incorreta" TextColor="Red" FontSize="Subtitle" FlexLayout.AlignSelf="Start" IsVisible="False"  />
+        <Button Text="Entrar" WidthRequest="200" HeightRequest="50"  Margin="20" Command="{Binding  LoginCommand}" />
+        <Grid RowSpacing="100" ColumnSpacing="300" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <!-- Define uma linha com altura automática -->
+                <RowDefinition Height="*" />
+                <!-- Define uma linha que preenche o restante do espaço disponível -->
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                
+                <!-- Define uma coluna com largura automática -->
+                <ColumnDefinition Width="*" />
+                <!-- Define uma coluna que preenche o restante do espaço disponível -->
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Grid.Column="0" FlexLayout.AlignSelf="Start" HorizontalOptions="Start" Text="Esqueceu senha?" FontSize="Subtitle" />
+            <Label Grid.Row="0" Grid.Column="1" Text="Cadastre-se" FontAttributes="Bold" FontSize="Subtitle"  Margin="0,0,40,0" TextDecorations="Underline">
+             
+            </Label>                      
+            <Image Grid.Row="0" Grid.Column="2" Source="setadireita.png" HeightRequest="30" WidthRequest="30" HorizontalOptions="End">
+               
+            </Image>
 
-    </VerticalStackLayout>
+        </Grid>
+      
+
+    </FlexLayout>
 </ContentPage>

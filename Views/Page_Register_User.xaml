@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EasyPaperWork.Views.Page_Register_User"
+             Title="">
+    <VerticalStackLayout Margin="20" VerticalOptions="FillAndExpand"  >
+        
+            
+   
+        <Label Text="Cadastre-se" FontSize="Subtitle" HorizontalOptions="Center" />
+        <Label Text="Email" FontSize="Subtitle"  Margin="0,20,0,0"  HorizontalOptions="Start"/>
+        <Entry Placeholder="name@example.com" Margin="0,20,0,0"/>
+        <Label Text="Senha" FontSize="Subtitle"  Margin="0,20,0,0"  HorizontalOptions="Start"/>
+        <Entry Placeholder="........." Margin="0,20,0,0"/>
+        <Label Text="Confirme sua senha" FontSize="Subtitle"  Margin="0,20,0,0" HorizontalOptions="Start"/>
+        <Entry Placeholder="........." Margin="0,20,0,0"/>
+        <Label Text="Tipo de conta"  FontSize="Subtitle" HorizontalOptions="Center"/>
+        <VerticalStackLayout>
+            <StackLayout Orientation="Horizontal">
+                <CheckBox/>
+                <Label Text="Empresarial" VerticalOptions="Center" />
+            </StackLayout>
+            <StackLayout Orientation="Horizontal">
+                <CheckBox/>
+                <Label Text="Funcionário de uma empresa" VerticalOptions="Center" />
+            </StackLayout>
+            <StackLayout Orientation="Horizontal">
+                <CheckBox/>
+                <Label Text="conta pessoal" VerticalOptions="Center" />
+            </StackLayout>
+        </VerticalStackLayout>
+        <Button Text="Cadastre-se" BackgroundColor="Blue" VerticalOptions="EndAndExpand" />
+        
+
+    </VerticalStackLayout>
+
+   
+</ContentPage>

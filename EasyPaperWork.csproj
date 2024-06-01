@@ -39,6 +39,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="FirebaseAdmin" Version="2.2.0" />
+		<PackageReference Include="Google.Apis.Auth" Version="1.56.0" />
+		<PackageReference Include="Google.Cloud.Firestore" Version="3.0.0" />
+	</ItemGroup>
+	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" />
 		<MauiIcon Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'" Include="Resources\AppIcon\appicon_android.svg" ForegroundFile="Resources\AppIcon\appicon_android_fg.svg" Color="#FFFFFF" BaseSize="256,256" />
@@ -57,35 +62,42 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <AndroidResource Remove="NovaPasta\**" />
-	  <Compile Remove="NovaPasta\**" />
-	  <EmbeddedResource Remove="NovaPasta\**" />
-	  <MauiCss Remove="NovaPasta\**" />
-	  <MauiXaml Remove="NovaPasta\**" />
-	  <None Remove="NovaPasta\**" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <Compile Remove="ViewModel\PageSetor.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <None Remove="Resources\AppIcon\appicon_android.svg" />
+	  <None Remove="Resources\Fonts\Roboto-Medium.ttf" />
+	  <None Remove="Resources\Fonts\Roboto-Regular.ttf" />
+	  <None Remove="Resources\Images\avatar.svg" />
 	  <None Remove="Resources\Images\Google.png" />
 	  <None Remove="Resources\Images\logo.png" />
+	  <None Remove="Resources\Images\setaDireita.png" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+		<PackageReference Include="FirebaseAdmin" Version="2.2.0" />
+		<PackageReference Include="Google.Apis.Auth" Version="1.54.0" />
+		<PackageReference Include="Google.Cloud.Firestore" Version="3.0.0" />
 	</ItemGroup>
-
+	
 	<ItemGroup>
 	  <MauiXaml Update="Views\LoginPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\PageMenu.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\PageSetor.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Page_Document_Upload.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Page_Document_Visualizer.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Page_Register_User.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
