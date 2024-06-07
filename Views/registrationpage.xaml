@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EasyPaperWork.Views.registrationpage"
+             xmlns:vm="clr-namespace:EasyPaperWork.ViewModel"
+             Title="registrationpage">
+    <ContentPage.BindingContext>
+        <vm:RegistrationViewModel/>
+    </ContentPage.BindingContext>
+    <VerticalStackLayout Margin="20">
+        <Label 
+            Text="Cadastre-se!"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />
+        <Label
+            Text="Nome"
+            HorizontalOptions="Start"
+           
+        />
+        <Entry
+            Text="{Binding EntryName}"
+            WidthRequest="500"
+            HorizontalOptions="Start"
+        />
+        <Label
+            Text="Email"
+            HorizontalOptions="Start"
+            />
+        <Entry
+            Text="{Binding EntryEmail}"
+            WidthRequest="500"
+            Placeholder="name@example.com"
+            HorizontalOptions="Start"
+            />
+        <Label
+            Text="Senha"
+            HorizontalOptions="Start"
+            />
+        <Entry
+            Text="{Binding EntryPassword1}"
+            WidthRequest="500"
+            Placeholder="********"
+            HorizontalOptions="Start"
+            
+            />
+         <Label
+            Text="Confirme sua Senha"
+            HorizontalOptions="Start"
+            
+         />
+         <Entry
+             Text="{Binding EntryPassword2}"
+             WidthRequest="500"
+            Placeholder="********"
+            HorizontalOptions="Start"
+         />
+        <Label 
+            
+            Margin="50"
+            Text="Tipo de Conta"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" 
+         />
+        <Button
+            
+            WidthRequest="500"
+            Text="Empresarial"
+            Margin="10"
+            BorderColor="Black"
+            BorderWidth="2"
+            BackgroundColor="{Binding ButtonBackgroundColor1}"
+           TextColor="{Binding ButtonTextColor1}"
+            Command="{Binding ButtonCommand1}"
+            />
+        <Button
+            WidthRequest="500"
+            Text="funcionário de uma empresa"
+            Margin="10"
+            BorderColor="Black"
+            BorderWidth="2"
+            BackgroundColor="{Binding ButtonBackgroundColor2}"
+            TextColor="{Binding ButtonTextColor2}"
+            Command="{Binding ButtonCommand2}"
+        />
+        <Button
+            WidthRequest="500"
+            Text="Conta Pessual"
+            Margin="10"
+            BorderColor="Black"
+            BorderWidth="2"
+            BackgroundColor="{Binding ButtonBackgroundColor3}"
+            TextColor="{Binding ButtonTextColor3}"
+            Command="{Binding ButtonCommand3}"
+            
+        />
+        <Button
+            Command="{Binding RegistrationCommand}"
+            Text="Cadastre-se"
+            BackgroundColor="#414BB2"
+            TextColor="White"
+            />
+    </VerticalStackLayout>
+</ContentPage>

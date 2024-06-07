@@ -38,11 +38,7 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="FirebaseAdmin" Version="2.2.0" />
-		<PackageReference Include="Google.Apis.Auth" Version="1.56.0" />
-		<PackageReference Include="Google.Cloud.Firestore" Version="3.0.0" />
-	</ItemGroup>
+
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" />
@@ -71,14 +67,21 @@
 	  <None Remove="Resources\Fonts\Roboto-Regular.ttf" />
 	  <None Remove="Resources\Images\avatar.svg" />
 	  <None Remove="Resources\Images\Google.png" />
+	  <None Remove="Resources\Images\img_page_upload.png" />
 	  <None Remove="Resources\Images\logo.png" />
 	  <None Remove="Resources\Images\setaDireita.png" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="FirebaseAdmin" Version="2.2.0" />
-		<PackageReference Include="Google.Apis.Auth" Version="1.54.0" />
-		<PackageReference Include="Google.Cloud.Firestore" Version="3.0.0" />
+		<PackageReference Include="FirebaseAdmin" Version="3.0.0" />
+		<PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
+		<PackageReference Include="Google.Cloud.Firestore" Version="3.7.0" />
+		<PackageReference Include="Moq" Version="4.20.70" />
+		<PackageReference Include="xunit" Version="2.8.1" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.8.1">
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		  <PrivateAssets>all</PrivateAssets>
+		</PackageReference>
 	</ItemGroup>
 	
 	<ItemGroup>
@@ -100,6 +103,20 @@
 	  <MauiXaml Update="Views\Page_Register_User.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\registrationpage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\UploadDocsPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <PackageReference Update="Microsoft.Maui.Controls" Version="8.0.40" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <PackageReference Update="Microsoft.Maui.Controls.Compatibility" Version="8.0.40" />
 	</ItemGroup>
 
 </Project>

@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
+using Newtonsoft.Json;
+using System.Diagnostics;
 
 namespace EasyPaperWork.Services
 {
@@ -18,15 +20,37 @@ namespace EasyPaperWork.Services
         public FirebaseService()
         {
                 //Credecial colocada direto no códico F segurança 
-            string pathToCredentials = "\"C:\\Users\\lucas\\OneDrive\\Documents\\ProjetosC#\\EasyPaperWork\\easypaperwork-firebase-firebase-adminsdk-4asf7-dc3b16ccbd.json\"\"C:\\Users\\lucas\\OneDrive\\Documents\\ProjetosC#\\EasyPaperWork\\easypaperwork-firebase-firebase-adminsdk-4asf7-dc3b16ccbd.json\""; 
+            string pathToCredentials = "C:\\Users\\lucas\\source\\repos\\AutomaticTaxi\\EasyPaperWork\\easypaperwork-firebase-firebase-adminsdk-4asf7-dc3b16ccbd.json"; 
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", pathToCredentials);
             _firestoreDb = FirestoreDb.Create("easypaperwork-firebase"); // Substitua pelo ID do seu projeto Firebase
         }
         public async Task AdicionarDocumentoAsync(string colecao, string documentoId, Dictionary<string, object> dados)
         {
-            DocumentReference document = _firestoreDb.Collection(colecao).Document(documentoId);
-            await document.SetAsync(dados);
-            Console.WriteLine("Documento adicionado com sucesso!");
+            try
+            {
+                if (string.IsNullOrEmpty(colecao))
+                    throw new ArgumentException("A coleção não pode ser nula ou vazia.", nameof(colecao));
+
+                if (string.IsNullOrEmpty(documentoId))
+                    throw new ArgumentException("O ID do documento não pode ser nulo ou vazio.", nameof(documentoId));
+
+                if (dados == null)
+                    throw new ArgumentException("Os dados não podem ser nulos.", nameof(dados));
+
+                DocumentReference document = _firestoreDb.Collection(colecao).Document(documentoId);
+                await document.SetAsync(dados);
+                Debug.WriteLine("Documento adicionado com sucesso!");
+            }
+            catch (ArgumentException ex)
+            {
+                Debug.WriteLine($"ArgumentException: {ex.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Exception: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task BuscarDocumentoAsync(string colecao, string documentoId)
@@ -46,6 +70,20 @@ namespace EasyPaperWork.Services
             {
                 Console.WriteLine("Documento não encontrado.");
             }
+        }
+        public async Task AdicionarObjetoAsync<T>(string colecao, string documentoId, T objeto)
+        {
+            Dictionary<string, object> dados = ConvertToDictionary(objeto);
+            await AdicionarDocumentoAsync(colecao, documentoId, dados);
+        }
+
+        private Dictionary<string, object> ConvertToDictionary<T>(T objeto)
+        {
+            // Converte o objeto para um dicionário usando JsonConvert
+            string json = JsonConvert.SerializeObject(objeto);
+            Debug.Write(json);
+            return JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+            
         }
     }
 }
