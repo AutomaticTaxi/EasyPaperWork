@@ -34,8 +34,10 @@
                 <!-- Define uma coluna que preenche o restante do espaço disponível -->
             </Grid.ColumnDefinitions>
             <Label Grid.Row="0" Grid.Column="0" FlexLayout.AlignSelf="Start" HorizontalOptions="Start" Text="Esqueceu senha?" FontSize="Subtitle" />
-            <Label Grid.Row="0" Grid.Column="1" Text="Cadastre-se" FontAttributes="Bold" FontSize="Subtitle"  Margin="0,0,40,0" TextDecorations="Underline">
-             
+            <Label Grid.Row="0" Grid.Column="1" Text="Cadastre-se" FontAttributes="Bold" FontSize="Subtitle"  Margin="0,0,40,0" TextDecorations="Underline" >
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
+                </Label.GestureRecognizers>
             </Label>                      
             <Image Grid.Row="0" Grid.Column="2" Source="setadireita.png" HeightRequest="30" WidthRequest="30" HorizontalOptions="End">
                

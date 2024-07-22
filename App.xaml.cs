@@ -9,7 +9,8 @@ namespace EasyPaperWork
         {
             InitializeComponent();
 
-            MainPage = new NavigationPage (new UploadDocsPage());
+
+            MainPage = new NavigationPage (new LoginPage());
         }
 
     }
