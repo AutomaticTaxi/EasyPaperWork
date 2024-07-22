@@ -12,6 +12,7 @@ namespace EasyPaperWork.ViewModel
 {
     public class RegistrationViewModel : INotifyPropertyChanged
     {
+        private FirebaseAuthServices firebaseAuthServices;
         public ICommand RegistrationCommand { get; set;}
         public ICommand ButtonCommand1 { get; }
         public ICommand ButtonCommand2 { get; }
@@ -20,7 +21,7 @@ namespace EasyPaperWork.ViewModel
         public string EntryEmail { get; set; }
         public string EntryPassword1 { get; set; }
         public string EntryPassword2 { get; set; }
-        public string AccountType {  get; set; }   
+        public string AccountType;
         private Color _buttonBackgroundColor1;
         private Color _buttonTextColor1;
         private Color _buttonBackgroundColor2;
@@ -32,6 +33,7 @@ namespace EasyPaperWork.ViewModel
         public UserModel User { get; set; }
         public RegistrationViewModel()
         {
+            firebaseAuthServices = new FirebaseAuthServices();  
             RegistrationCommand = new Command(Registration);
             User = new UserModel();
             ButtonBackgroundColor1 = Colors.White;
@@ -60,6 +62,7 @@ namespace EasyPaperWork.ViewModel
            // User.DateUserCreated = DateTimeOffset.UtcNow;
             User.Id = Guid.NewGuid();
             await FirebaseService.AdicionarObjetoAsync("Users",Convert.ToString(User.Id), User);
+            firebaseAuthServices.RegiterUser(User.Email,User.Passoword,User.Name);
             Debug.WriteLine("enviado para a clase fire base");
 
         }

@@ -13,10 +13,10 @@
         <Image Source="logo.png"  HeightRequest="300" WidthRequest="300"/>
         <Label Text="Entrar" FlexLayout.AlignSelf="Start"  FontSize="Header"  />
         <Label Text="E-mail" FlexLayout.AlignSelf="Start" FontSize="Title"/>
-        <Entry Placeholder="name@example.com" WidthRequest="500" FlexLayout.AlignSelf="Start" Text="{Binding User.Email}"/>
+        <Entry Placeholder="name@example.com" WidthRequest="500" FlexLayout.AlignSelf="Start" Text="{Binding EntryEmail}"/>
         <Label Text="E-mail inválido" TextColor="Red" FlexLayout.AlignSelf="Start" FontSize="Subtitle" IsVisible="False"  />
         <Label Text="Senha" FlexLayout.AlignSelf="Start" FontSize="Title"/>
-        <Entry  Placeholder="*********" WidthRequest="500"  Text="{Binding User.Password}" FlexLayout.AlignSelf="Start"/>
+        <Entry  Placeholder="*********" WidthRequest="500"  Text="{Binding EntryPassword}" FlexLayout.AlignSelf="Start"/>
         <Label Text="Senha incorreta" TextColor="Red" FontSize="Subtitle" FlexLayout.AlignSelf="Start" IsVisible="False"  />
         <Button Text="Entrar" WidthRequest="200" HeightRequest="50"  Margin="20" Command="{Binding  LoginCommand}" />
         <Grid RowSpacing="100" ColumnSpacing="300" >
