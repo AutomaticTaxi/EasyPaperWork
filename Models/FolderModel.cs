@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace EasyPaperWork.Models
 {
-
-    public class Documents : INotifyPropertyChanged
+    public class FolderModel : INotifyPropertyChanged
     {
         private Guid _Id;
         public Guid Id
@@ -36,29 +35,8 @@ namespace EasyPaperWork.Models
                 OnPropertyChanged(nameof(_Name));
             }
         }
-        private string _Description;
-        public string Description
-        {
-            get
-            {
-                return _Description;
-            }
-            set
-            {
-                _Description = value;
-                OnPropertyChanged(nameof(_Description));
-            }
-        }
-        private string _DocumentType;
-        public string DocumentType
-        {
-            get { return _DocumentType; }
-            set
-            {
-                _DocumentType = value;
-                OnPropertyChanged(nameof(DocumentType));
-            }
-        }
+
+        public FolderModel() { }
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public void OnPropertyChanged(string prop)
@@ -71,6 +49,3 @@ namespace EasyPaperWork.Models
 
     }
 }
-
-
-

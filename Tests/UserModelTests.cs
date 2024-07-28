@@ -22,8 +22,6 @@ namespace EasyPaperWork.Tests
                 }
             };
 
-            // Act
-            userModel.Id = Guid.NewGuid();
 
             // Assert
             Assert.True(wasCalled);

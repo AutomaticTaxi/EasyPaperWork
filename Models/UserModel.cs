@@ -9,8 +9,8 @@ namespace EasyPaperWork.Models
 {
     public class UserModel : INotifyPropertyChanged
     {
-        private Guid _Id { get; set; }
-        public Guid Id
+        private string _Id { get; set; }
+        public string Id
         {
             get
             {

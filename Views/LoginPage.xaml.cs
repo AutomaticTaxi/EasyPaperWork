@@ -16,5 +16,6 @@ public partial class LoginPage : ContentPage
     public async Task OpenRegistrationPage()
     {
         await Application.Current.MainPage.Navigation.PushAsync(new Page_Register_User());
+      
     } 
 }

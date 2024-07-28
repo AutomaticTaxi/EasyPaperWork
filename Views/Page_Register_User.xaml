@@ -23,15 +23,17 @@
         <Label Text="Tipo de conta"  FontSize="Subtitle" HorizontalOptions="Center"/>
         <VerticalStackLayout>
             <StackLayout Orientation="Horizontal">
-                <CheckBox/>
+                <CheckBox IsChecked="{Binding EnterpriseAccount}"/>
                 <Label Text="Empresarial" VerticalOptions="Center" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <CheckBox/>
+                <CheckBox IsChecked="{Binding EmployeeAccount}"/>
+
+
                 <Label Text="Funcionário de uma empresa" VerticalOptions="Center" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <CheckBox/>
+                <CheckBox IsChecked="{Binding PersonalAccount}"/>
                 <Label Text="conta pessoal" VerticalOptions="Center" />
             </StackLayout>
         </VerticalStackLayout>

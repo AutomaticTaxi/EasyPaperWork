@@ -1,17 +1,15 @@
-﻿using EasyPaperWork.Views;
+﻿using Microsoft.Maui.Controls;
+
 namespace EasyPaperWork
-
 {
-
     public partial class App : Application
     {
         public App()
         {
             InitializeComponent();
 
-
-            MainPage = new NavigationPage (new LoginPage());
+            MainPage = new AppShell();
         }
-
     }
 }
+

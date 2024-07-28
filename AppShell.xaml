@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EasyPaperWork.AppShell"
+            xmlns:pages="clr-namespace:EasyPaperWork.Views"
+             Title="AppShell">
+    <ShellContent 
+      Title="Login"
+      ContentTemplate="{DataTemplate pages:LoginPage} "
+      Route="Page_Login"
+      Shell.BackgroundColor="LightGray"
+      Shell.TabBarIsVisible="False"/>
+
+    <ShellContent 
+        Title=""
+        ContentTemplate="{DataTemplate pages:Page_Register_User} "
+        Route="Page_Register_User"
+        Shell.BackgroundColor="LightGray"
+        Shell.TabBarIsVisible="False"/>
+
+    <TabBar>
+      
+        <ShellContent
+            Title="Procurar"
+            ContentTemplate="{DataTemplate pages:Page_Document_Upload}"
+            Icon="searchicon.png"
+            Route="Page_Document_Upload"/>
+        <ShellContent
+            Title="Upload Documentos"
+            ContentTemplate="{DataTemplate pages:Page_Document_Upload}"
+            Icon="uploadicon.png"
+            Route="PageUUploadDocs"/>
+        <ShellContent
+            Title="Documentos"
+            ContentTemplate="{DataTemplate pages:Main_Page_Files}"
+            Icon="docsicon.png"
+            Route="Main_Page_Files"/>
+
+    </TabBar>
+</Shell>

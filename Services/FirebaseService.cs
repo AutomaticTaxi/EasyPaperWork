@@ -53,7 +53,7 @@ namespace EasyPaperWork.Services
             }
         }
 
-        public async Task BuscarDocumentoAsync(string colecao, string documentoId)
+        public async Task BuscarDocumentoByIdAsync(string colecao, string documentoId)
         {
             DocumentReference document = _firestoreDb.Collection(colecao).Document(documentoId);
             DocumentSnapshot snapshot = await document.GetSnapshotAsync();
@@ -63,14 +63,38 @@ namespace EasyPaperWork.Services
                 Dictionary<string, object> dados = snapshot.ToDictionary();
                 foreach (var item in dados)
                 {
-                    Console.WriteLine($"{item.Key}: {item.Value}");
+                    Debug.WriteLine($"{item.Key}: {item.Value}");
                 }
             }
             else
             {
-                Console.WriteLine("Documento não encontrado.");
+                Debug.WriteLine("Documento não encontrado.");
             }
         }
+        public async Task BuscarDocumentosPorCampoAsync(string colecao, string campo, object valor)
+        {
+            try
+            {
+                CollectionReference collection = _firestoreDb.Collection(colecao);
+            Query query = collection.WhereEqualTo(campo, valor);
+            QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
+          
+                foreach (DocumentSnapshot documentSnapshot in querySnapshot.Documents)
+                {
+                    Dictionary<string, object> dados = documentSnapshot.ToDictionary();
+                    Console.WriteLine($"Documento ID: {documentSnapshot.Id}");
+                    foreach (var item in dados)
+                    {
+                        Console.WriteLine($"{item.Key}: {item.Value}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
         public async Task AdicionarObjetoAsync<T>(string colecao, string documentoId, T objeto)
         {
             Dictionary<string, object> dados = ConvertToDictionary(objeto);
