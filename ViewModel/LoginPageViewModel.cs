@@ -12,6 +12,7 @@ using EasyPaperWork.Views;
 using EasyPaperWork.Services;
 using System.Web;
 using System.Text.Encodings.Web;
+using EasyPaperWork.Models;
 
 namespace EasyPaperWork.ViewModel
 {
@@ -38,21 +39,20 @@ namespace EasyPaperWork.ViewModel
 
      
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
+   
 
         private async void Login()
         {
 
             // Exemplo básico de navegação para uma nova página
             string UserUid = await _fireBaseAuthServices.GetUidToken(EntryEmail, EntryPassword);
-            if (UserUid!="error")
+            if (UserUid != "error")
             {
 
-                await Application.Current.MainPage.DisplayAlert("Success", "Logado com sucesso","ok");
-               
-
-                Shell.Current.GoToAsync($"//Main_Page_Files?texto={UserUid}");
+                await Application.Current.MainPage.DisplayAlert("Success", "Logado com sucesso", "ok");
+                //var text= HttpUtility.UrlEncode(UserUid);
+               // var parametrs = new Dictionary<string, object> {{ "parameters","firebase" }, {"text",_fireBaseAuthServices} };
+               Shell.Current.GoToAsync($"//Main_Page_Files?text={UserUid}");
             }
             else
             {
@@ -60,8 +60,17 @@ namespace EasyPaperWork.ViewModel
             }
            
         }
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void OnPropertyChanged(string prop)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(prop));
+            }
+        }
 
-      
+
+
     }
 }
 

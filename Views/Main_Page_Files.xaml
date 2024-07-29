@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:viewModels="clr-namespace:EasyPaperWork.ViewModel"
              x:Class="EasyPaperWork.Views.Main_Page_Files"
              Title="Main_Page_Files">
-    <ContentPage.BindingContext>
-        <viewModels:Main_ViewModel_Files />
-    </ContentPage.BindingContext>
+  
+    <ScrollView>
     <VerticalStackLayout Padding="20">
-        
+     
+
         <Label 
             Text="Repositório Pessoal "
             FontAttributes="Bold"
@@ -22,9 +21,7 @@
                     <StackLayout Padding="10">
                         <Label Text="Pasta1" 
                                FontSize="20" />
-                        <Label Text="{Binding Description}" 
-                               FontSize="14" 
-                               TextColor="Gray" />
+                    
                     </StackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
@@ -45,5 +42,7 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </VerticalStackLayout>
-    </VerticalStackLayout>
+ 
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

@@ -94,6 +94,34 @@ namespace EasyPaperWork.Services
                 Console.WriteLine(ex.ToString());
             }
         }
+        public async Task<List<Dictionary<string, object>>> ListarDocumentosAsync(string colecao)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(colecao))
+                    throw new ArgumentException("A coleção não pode ser nula ou vazia.", nameof(colecao));
+
+                CollectionReference collectionRef = _firestoreDb.Collection(colecao);
+                QuerySnapshot snapshot = await collectionRef.GetSnapshotAsync();
+
+                List<Dictionary<string, object>> documentos = new List<Dictionary<string, object>>();
+                foreach (DocumentSnapshot document in snapshot.Documents)
+                {
+                    documentos.Add(document.ToDictionary());
+                }
+                return documentos;
+            }
+            catch (ArgumentException ex)
+            {
+                Debug.WriteLine($"ArgumentException: {ex.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Exception: {ex.Message}");
+                throw;
+            }
+        }
 
         public async Task AdicionarObjetoAsync<T>(string colecao, string documentoId, T objeto)
         {

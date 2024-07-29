@@ -139,7 +139,7 @@ namespace EasyPaperWork.ViewModel
 
                 User.Id = id;
                 await FirebaseService.AdicionarObjetoAsync("Users",User.Id, User);
-                result = null;
+                result = " ";
                 
             }
 

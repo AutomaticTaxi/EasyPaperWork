@@ -8,6 +8,7 @@
     <ContentPage.BindingContext>
         <vm:LoginPageViewModel/>
     </ContentPage.BindingContext>
+    <ScrollView>
     <FlexLayout Margin ="20" Direction="Column" AlignItems="Center">
        
         <Image Source="logo.png"  HeightRequest="300" WidthRequest="300"/>
@@ -47,4 +48,5 @@
       
 
     </FlexLayout>
+    </ScrollView>
 </ContentPage>
