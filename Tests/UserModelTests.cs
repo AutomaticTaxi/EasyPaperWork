@@ -77,14 +77,14 @@ namespace EasyPaperWork.Tests
             var wasCalled = false;
             userModel.PropertyChanged += (sender, e) =>
             {
-                if (e.PropertyName == nameof(UserModel.Passoword))
+                if (e.PropertyName == nameof(UserModel.Password))
                 {
                     wasCalled = true;
                 }
             };
 
             // Act
-            userModel.Passoword = "newpassword";
+            userModel.Password = "newpassword";
 
             // Assert
             Assert.True(wasCalled);

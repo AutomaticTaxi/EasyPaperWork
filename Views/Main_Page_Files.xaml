@@ -7,9 +7,8 @@
     <ScrollView>
     <VerticalStackLayout Padding="20">
      
-
         <Label 
-            Text="Repositório Pessoal "
+            Text="{Binding LabelTituloRepositorio}"
             FontAttributes="Bold"
             FontSize="Title"
             VerticalOptions="Center" 
@@ -42,6 +41,7 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </VerticalStackLayout>
+        
  
         </VerticalStackLayout>
     </ScrollView>

@@ -16,9 +16,26 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
 {
 
     public ObservableCollection<Documents> DocumentCollection { get; set; }
+    private string _LabelTituloRepositorio;
+    public string LabelTituloRepositorio { get { return _LabelTituloRepositorio; }
+        set
+        {
+            _LabelTituloRepositorio = value;
+            OnPropertyChanged();
+        }
+    }
   
     private FirebaseService _firebaseService;
-    public ObservableCollection<FolderModel> FolderCollection { get; set; }
+    public UserModel _userModel;
+    public UserModel userModel {
+        get { return _userModel; }
+        set { _userModel = value;
+            OnPropertyChanged();
+        }
+    }
+
+
+    public ObservableCollection<Folder_Files> FolderCollection { get; set; }
     private string UidUser;
     public string _UidUser
     {
@@ -26,7 +43,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         set { 
             UidUser = HttpUtility.UrlDecode( value);
             OnPropertyChanged();
-            Initialize();
+            
         }
     }
 
@@ -39,38 +56,59 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     {
         _firebaseService = new FirebaseService();
         atulizarPage();
-     
+        userModel = new UserModel();
+         
         
-        FolderCollection = new ObservableCollection<FolderModel>
+        FolderCollection = new ObservableCollection<Folder_Files>
             {
-                new FolderModel { Name = "Pasta 1" }
+                new Folder_Files { Name = "Pasta 1" }
             };
         DocumentCollection = new ObservableCollection<Documents>
             {
-                new Documents { Name = "Documento 1", Description = "Description for document 1", DocumentType = ".pdf" },
-                new Documents { Name = "Documento 2", Description = "Description for document 2", DocumentType = ".pdf" },
-                new Documents { Name = "Documento 3", Description = "Description for document 3", DocumentType = ".pdf" },
+                new Documents { Name = "Documento 1", DocumentType = ".pdf" },
+                new Documents { Name = "Documento 2", DocumentType = ".pdf" },
+                new Documents { Name = "Documento 3", DocumentType = ".pdf" },
             };
         Debug.WriteLine(UidUser);
         //_firebaseService.BuscarDocumentoByIdAsync("Users", UidUser.ToString());
 
     }
-    public void Initialize()
-    {
-        if (!string.IsNullOrEmpty(_UidUser))
-        {
-            Debug.WriteLine("Uid = " + _UidUser);
-        }
-        else
-        {
-            Debug.WriteLine("Uid é null");
-        }
-    }
-    public void TestBanco()
+
+    public async void Initialize()
     {
         if (!string.IsNullOrEmpty(_UidUser))
         {
             Debug.WriteLine("banco on");
+            userModel = await _firebaseService.BuscarUserModelAsync("Users", UidUser);
+            Debug.WriteLine($"{userModel.Id}");
+            Debug.WriteLine($"{userModel.Name}");
+            Debug.WriteLine($"{userModel.AccountType}");
+            Debug.WriteLine($"{userModel.Email}");
+            Debug.WriteLine($"{userModel.Password}");
+            if(userModel.AccountType== "PersonalAccount")
+            {
+                LabelTituloRepositorio= "Seu repositório pessual ";
+                List<Documents> list = await _firebaseService.ListarDocumentosNaMainPageFilesAsync("Users", UidUser, "Documents");
+                Debug.WriteLine(list);
+                foreach (Documents doc in list) { 
+                DocumentCollection.Add(doc);
+                }
+               
+               
+            }
+            else if(userModel.AccountType == "EnterpriseAccount")
+            {
+                LabelTituloRepositorio = "Repositório empresarial";
+            }
+            else
+            {
+                LabelTituloRepositorio = "Setor";
+            }
+            
+
+
+
+
         }
         else { Debug.WriteLine("banco off"); }
     }

@@ -9,7 +9,7 @@ namespace EasyPaperWork.Models
 {
     public class UserModel : INotifyPropertyChanged
     {
-        private string _Id { get; set; }
+        private string _Id;
         public string Id
         {
             get
@@ -48,8 +48,8 @@ namespace EasyPaperWork.Models
                 OnPropertyChanged(nameof(Email));
             }
         }
-        private string _Password { get; set; } = string.Empty;
-        public string Passoword
+        private string _Password;
+        public string Password
         {
             get
             {
@@ -58,7 +58,7 @@ namespace EasyPaperWork.Models
             set
             {
                 _Password = value;
-                OnPropertyChanged(nameof(Passoword));
+                OnPropertyChanged(nameof(Password));
             }
         }
       /*  private DateTimeOffset _DateUserCreated { get; set; }

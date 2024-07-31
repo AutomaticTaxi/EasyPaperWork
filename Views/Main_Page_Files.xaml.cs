@@ -14,17 +14,17 @@ public partial class Main_Page_Files : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        viewModel.Initialize();
-        viewModel.TestBanco();
+        
+        
     }
     protected override void OnNavigatedFrom(NavigatedFromEventArgs args)
     {
         base.OnNavigatedFrom(args);
-        viewModel.TestBanco();
+       
     }
     protected override void OnNavigatedTo(NavigatedToEventArgs args)
     {
         base.OnNavigatedTo(args);
-        viewModel.TestBanco();
+        viewModel.Initialize();
     }
 }

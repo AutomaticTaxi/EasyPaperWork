@@ -8,27 +8,7 @@ namespace EasyPaperWork.Tests
 {
     public class DocumentsTests
     {
-        [Fact]
-        public void SettingId_ShouldTriggerPropertyChanged()
-        {
-            // Arrange
-            var document = new Documents();
-            var wasCalled = false;
-            document.PropertyChanged += (sender, e) =>
-            {
-                if (e.PropertyName == nameof(Documents.Id))
-                {
-                    wasCalled = true;
-                }
-            };
-
-            // Act
-            document.Id = Guid.NewGuid();
-
-            // Assert
-            Assert.True(wasCalled);
-        }
-
+    
         [Fact]
         public void SettingName_ShouldTriggerPropertyChanged()
         {

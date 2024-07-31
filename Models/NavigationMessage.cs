@@ -9,25 +9,25 @@ namespace EasyPaperWork.Models
 {
     public class NavigationMessage:INotifyPropertyChanged
     {
-        private string _Key;
-        public string Key
+        private string _Name;
+        public string Name
         {
-            get { return _Key; }
+            get { return _Name; }
             set
             {
-                _Key = value;
-                OnPropertyChanged(nameof(Key));
+                _Name = value;
+                OnPropertyChanged(nameof(Name));
             }
         }
 
-        private object _Value;
-        public object Value
+        private string _DocumentType;
+        public string DocumentType
         {
-            get { return this._Value; }
+            get { return _DocumentType; }
             set
             {
-                _Value = value;
-                OnPropertyChanged(nameof(Value));
+                _DocumentType = value;
+                OnPropertyChanged(nameof(DocumentType));
             }
         }
 

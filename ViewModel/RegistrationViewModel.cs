@@ -129,11 +129,11 @@ namespace EasyPaperWork.ViewModel
                 await Application.Current.MainPage.DisplayAlert("Erro", "Nome necessário para registro", "ok");
             }
             if (!string.IsNullOrEmpty(EntryEmail)) { User.Email = EntryEmail; }
-            if (EntryPassword1 == EntryPassword2) { User.Passoword = EntryPassword1; }
+            if (EntryPassword1 == EntryPassword2) { User.Password = EntryPassword1; }
             if (AccountType != null) { User.AccountType = AccountType; }
             // User.DateUserCreated = DateTimeOffset.UtcNow;
            
-            string result = await _FirebaseAuthServices.RegiterUser(User.Email, User.Passoword, User.Name);
+            string result = await _FirebaseAuthServices.RegiterUser(User.Email, User.Password, User.Name);
             if ( result == "UserCreated") {
                 string id = await _FirebaseAuthServices.GetUidToken(EntryEmail, EntryPassword1);
 

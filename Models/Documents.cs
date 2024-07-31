@@ -10,19 +10,6 @@ namespace EasyPaperWork.Models
 
     public class Documents : INotifyPropertyChanged
     {
-        private Guid _Id;
-        public Guid Id
-        {
-            get
-            {
-                return _Id;
-            }
-            set
-            {
-                _Id = value;
-                OnPropertyChanged(nameof(Id));
-            }
-        }
         private string _Name;
         public string Name
         {
@@ -36,19 +23,7 @@ namespace EasyPaperWork.Models
                 OnPropertyChanged(nameof(_Name));
             }
         }
-        private string _Description;
-        public string Description
-        {
-            get
-            {
-                return _Description;
-            }
-            set
-            {
-                _Description = value;
-                OnPropertyChanged(nameof(_Description));
-            }
-        }
+       
         private string _DocumentType;
         public string DocumentType
         {
