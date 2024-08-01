@@ -179,7 +179,7 @@ namespace EasyPaperWork.Services
 
                 foreach (DocumentSnapshot document in snapshot.Documents)
                 {
-                    var documents = new Documents
+                    var documents = new Documents()
                     {
                         Name = document.ContainsField("Name") ? document.GetValue<string>("Name") : null,
                         DocumentType = document.ContainsField("DocumentType") ? document.GetValue<string>("DocumentType") : null

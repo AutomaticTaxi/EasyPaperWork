@@ -30,13 +30,26 @@
             <CollectionView ItemsSource="{Binding DocumentCollection}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <StackLayout Padding="10">
-                            <Label Text="{Binding Name}" 
-                            FontSize="20" />
-                            <Label Text="{Binding Description}" 
-                            FontSize="14" 
-                            TextColor="Gray" />
-                        </StackLayout>
+                            <Grid Padding="10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Image Grid.RowSpan="2"
+                                   Source="{Binding Image}"
+                                   Aspect="AspectFill"
+                                   HeightRequest="60"
+                                   WidthRequest="60" />
+                                <Label Grid.Column="1"
+                                   Text="{Binding Name}"
+                                   FontAttributes="Bold" />
+                            
+                            </Grid>
+                           
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

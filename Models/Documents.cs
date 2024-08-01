@@ -31,8 +31,38 @@ namespace EasyPaperWork.Models
             set
             {
                 _DocumentType = value;
+                switch (DocumentType)
+                {
+                    case "pdf":
+                        Image = "pdficon.png";
+                        break;
+                    case "docx":
+                        Image = "wordfileicon.png";
+                        break;
+                    case "xlsx":
+                        Image = "excelicon.png";
+                        break;
+                    case "pptx":
+                        Image = "powerpointicon.png";
+                        break;
+
+                }
                 OnPropertyChanged(nameof(DocumentType));
             }
+        }
+        private string _Image;
+        public string Image
+        {
+            get => _Image;
+            set
+            {
+                _Image = value;
+                OnPropertyChanged(nameof(Image));
+            }
+        }
+        public Documents()
+        {
+            
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

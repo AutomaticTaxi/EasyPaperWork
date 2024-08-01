@@ -67,12 +67,16 @@
 	  <None Remove="Resources\Fonts\Roboto-Regular.ttf" />
 	  <None Remove="Resources\Images\avatar.svg" />
 	  <None Remove="Resources\Images\docsicon.svg" />
+	  <None Remove="Resources\Images\excelicon.svg" />
 	  <None Remove="Resources\Images\Google.png" />
 	  <None Remove="Resources\Images\img_page_upload.png" />
 	  <None Remove="Resources\Images\logo.png" />
+	  <None Remove="Resources\Images\pdficon.svg" />
+	  <None Remove="Resources\Images\powerpointicon.svg" />
 	  <None Remove="Resources\Images\searchicon.svg" />
 	  <None Remove="Resources\Images\setaDireita.png" />
 	  <None Remove="Resources\Images\uploadicon.svg" />
+	  <None Remove="Resources\Images\wordfileicon.svg" />
 	</ItemGroup>
 
 	<ItemGroup>

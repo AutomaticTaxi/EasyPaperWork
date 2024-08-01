@@ -14,9 +14,11 @@ namespace EasyPaperWork.ViewModel;
 
 public  class Main_ViewModel_Files: INotifyPropertyChanged
 {
-
+    public ObservableCollection<Folder_Files> FolderCollection { get; set; }
     public ObservableCollection<Documents> DocumentCollection { get; set; }
+    private FirebaseService _firebaseService;
     private string _LabelTituloRepositorio;
+
     public string LabelTituloRepositorio { get { return _LabelTituloRepositorio; }
         set
         {
@@ -24,8 +26,27 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-  
-    private FirebaseService _firebaseService;
+    private string _LabelNomeDocumento;
+    public string LabelNomeDocumento
+    {
+        get { return _LabelNomeDocumento; }
+        set
+        {
+            _LabelNomeDocumento = value;
+            OnPropertyChanged();
+        }
+    }
+    private string _ImageDocumento;
+    public string ImageDocumento
+    {
+        get { return _ImageDocumento; }
+        set
+        {
+            _ImageDocumento = value;
+            OnPropertyChanged();
+        }
+    }
+ 
     public UserModel _userModel;
     public UserModel userModel {
         get { return _userModel; }
@@ -33,9 +54,17 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
+    public Documents _Document;
+    public Documents Document
+    {
+        get { return _Document; }
+        set
+        {
+            _Document = value;
+            OnPropertyChanged();
+        }
+    }
 
-
-    public ObservableCollection<Folder_Files> FolderCollection { get; set; }
     private string UidUser;
     public string _UidUser
     {
@@ -46,29 +75,25 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             
         }
     }
-
-
-    public Label Label { get; set; }
- 
-    
-
     public  Main_ViewModel_Files()
     {
         _firebaseService = new FirebaseService();
         atulizarPage();
         userModel = new UserModel();
-         
-        
+        Document = new Documents { Name = "Documento 1", DocumentType = "pdf" };
+        _LabelNomeDocumento = Document.Name;
+        _ImageDocumento = Document.Image;
+
+
         FolderCollection = new ObservableCollection<Folder_Files>
             {
                 new Folder_Files { Name = "Pasta 1" }
             };
         DocumentCollection = new ObservableCollection<Documents>
-            {
-                new Documents { Name = "Documento 1", DocumentType = ".pdf" },
-                new Documents { Name = "Documento 2", DocumentType = ".pdf" },
-                new Documents { Name = "Documento 3", DocumentType = ".pdf" },
-            };
+        {
+            new Documents{Name="Documento 2",DocumentType="docx"}
+        };
+        DocumentCollection.Add(Document);
         Debug.WriteLine(UidUser);
         //_firebaseService.BuscarDocumentoByIdAsync("Users", UidUser.ToString());
 
@@ -88,15 +113,11 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             if(userModel.AccountType== "PersonalAccount")
             {
                 LabelTituloRepositorio= "Seu repositório pessual ";
-                List<Documents> list = await _firebaseService.ListarDocumentosNaMainPageFilesAsync("Users", UidUser, "Documents");
+              /*  List<Documents> list = await _firebaseService.ListarDocumentosNaMainPageFilesAsync("Users", UidUser,"Documents");
                 Debug.WriteLine(list);
                 foreach (Documents doc in list) { 
-                DocumentCollection.Add(doc);
-                }
-               
-               
-            }
-            else if(userModel.AccountType == "EnterpriseAccount")
+                DocumentCollection.Add(doc);*/
+            }else if(userModel.AccountType == "EnterpriseAccount")
             {
                 LabelTituloRepositorio = "Repositório empresarial";
             }
