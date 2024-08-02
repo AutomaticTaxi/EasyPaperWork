@@ -3,6 +3,7 @@ using Firebase.Auth;
 using Firebase.Auth.Providers;
 using Firebase.Auth.Repository;
 using Firebase.Storage;
+using FirebaseAdmin.Auth;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,38 +16,50 @@ namespace EasyPaperWork.Services
     public class FireBaseStorageService
     {
         private readonly FirebaseStorage _firebaseStorage;
-        private readonly FirebaseAuthProvider _authProvider;
-        public FireBaseStorageService()
+        private readonly FirebaseAuthClient _firebaseAuthClient;
+        private FirebaseAuthProvider _firebaseAuthProvider;
+        
+        public FireBaseStorageService(string apiKey)
         {
-           
-                _authProvider = new FirebaseAuthProvider(new FirebaseAuthConfig()
-                {
-                  
-                   
-                });
-             
+            
+            _firebaseStorage = new FirebaseStorage( "easypaperwork-firebase");
 
+            var config= new FirebaseAuthConfig
+            {
+                ApiKey = "AIzaSyCIHw3fP1XoNiuIZK6eNs0LIwi1SDDAyao",
+                AuthDomain = "easypaperwork-firebase.firebaseapp.com",
+                Providers = new Firebase.Auth.Providers.FirebaseAuthProvider[]
+                      {
+                    new EmailProvider()
+                      },
+                UserRepository = new FileUserRepository("Users")
+            };
+            try
+            {
+                _firebaseAuthClient = new FirebaseAuthClient(config);
            
-            _firebaseStorage = new FirebaseStorage("gs://easypaperwork-firebase.appspot.com");
+            }
+            catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
+
+
         }
-        public async Task<string> UploadFileAsync( Stream fileStream, string fileName)
+        public async Task<string> UploadFileAsync(Stream fileStream, string fileName)
         {
             try
             {
                 // Autenticar o usuário
-                var auth = _authProvider.SignInWithEmailAndPasswordAsync(AppData.UserEmail.ToString, AppData.UserPassword.ToString);
+                var auth = await _firebaseAuthClient.SignInWithEmailAndPasswordAsync(AppData.UserEmail, AppData.UserPassword);
                 var options = new FirebaseStorageOptions
                 {
-                    AuthTokenAsyncFactory = () => Task.FromResult(auth.FirebaseToken),
+                    AuthTokenAsyncFactory = () => Task.FromResult(auth.User.Credential.IdToken),
                     ThrowOnCancel = true
                 };
 
-
                 // Upload do arquivo
                 var task = _firebaseStorage
-                    .Child("uploads")
+                    
                     .Child(fileName)
-                    .PutAsync(fileStream, options);
+                    .PutAsync(fileStream);
 
                 // Monitorar progresso
                 task.Progress.ProgressChanged += (s, e) => Console.WriteLine($"Progresso: {e.Percentage} %");

@@ -92,7 +92,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         
         Debug.WriteLine(UidUser);
         //_firebaseService.BuscarDocumentoByIdAsync("Users", UidUser.ToString());
-        Initialize();
+        
     }
 
     public async void Initialize()
@@ -102,7 +102,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
        
             Debug.WriteLine("banco on");
 
-
+            
             userModel = await _firebaseService.BuscarUserModelAsync("Users", UidUser);
             AppData.UserAccoutType = userModel.AccountType;
             AppData.UserName = userModel.Name;

@@ -1,5 +1,6 @@
 ﻿using EasyPaperWork.Models;
 using EasyPaperWork.Services;
+using Microsoft.Maui.Storage;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,6 +19,7 @@ namespace EasyPaperWork.ViewModel
         private Main_ViewModel_Files main_ViewModel_Files;
         private Documents documentsModel;
         private FirebaseService firebaseService;
+        private FireBaseStorageService firebaseStorageService;
         private SharedViewModel sharedViewModel;
         public ICommand PickFileCommand { get; }
         private string _selectedFileName;
@@ -49,6 +51,7 @@ namespace EasyPaperWork.ViewModel
             documentsModel = new Documents();
             firebaseService = new FirebaseService();
             PickFileCommand = new Command(async () => await PickAndShowFileAsync());
+            firebaseStorageService=new FireBaseStorageService(apiKey: AppData.UserUid);
 
         }
         private async Task PickAndShowFileAsync()
@@ -75,12 +78,16 @@ namespace EasyPaperWork.ViewModel
                 var result = await FilePicker.Default.PickAsync(options);
                 if (result != null)
                 {
+                    var stream = await result.OpenReadAsync();
                     SelectedFileName = result.FileName;
                     documentsModel.Name = result.FileName;
                     documentsModel.DocumentType = result.ContentType;
                     Debug.WriteLine(result.ContentType);
                     await firebaseService.AdicionarDocumentoNaMainPageFiles("Users", _UidUser, "Documents", documentsModel.Name, documentsModel);
                     await Shell.Current.DisplayAlert("Resultado", "Documento enviado com sucesso", "Ok");
+                    
+                    await firebaseStorageService.UploadFileAsync(stream, result.FileName);
+                    
                     
                     // Você pode adicionar lógica adicional para processar o arquivo, se necessário
                 }

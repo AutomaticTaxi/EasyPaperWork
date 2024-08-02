@@ -16,7 +16,7 @@ public partial class Main_Page_Files : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        viewModel.Initialize();
+        //viewModel.Initialize();
 
 
     }
