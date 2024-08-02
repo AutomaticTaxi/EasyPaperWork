@@ -194,12 +194,13 @@ namespace EasyPaperWork.Services
             catch (ArgumentException ex)
             {
                 Debug.WriteLine($"ArgumentException: {ex.Message}");
-                throw;
+                return new List<Documents>();
+
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Exception: {ex.Message}");
-                throw;
+                return new List<Documents>();
             }
         }
         public async Task AdicionarDocumentoNaMainPageFiles<T>(string ColecaoUser, string IdUser, string ColecaoDocument, string IdDocument, T objetoDocumento)

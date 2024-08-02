@@ -10,7 +10,6 @@ using System.Web;
 using System.Windows.Input;
 
 namespace EasyPaperWork.ViewModel;
-[QueryProperty(nameof(_UidUser),"text")]
 
 public  class Main_ViewModel_Files: INotifyPropertyChanged
 {
@@ -70,17 +69,14 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     {
         get { return UidUser; } 
         set { 
-            UidUser = HttpUtility.UrlDecode( value);
-            OnPropertyChanged();
-            atulizarPage();
-           
-            
+            UidUser = value;
+            OnPropertyChanged(nameof(_UidUser));
         }
     }
     public  Main_ViewModel_Files()
     {
+        UidUser = AppData.UserUid;
         _firebaseService = new FirebaseService();
-        atulizarPage();
         userModel = new UserModel();
         Document = new Documents();
         _LabelNomeDocumento = Document.Name;
@@ -93,18 +89,23 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             };
         DocumentCollection = new ObservableCollection<Documents>();
         DocumentCollection.Add(Document);
+        
         Debug.WriteLine(UidUser);
         //_firebaseService.BuscarDocumentoByIdAsync("Users", UidUser.ToString());
-
+        Initialize();
     }
 
     public async void Initialize()
     {
-        if (!string.IsNullOrEmpty(_UidUser))
+        if (!string.IsNullOrEmpty(UidUser))
         {
        
             Debug.WriteLine("banco on");
+
+
             userModel = await _firebaseService.BuscarUserModelAsync("Users", UidUser);
+            AppData.UserAccoutType = userModel.AccountType;
+            AppData.UserName = userModel.Name;
             Debug.WriteLine($"{userModel.Id}");
             Debug.WriteLine($"{userModel.Name}");
             Debug.WriteLine($"{userModel.AccountType}");
@@ -114,8 +115,8 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             {
                 LabelTituloRepositorio = "Seu repositório pessual ";
                 DocumentCollection.Clear();
-                List<Documents> list = await _firebaseService.ListarDocumentosNaMainPageFilesAsync("Users", UidUser, "Documents");
-                Debug.WriteLine(list);
+                List<Documents> list = await _firebaseService.ListarDocumentosNaMainPageFilesAsync("Users",userModel.Id, "Documents");
+                Debug.WriteLine(list.ToString());
                 foreach (Documents doc in list) {
                     DocumentCollection.Add(doc); 
             }
@@ -133,29 +134,6 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         else { Debug.WriteLine("banco off"); }
         
 
-    }
-    public void atulizarPage()
-    {
-        if (UidUser != null)
-        {
-            Debug.WriteLine("Uid = " + UidUser);
-        }
-        else
-        {
-            Debug.WriteLine("Uid é null");
-        }
-    }
-
-    public string PassarUidContentPage()
-    {
-        if (UidUser != null)
-        {
-            Debug.WriteLine("Uid passado para content page");
-            return UidUser;
-           
-        }
-        return null;
-     
     }
     
     public event PropertyChangedEventHandler PropertyChanged;

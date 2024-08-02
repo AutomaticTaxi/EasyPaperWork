@@ -51,8 +51,12 @@ namespace EasyPaperWork.ViewModel
 
                 await Application.Current.MainPage.DisplayAlert("Success", "Logado com sucesso", "ok");
                 //var text= HttpUtility.UrlEncode(UserUid);
-               // var parametrs = new Dictionary<string, object> {{ "parameters","firebase" }, {"text",_fireBaseAuthServices} };
-               Shell.Current.GoToAsync($"//Main_Page_Files?text={UserUid}");
+                // var parametrs = new Dictionary<string, object> {{ "parameters","firebase" }, {"text",_fireBaseAuthServices} };
+                AppData.UserEmail = EntryEmail;
+                AppData.UserPassword = EntryPassword;
+                AppData.UserUid = UserUid;
+               // Shell.Current.GoToAsync($"//mainTabBar/Main_Page_Files?text={UserUid}");
+                Shell.Current.GoToAsync("//mainTabBar/Main_Page_Files");
             }
             else
             {

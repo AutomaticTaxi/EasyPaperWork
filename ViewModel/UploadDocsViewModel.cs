@@ -18,7 +18,7 @@ namespace EasyPaperWork.ViewModel
         private Main_ViewModel_Files main_ViewModel_Files;
         private Documents documentsModel;
         private FirebaseService firebaseService;
-        public ICommand DragStartingCommand { get; }
+        private SharedViewModel sharedViewModel;
         public ICommand PickFileCommand { get; }
         private string _selectedFileName;
         public string SelectedFileName
@@ -38,28 +38,18 @@ namespace EasyPaperWork.ViewModel
             {
                 UidUser = HttpUtility.UrlDecode(value);
                 OnPropertyChanged(nameof(_UidUser));
-                Initialize();
+               
             }
         }
 
         public UploadDocsViewModel()
         {
+            _UidUser =AppData.UserUid;
             Initialize();   
             documentsModel = new Documents();
             firebaseService = new FirebaseService();
-            DragStartingCommand = new Command(OnDragStarting);
             PickFileCommand = new Command(async () => await PickAndShowFileAsync());
 
-        }
-
-        private void OnDragStarting(object obj)
-        {
-            // Lógica para o início do arrastar
-        }
-
-        private void OnDropping(object obj)
-        {
-            // Lógica para o evento de soltar
         }
         private async Task PickAndShowFileAsync()
         {
@@ -88,7 +78,9 @@ namespace EasyPaperWork.ViewModel
                     SelectedFileName = result.FileName;
                     documentsModel.Name = result.FileName;
                     documentsModel.DocumentType = result.ContentType;
-                    //await firebaseService.AdicionarDocumentoNaMainPageFiles("Users", _UidUser, "Documents", documentsModel.Name, documentsModel);
+                    Debug.WriteLine(result.ContentType);
+                    await firebaseService.AdicionarDocumentoNaMainPageFiles("Users", _UidUser, "Documents", documentsModel.Name, documentsModel);
+                    await Shell.Current.DisplayAlert("Resultado", "Documento enviado com sucesso", "Ok");
                     
                     // Você pode adicionar lógica adicional para processar o arquivo, se necessário
                 }

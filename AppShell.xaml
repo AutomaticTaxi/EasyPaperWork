@@ -18,7 +18,7 @@
         Shell.BackgroundColor="LightGray"
         Shell.TabBarIsVisible="False"/>
 
-    <TabBar>
+    <TabBar  Route="mainTabBar">
       
         <ShellContent
             Title="Procurar"

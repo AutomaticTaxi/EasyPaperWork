@@ -82,6 +82,7 @@
 	<ItemGroup>
 		<PackageReference Include="FirebaseAdmin" Version="3.0.0" />
 		<PackageReference Include="FirebaseAuthentication.net" Version="4.1.0" />
+		<PackageReference Include="FirebaseStorage.net" Version="1.0.3" />
 		<PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
 		<PackageReference Include="Google.Cloud.Firestore" Version="3.8.0" />
 		<PackageReference Include="Moq" Version="4.20.70" />
@@ -117,11 +118,11 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <PackageReference Update="Microsoft.Maui.Controls" Version="8.0.70" />
+	  <PackageReference Update="Microsoft.Maui.Controls" Version="8.0.71" />
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <PackageReference Update="Microsoft.Maui.Controls.Compatibility" Version="8.0.70" />
+	  <PackageReference Update="Microsoft.Maui.Controls.Compatibility" Version="8.0.71" />
 	</ItemGroup>
 
 </Project>
