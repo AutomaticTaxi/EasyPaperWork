@@ -124,10 +124,7 @@ namespace EasyPaperWork.Services
 
         }
 
-        public void GetEmailuser()
-        {
-         
-                }
+
    
     }
 }

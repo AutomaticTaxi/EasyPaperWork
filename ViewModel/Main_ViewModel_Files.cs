@@ -23,7 +23,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         set
         {
             _LabelTituloRepositorio = value;
-            OnPropertyChanged();
+            OnPropertyChanged(nameof(LabelTituloRepositorio));
         }
     }
     private string _LabelNomeDocumento;
@@ -33,7 +33,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         set
         {
             _LabelNomeDocumento = value;
-            OnPropertyChanged();
+            OnPropertyChanged(nameof(LabelNomeDocumento));
         }
     }
     private string _ImageDocumento;
@@ -43,7 +43,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         set
         {
             _ImageDocumento = value;
-            OnPropertyChanged();
+            OnPropertyChanged(nameof(ImageDocumento));
         }
     }
  
@@ -51,7 +51,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     public UserModel userModel {
         get { return _userModel; }
         set { _userModel = value;
-            OnPropertyChanged();
+            OnPropertyChanged(nameof(userModel));
         }
     }
     public Documents _Document;
@@ -61,7 +61,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         set
         {
             _Document = value;
-            OnPropertyChanged();
+            OnPropertyChanged(nameof(Document));
         }
     }
 
@@ -72,6 +72,8 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         set { 
             UidUser = HttpUtility.UrlDecode( value);
             OnPropertyChanged();
+            atulizarPage();
+           
             
         }
     }
@@ -80,7 +82,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         _firebaseService = new FirebaseService();
         atulizarPage();
         userModel = new UserModel();
-        Document = new Documents { Name = "Documento 1", DocumentType = "pdf" };
+        Document = new Documents();
         _LabelNomeDocumento = Document.Name;
         _ImageDocumento = Document.Image;
 
@@ -89,10 +91,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             {
                 new Folder_Files { Name = "Pasta 1" }
             };
-        DocumentCollection = new ObservableCollection<Documents>
-        {
-            new Documents{Name="Documento 2",DocumentType="docx"}
-        };
+        DocumentCollection = new ObservableCollection<Documents>();
         DocumentCollection.Add(Document);
         Debug.WriteLine(UidUser);
         //_firebaseService.BuscarDocumentoByIdAsync("Users", UidUser.ToString());
@@ -103,6 +102,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     {
         if (!string.IsNullOrEmpty(_UidUser))
         {
+       
             Debug.WriteLine("banco on");
             userModel = await _firebaseService.BuscarUserModelAsync("Users", UidUser);
             Debug.WriteLine($"{userModel.Id}");
@@ -110,43 +110,56 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             Debug.WriteLine($"{userModel.AccountType}");
             Debug.WriteLine($"{userModel.Email}");
             Debug.WriteLine($"{userModel.Password}");
-            if(userModel.AccountType== "PersonalAccount")
+            if (userModel.AccountType == "PersonalAccount")
             {
-                LabelTituloRepositorio= "Seu repositório pessual ";
-              /*  List<Documents> list = await _firebaseService.ListarDocumentosNaMainPageFilesAsync("Users", UidUser,"Documents");
+                LabelTituloRepositorio = "Seu repositório pessual ";
+                DocumentCollection.Clear();
+                List<Documents> list = await _firebaseService.ListarDocumentosNaMainPageFilesAsync("Users", UidUser, "Documents");
                 Debug.WriteLine(list);
-                foreach (Documents doc in list) { 
-                DocumentCollection.Add(doc);*/
-            }else if(userModel.AccountType == "EnterpriseAccount")
-            {
-                LabelTituloRepositorio = "Repositório empresarial";
+                foreach (Documents doc in list) {
+                    DocumentCollection.Add(doc); 
             }
-            else
-            {
-                LabelTituloRepositorio = "Setor";
+            if (userModel.AccountType == "EnterpriseAccount")
+                {
+                    LabelTituloRepositorio = "Repositório empresarial";
+                }
+                else
+                {
+                    LabelTituloRepositorio = "Setor";
+                } 
             }
             
-
-
-
-
         }
         else { Debug.WriteLine("banco off"); }
+        
+
     }
-  
     public void atulizarPage()
     {
         if (UidUser != null)
         {
-            Debug.WriteLine("Uid = "+ UidUser);
+            Debug.WriteLine("Uid = " + UidUser);
         }
         else
         {
             Debug.WriteLine("Uid é null");
         }
     }
+
+    public string PassarUidContentPage()
+    {
+        if (UidUser != null)
+        {
+            Debug.WriteLine("Uid passado para content page");
+            return UidUser;
+           
+        }
+        return null;
+     
+    }
     
     public event PropertyChangedEventHandler PropertyChanged;
+
 
     protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {

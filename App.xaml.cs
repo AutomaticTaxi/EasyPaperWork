@@ -1,7 +1,9 @@
 ﻿using Microsoft.Maui.Controls;
 
+
 namespace EasyPaperWork
 {
+
     public partial class App : Application
     {
         public App()
@@ -10,6 +12,7 @@ namespace EasyPaperWork
 
             MainPage = new AppShell();
         }
+       
     }
 }
 
