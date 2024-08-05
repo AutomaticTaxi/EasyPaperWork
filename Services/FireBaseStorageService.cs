@@ -1,79 +1,46 @@
-﻿using EasyPaperWork.Models;
-using Firebase.Auth;
-using Firebase.Auth.Providers;
-using Firebase.Auth.Repository;
-using Firebase.Storage;
-using FirebaseAdmin.Auth;
+﻿using Firebase.Storage;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace EasyPaperWork.Services
+public class FirebaseStorageService
 {
-    public class FireBaseStorageService
+    private readonly string _storageBucket;
+  
+
+    public FirebaseStorageService(string storageBucket, string apiKey)
     {
-        private readonly FirebaseStorage _firebaseStorage;
-        private readonly FirebaseAuthClient _firebaseAuthClient;
-        private FirebaseAuthProvider _firebaseAuthProvider;
-        
-        public FireBaseStorageService(string apiKey)
+        _storageBucket = storageBucket;
+
+    }
+
+    public async Task<string> UploadFileAsync(string filePath, string email, string password)
+    {
+        var cts = new CancellationTokenSource();
+        var stream = File.Open(filePath, FileMode.Open);
+
+        // Authenticate user and get token
+
+
+        var storage = new FirebaseStorage(
+            _storageBucket,
+            new FirebaseStorageOptions
+            {
+
+                ThrowOnCancel = true // optional, default is false
+            });
+
+        try
         {
-            
-            _firebaseStorage = new FirebaseStorage( "easypaperwork-firebase");
-
-            var config= new FirebaseAuthConfig
-            {
-                ApiKey = "AIzaSyCIHw3fP1XoNiuIZK6eNs0LIwi1SDDAyao",
-                AuthDomain = "easypaperwork-firebase.firebaseapp.com",
-                Providers = new Firebase.Auth.Providers.FirebaseAuthProvider[]
-                      {
-                    new EmailProvider()
-                      },
-                UserRepository = new FileUserRepository("Users")
-            };
-            try
-            {
-                _firebaseAuthClient = new FirebaseAuthClient(config);
-           
-            }
-            catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
-
-
+            // Construct FirebaseStorage with path to where you want to upload the file and put it there
+            var storageRef = storage.Child("dumentTest").Child(Path.GetFileName(filePath));
+            var downloadUrl = await storageRef.PutAsync(stream, cts.Token);
+            return downloadUrl;
         }
-        public async Task<string> UploadFileAsync(Stream fileStream, string fileName)
+        catch (Exception ex)
         {
-            try
-            {
-                // Autenticar o usuário
-                var auth = await _firebaseAuthClient.SignInWithEmailAndPasswordAsync(AppData.UserEmail, AppData.UserPassword);
-                var options = new FirebaseStorageOptions
-                {
-                    AuthTokenAsyncFactory = () => Task.FromResult(auth.User.Credential.IdToken),
-                    ThrowOnCancel = true
-                };
-
-                // Upload do arquivo
-                var task = _firebaseStorage
-                    
-                    .Child(fileName)
-                    .PutAsync(fileStream);
-
-                // Monitorar progresso
-                task.Progress.ProgressChanged += (s, e) => Console.WriteLine($"Progresso: {e.Percentage} %");
-
-                // Esperar o upload terminar
-                var downloadUrl = await task;
-
-                return downloadUrl;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erro: {ex.Message}");
-                throw;
-            }
+            throw new Exception("Erro no upload: " + ex.Message);
         }
     }
 }

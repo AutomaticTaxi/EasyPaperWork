@@ -7,7 +7,7 @@ namespace EasyPaperWork.Views;
  public partial class Page_Document_Upload : ContentPage
 {
 	private UploadDocsViewModel viewModel1;
-    private SharedViewModel sharedViewModel2;
+
     private string UidUser;
   
     public Page_Document_Upload()

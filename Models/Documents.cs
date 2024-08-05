@@ -36,10 +36,10 @@ namespace EasyPaperWork.Models
                     case "application/pdf":
                         Image = "pdficon.png";
                         break;
-                    case "docx":
+                    case "application/msword":
                         Image = "wordfileicon.png";
                         break;
-                    case "xlsx":
+                    case "application/octet-stream":
                         Image = "excelicon.png";
                         break;
                     case "pptx":
