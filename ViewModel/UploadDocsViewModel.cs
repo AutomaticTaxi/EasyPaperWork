@@ -27,13 +27,7 @@ namespace EasyPaperWork.ViewModel
         
         private Documents documentsModel;
         public ICommand PickFileCommand { get; }
-        /// 
-        private FirebaseAuthClient _authClient;
-        private UserCredential userCredential;
-
-
-
-        /// 
+        private FirebaseStorageService storageService;
         private string _selectedFileName;
         public string SelectedFileName
         {
@@ -58,66 +52,35 @@ namespace EasyPaperWork.ViewModel
 
         public UploadDocsViewModel()
         {
+            storageService =  new FirebaseStorageService();
             _UidUser =AppData.UserUid;
             Initialize();   
             documentsModel = new Documents();
-            PickFileCommand = new Command(async () => await receber_arq());
-
-            //////////////
-            var config = new FirebaseAuthConfig
-            {
-                ApiKey = "AIzaSyCIHw3fP1XoNiuIZK6eNs0LIwi1SDDAyao",
-                AuthDomain = "easypaperwork-firebase.firebaseapp.com",
-                Providers = new Firebase.Auth.Providers.FirebaseAuthProvider[]
-                      {
-                    new EmailProvider()
-                      },
-                UserRepository = new FileUserRepository("Users")
-            };
-            try
-            {
-                _authClient = new FirebaseAuthClient(config);
-            }
-            catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
-            /////////////////
-
-        }
-        private async Task PickAndShowFileAsync()
-        {
+            PickFileCommand = new Command(async () => await PickAndShowFileAsync());
 
            
         }
-        public async Task<string>  receber_arq()
+        private async Task PickAndShowFileAsync()
         {
+            var fileResult = await FilePicker.Default.PickAsync(new PickOptions
+            {
+                PickerTitle = "Por favor selecione um arquivo",
+                FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+                {
+                    { DevicePlatform.WinUI, new[] { ".pdf", ".docx", ".doc", ".xls", ".xlsx", ".pptx" } },
+                    { DevicePlatform.Android, new[] { "application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/msword", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.openxmlformats-officedocument.presentationml.presentation" } },
+                    { DevicePlatform.iOS, new[] { "com.adobe.pdf", "org.openxmlformats.wordprocessingml.document", "com.microsoft.word.doc", "com.microsoft.excel.xls", "org.openxmlformats.spreadsheetml.sheet", "org.openxmlformats.presentationml.presentation" } }
+                })
+            });
 
-            // Get any Stream - it can be FileStream, MemoryStream or any other type of Stream
-            var stream = File.Open(@"C:\Users\lucas\Downloads\images.jpeg", FileMode.Open);
-
-            //authentication
-
-             userCredential = await _authClient.SignInWithEmailAndPasswordAsync(AppData.UserEmail, AppData.UserPassword);
-
-            // Constructr FirebaseStorage, path to where you want to upload the file and Put it there
-            var task = new FirebaseStorage(
-                "easypaperwork-firebase.appspot.com",
-            
-                 new FirebaseStorageOptions
-                 {
-                     AuthTokenAsyncFactory = () => Task.FromResult(userCredential.User.Credential.IdToken),
-                     ThrowOnCancel = true,
-                 })
-               
-                .Child("uploads")
-                .PutAsync(stream);
-
-            // Track progress of the upload
-            task.Progress.ProgressChanged += (s, e) => Console.WriteLine($"Progress: {e.Percentage} %");
-
-            // await the task to wait until upload completes and get the download url
-            var downloadUrl = await task;
-            return downloadUrl;
-
+            if (fileResult != null)
+            {
+                var stream = File.Open(fileResult.FullPath, FileMode.Open);
+                storageService.UploadFileAsync(stream,fileResult.FileName);
+            }
         }
+
+      
         public void Initialize()
         {
             if (!string.IsNullOrEmpty(_UidUser))
