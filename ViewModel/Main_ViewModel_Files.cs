@@ -132,10 +132,44 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             
         }
         else { Debug.WriteLine("banco off"); }
-        
-
     }
-    
+
+    public async void OnItemTapped(Documents item)
+    {
+        if (item == null)
+        {
+            Debug.WriteLine("Item is null");
+            return;
+        }
+
+        Debug.WriteLine($"Item selecionado: {item.Name}");
+
+        string action = await Application.Current.MainPage.DisplayActionSheet(
+            "Escolha uma ação", "Cancelar", null, "Download", "Visualizar");
+
+        switch (action)
+        {
+            case "Download":
+                await DownloadFile(item);
+                break;
+            case "Visualizar":
+                await VisualizarArquivo(item);
+                break;
+            default:
+                break;
+        }
+    }
+    private Task DownloadFile(Documents selectedItem)
+    {
+        Debug.WriteLine($"Downloading file {selectedItem.Name}");
+        return Task.CompletedTask;
+    }
+
+    private Task VisualizarArquivo(Documents selectedItem)
+    {
+        // Implementar a lógica para visualização
+        return Task.CompletedTask;
+    }
     public event PropertyChangedEventHandler PropertyChanged;
 
 

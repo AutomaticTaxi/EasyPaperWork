@@ -26,8 +26,10 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
         <VerticalStackLayout>
-       
-            <CollectionView ItemsSource="{Binding DocumentCollection}">
+
+                <CollectionView ItemsSource="{Binding DocumentCollection}"
+                SelectionMode="Single"
+                SelectionChanged="OnSelectionChanged">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                             <Grid Padding="10">

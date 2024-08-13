@@ -1,3 +1,4 @@
+using EasyPaperWork.Models;
 using EasyPaperWork.ViewModel;
 using System.Diagnostics;
 using System.Web;
@@ -36,6 +37,15 @@ public partial class Main_Page_Files : ContentPage
     {
         base.OnNavigatingFrom(args);
         viewModel.Initialize();
+    }
+    private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var selectedItem = e.CurrentSelection.FirstOrDefault() as Documents;
+        if (selectedItem != null)
+        {
+            // Chame o método para manipular a seleção
+            viewModel.OnItemTapped(selectedItem);
+        }
     }
 
 }
