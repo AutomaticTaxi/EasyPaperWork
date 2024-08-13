@@ -28,6 +28,7 @@ namespace EasyPaperWork.ViewModel
         private Documents documentsModel;
         public ICommand PickFileCommand { get; }
         private FirebaseStorageService storageService;
+        private FirebaseService firebaseService;
         private string _selectedFileName;
         public string SelectedFileName
         {
@@ -53,6 +54,7 @@ namespace EasyPaperWork.ViewModel
         public UploadDocsViewModel()
         {
             storageService =  new FirebaseStorageService();
+            firebaseService = new FirebaseService();
             _UidUser =AppData.UserUid;
             Initialize();   
             documentsModel = new Documents();
@@ -76,7 +78,12 @@ namespace EasyPaperWork.ViewModel
             if (fileResult != null)
             {
                 var stream = File.Open(fileResult.FullPath, FileMode.Open);
-                storageService.UploadFileAsync(stream,fileResult.FileName);
+                documentsModel.Name = fileResult.FileName;
+                documentsModel.DocumentType = fileResult.ContentType;
+                documentsModel.UrlDownload= await storageService.UploadFileAsync(stream, fileResult.FileName);
+                await firebaseService.AdicionarDocumentoNaMainPageFiles("Users",AppData.UserUid,"Documents",documentsModel.Name,documentsModel);
+
+
             }
         }
 

@@ -16,7 +16,20 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     public ObservableCollection<Folder_Files> FolderCollection { get; set; }
     public ObservableCollection<Documents> DocumentCollection { get; set; }
     private FirebaseService _firebaseService;
+    private FirebaseStorageService _firebaseStorageService;
     private string _LabelTituloRepositorio;
+    private IFileSavePickerService _fileSavePickerService;
+    private WindowsFileSavePickerService service;
+
+    public IFileSavePickerService FileSavePickerService
+    {
+        get => _fileSavePickerService;
+        set
+        {
+            _fileSavePickerService = value;
+            OnPropertyChanged(nameof(FileSavePickerService));
+        }
+    }
 
     public string LabelTituloRepositorio { get { return _LabelTituloRepositorio; }
         set
@@ -75,12 +88,17 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     }
     public  Main_ViewModel_Files()
     {
+        service = new WindowsFileSavePickerService();
+
         UidUser = AppData.UserUid;
         _firebaseService = new FirebaseService();
+        _firebaseStorageService = new FirebaseStorageService();
+
         userModel = new UserModel();
         Document = new Documents();
         _LabelNomeDocumento = Document.Name;
         _ImageDocumento = Document.Image;
+        
 
 
         FolderCollection = new ObservableCollection<Folder_Files>
@@ -159,10 +177,18 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                 break;
         }
     }
-    private Task DownloadFile(Documents selectedItem)
+    private async Task<string> DownloadFile(Documents selectedItem)
     {
         Debug.WriteLine($"Downloading file {selectedItem.Name}");
-        return Task.CompletedTask;
+        byte[] fileBytes = await _firebaseStorageService.DownloadFileByNameAsync(selectedItem.Name); // Sua lógica para obter os bytes do arquivo
+        string path = await service.SaveFileAsync(fileBytes, selectedItem.Name, ".docx");
+
+        if (path != null)
+        {
+            // Arquivo salvo com sucesso
+            Console.WriteLine($"Arquivo salvo em: {path}");
+        }
+        return "ddhfgdhfg";
     }
 
     private Task VisualizarArquivo(Documents selectedItem)

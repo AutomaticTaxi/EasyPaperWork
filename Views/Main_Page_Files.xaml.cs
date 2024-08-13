@@ -3,6 +3,7 @@ using EasyPaperWork.ViewModel;
 using System.Diagnostics;
 using System.Web;
 
+
 namespace EasyPaperWork.Views;
 
 public partial class Main_Page_Files : ContentPage
@@ -12,6 +13,8 @@ public partial class Main_Page_Files : ContentPage
     {
        
             InitializeComponent();
+
+
         BindingContext = viewModel = new Main_ViewModel_Files();
     }
     protected override void OnAppearing()

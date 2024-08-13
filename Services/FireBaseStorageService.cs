@@ -1,4 +1,5 @@
-﻿using EasyPaperWork.Models;
+﻿
+using EasyPaperWork.Models;
 using Firebase.Auth;
 using Firebase.Auth.Providers;
 using Firebase.Auth.Repository;
@@ -15,9 +16,10 @@ public class FirebaseStorageService
 
     private FirebaseAuthClient _authClient;
     private UserCredential userCredential;
+    private readonly HttpClient _httpClient;
     public FirebaseStorageService()
     {
-      
+        _httpClient = new HttpClient();
         var config = new FirebaseAuthConfig
         {
             ApiKey = "AIzaSyCIHw3fP1XoNiuIZK6eNs0LIwi1SDDAyao",
@@ -36,9 +38,9 @@ public class FirebaseStorageService
 
     }
 
-    public async Task<string> UploadFileAsync(FileStream stream,string fileName)
+    public async Task<string> UploadFileAsync(FileStream stream, string fileName)
     {
-       
+
 
         userCredential = await _authClient.SignInWithEmailAndPasswordAsync(AppData.UserEmail, AppData.UserPassword);
 
@@ -63,5 +65,56 @@ public class FirebaseStorageService
         var downloadUrl = await task;
         return downloadUrl;
 
+    }
+
+    public async Task<byte[]> DownloadFileByNameAsync( string fileName)
+    {
+        try
+        {
+          
+            userCredential = await _authClient.SignInWithEmailAndPasswordAsync(AppData.UserEmail, AppData.UserPassword);
+
+            var task = new FirebaseStorage(
+            "easypaperwork-firebase.appspot.com",
+
+             new FirebaseStorageOptions
+             {
+                 AuthTokenAsyncFactory = () => Task.FromResult(userCredential.User.Credential.IdToken),
+                 ThrowOnCancel = true,
+             })
+
+              .Child("uploads")
+            .Child(fileName);
+
+
+
+            // Faz o download do arquivo e o converte para um array de bytes
+          var fileBytes = await DownloadFileByUrlAsync(await task.GetDownloadUrlAsync());
+
+
+                
+
+            return fileBytes;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao fazer download do arquivo: {ex.Message}");
+            throw;
+        }
+
+    }
+    public async Task<byte[]> DownloadFileByUrlAsync(string downloadUrl)
+    {
+        try
+        {
+            // Baixa o arquivo da URL fornecida
+            var fileBytes = await _httpClient.GetByteArrayAsync(downloadUrl);
+            return fileBytes;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao baixar o arquivo: {ex.Message}");
+            throw;
+        }
     }
 }

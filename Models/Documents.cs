@@ -60,6 +60,20 @@ namespace EasyPaperWork.Models
                 OnPropertyChanged(nameof(Image));
             }
         }
+
+        private string _UrlDownload;
+        public string UrlDownload
+        {
+            get
+            {
+                return _UrlDownload;
+            }
+            set
+            {
+                _UrlDownload = value;
+                OnPropertyChanged(nameof(UrlDownload));
+            }
+        }
         public Documents()
         {
             
