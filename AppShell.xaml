@@ -22,9 +22,9 @@
       
         <ShellContent
             Title="Procurar"
-            ContentTemplate="{DataTemplate pages:Page_Document_Upload}"
+            ContentTemplate="{DataTemplate pages:SearchPage}"
             Icon="searchicon.png"
-            Route="Page_Document_Upload"/>
+            Route="SearchPage"/>
         <ShellContent
             Title="Upload Documentos"
             ContentTemplate="{DataTemplate pages:Page_Document_Upload}"

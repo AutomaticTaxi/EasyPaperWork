@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EasyPaperWork.Views.SearchPage"
+             Title="SearchPage">
+    <VerticalStackLayout>
+        <Label 
+            Text="Insira O nome do Arquivo que deseja procurar!"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />
+        <Entry 
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Text="{Binding EntryArchiveName}"
+            />
+        <Button
+            Text="Procurar"
+            Command="{Binding BtSearch}"
+            />
+
+    </VerticalStackLayout>
+</ContentPage>
