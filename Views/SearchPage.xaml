@@ -11,12 +11,43 @@
         <Entry 
             VerticalOptions="Center"
             HorizontalOptions="Center"
-            Text="{Binding EntryArchiveName}"
+             WidthRequest="500"
+            
+            Text="{Binding  _EntryArchiveName}"
             />
         <Button
             Text="Procurar"
             Command="{Binding BtSearch}"
             />
+        <VerticalStackLayout>
+
+            <CollectionView ItemsSource="{Binding DocumentCollection}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Image Grid.RowSpan="2"
+                            Source="{Binding Image}"
+                            Aspect="AspectFill"
+                            HeightRequest="60"
+                            WidthRequest="60" />
+                            <Label Grid.Column="1"
+                            Text="{Binding Name}"
+                            FontAttributes="Bold" />
+
+                        </Grid>
+
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
 
     </VerticalStackLayout>
 </ContentPage>
