@@ -103,7 +103,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
 
         FolderCollection = new ObservableCollection<Folder_Files>
             {
-                new Folder_Files { Name = "Pasta 1" }
+                new Folder_Files { Name = "Adicione uma pasta " }
             };
         DocumentCollection = new ObservableCollection<Documents>();
         DocumentCollection.Add(Document);

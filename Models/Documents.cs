@@ -33,16 +33,16 @@ namespace EasyPaperWork.Models
                 _DocumentType = value;
                 switch (DocumentType)
                 {
-                    case "application/pdf":
+                    case ".pdf":
                         Image = "pdficon.png";
                         break;
-                    case "application/msword":
+                    case ".docx":
                         Image = "wordfileicon.png";
                         break;
-                    case "application/octet-stream":
+                    case ".xlsx":
                         Image = "excelicon.png";
                         break;
-                    case "pptx":
+                    case ".pptx":
                         Image = "powerpointicon.png";
                         break;
 

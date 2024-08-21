@@ -23,7 +23,7 @@ namespace EasyPaperWork.Services
         public FirebaseService()
         {
                 //Credecial colocada direto no códico F segurança 
-            string pathToCredentials = "C:\\Users\\lucas\\source\\repos\\AutomaticTaxi\\easypaperwork-firebase-firebase-adminsdk-4asf7-dc3b16ccbd.json"; 
+            string pathToCredentials = "C:\\Users\\lucas\\source\\repos\\EasyPaperWork\\easypaperwork-firebase-firebase-adminsdk-4asf7-dc3b16ccbd.json"; 
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", pathToCredentials);
             _firestoreDb = FirestoreDb.Create("easypaperwork-firebase"); // Substitua pelo ID do seu projeto Firebase
         }

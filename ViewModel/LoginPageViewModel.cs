@@ -29,7 +29,7 @@ namespace EasyPaperWork.ViewModel
         public LoginPageViewModel()
         {
             LoginCommand = new Command(Login);
-          
+         
 
             _fireBaseAuthServices = new FirebaseAuthServices();
           

@@ -79,7 +79,20 @@ namespace EasyPaperWork.ViewModel
             {
                 var stream = File.Open(fileResult.FullPath, FileMode.Open);
                 documentsModel.Name = fileResult.FileName;
-                documentsModel.DocumentType = fileResult.ContentType;
+                if (fileResult.FileName.Contains(".docx")|| fileResult.FileName.Contains(".doc"))
+                {
+                    documentsModel.DocumentType = ".docx";
+                }if (fileResult.FileName.Contains(".pdf"))
+                {
+                    documentsModel.DocumentType = ".pdf";
+                }
+                if (fileResult.FileName.Contains(".xls") || fileResult.FileName.Contains(".xlsx")){
+                    documentsModel.DocumentType = ".xlsx";
+                }
+                if (fileResult.FileName.Contains(".pptx")){
+                    documentsModel.DocumentType = ".pptx";
+                }
+                
                 documentsModel.UrlDownload= await storageService.UploadFileAsync(stream, fileResult.FileName);
                 await firebaseService.AdicionarDocumentoNaMainPageFiles("Users",AppData.UserUid,"Documents",documentsModel.Name,documentsModel);
 
