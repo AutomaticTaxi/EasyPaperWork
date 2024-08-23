@@ -3,6 +3,7 @@ using Firebase.Auth.Providers;
 using Firebase.Auth.Repository;
 using Firebase.Auth.Requests;
 using FirebaseAdmin.Auth;
+using Microsoft.Maui.Graphics.Text;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -92,9 +93,9 @@ namespace EasyPaperWork.Services
               
 
                 }
-                catch (Firebase.Auth.FirebaseAuthException ex)
+            catch (FirebaseAuth.FirebaseAuthException ex)
                 {
-                    Debug.WriteLine("Falha ao logar", ex.ToString);
+                    Debug.WriteLine("Falha ao logar", ex.Message);
                     return "error";
 
                 }
@@ -109,9 +110,19 @@ namespace EasyPaperWork.Services
                 return "UserCreated";
             }
             catch (Firebase.Auth.FirebaseAuthException ex)
-            {
-                return ex.ToString();
-                Debug.WriteLine(ex.ToString);
+           {
+                if (ex.Reason == Firebase.Auth.AuthErrorReason.EmailExists)
+                {
+                    Debug.WriteLine("O email já está em uso.");
+
+                if (ex.Reason == Firebase.Auth.AuthErrorReason.InvalidEmailAddress)
+                {
+                    Debug.WriteLine("O email é inválido.");
+                }
+
+
+                return "";
+              
             }
         }
        

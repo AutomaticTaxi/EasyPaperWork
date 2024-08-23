@@ -129,8 +129,11 @@ namespace EasyPaperWork.ViewModel
                 await Application.Current.MainPage.DisplayAlert("Erro", "Nome necessário para registro", "ok");
             }
             if (!string.IsNullOrEmpty(EntryEmail)) { User.Email = EntryEmail; }
+            else { await Application.Current.MainPage.DisplayAlert("Erro", "Email necessário para registro", "ok"); }
             if (EntryPassword1 == EntryPassword2) { User.Password = EntryPassword1; }
+            else { await Application.Current.MainPage.DisplayAlert("Erro", "As senhas são diferentes", "ok"); }
             if (AccountType != null) { User.AccountType = AccountType; }
+            else { await Application.Current.MainPage.DisplayAlert("Erro", "É necessário selecionar um tipo de conta para registro", "ok"); }
             // User.DateUserCreated = DateTimeOffset.UtcNow;
            
             string result = await _FirebaseAuthServices.RegiterUser(User.Email, User.Password, User.Name);

@@ -20,9 +20,9 @@
         <Label Text="Email" FontSize="Subtitle"  Margin="0,20,0,0"  HorizontalOptions="Start"/>
         <Entry Placeholder="name@example.com" Margin="0,20,0,0" Text="{Binding EntryEmail}"/>
         <Label Text="Senha" FontSize="Subtitle"  Margin="0,20,0,0"  HorizontalOptions="Start"/>
-        <Entry Placeholder="........." Margin="0,20,0,0" Text="{Binding EntryPassword1}"/>
+        <Entry Placeholder="........." Margin="0,20,0,0" IsPassword="True" Text="{Binding EntryPassword1}"/>
         <Label Text="Confirme sua senha" FontSize="Subtitle"  Margin="0,20,0,0" HorizontalOptions="Start"/>
-        <Entry Placeholder="........." Margin="0,20,0,0" Text="{Binding EntryPassword2}"/>
+        <Entry Placeholder="........." Margin="0,20,0,0" IsPassword="True" Text="{Binding EntryPassword2}"/>
         <Label Text="Tipo de conta"  FontSize="Subtitle" HorizontalOptions="Center"/>
         <VerticalStackLayout>
             <StackLayout Orientation="Horizontal">
