@@ -54,7 +54,7 @@ public class FirebaseStorageService
                  ThrowOnCancel = true,
              })
 
-              .Child("uploads")
+              .Child(AppData.UserUid)
                 .Child(fileName)
                 .PutAsync(stream);
 

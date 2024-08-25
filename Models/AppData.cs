@@ -18,5 +18,7 @@ namespace EasyPaperWork.Models
         public static string UserAccoutType { get { return _UserAccoutType; } set { _UserAccoutType = value; } }
         private static string _UserName;
         public static string UserName { get { return _UserName; } set { _UserName = value; } }
+        public static string CurrentFolder { get { return _UserName; } set { _UserName = value; } }
     }
+   
 }

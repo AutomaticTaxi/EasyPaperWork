@@ -33,13 +33,13 @@ public partial class Main_Page_Files : ContentPage
     protected override void OnNavigatedTo(NavigatedToEventArgs args)
     {
         base.OnNavigatedTo(args);
-        viewModel.Initialize();
+        viewModel.list_files();
 
     }
     protected override void OnNavigatingFrom(NavigatingFromEventArgs args)
     {
         base.OnNavigatingFrom(args);
-        viewModel.Initialize();
+        
     }
     private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {

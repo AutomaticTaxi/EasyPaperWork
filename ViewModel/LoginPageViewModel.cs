@@ -29,7 +29,8 @@ namespace EasyPaperWork.ViewModel
         public LoginPageViewModel()
         {
             LoginCommand = new Command(Login);
-         
+            EntryEmail = "automatictaxi2@gmail.com";
+            EntryPassword = "Abajur.857";
 
             _fireBaseAuthServices = new FirebaseAuthServices();
           
@@ -45,22 +46,36 @@ namespace EasyPaperWork.ViewModel
 
             // Exemplo básico de navegação para uma nova página
             string UserUid = await _fireBaseAuthServices.GetUidToken(EntryEmail, EntryPassword);
-            if (UserUid != "error")
+            switch (UserUid)
             {
-
-                await Application.Current.MainPage.DisplayAlert("Success", "Logado com sucesso", "ok");
-                //var text= HttpUtility.UrlEncode(UserUid);
-                // var parametrs = new Dictionary<string, object> {{ "parameters","firebase" }, {"text",_fireBaseAuthServices} };
-                AppData.UserEmail = EntryEmail;
-                AppData.UserPassword = EntryPassword;
-                AppData.UserUid = UserUid;
-               // Shell.Current.GoToAsync($"//mainTabBar/Main_Page_Files?text={UserUid}");
-                Shell.Current.GoToAsync("//mainTabBar/Main_Page_Files");
+                case "UnknownEmailAddress":
+                    await Application.Current.MainPage.DisplayAlert("Erro", "O não está vinculado a nenhuma conta", "ok");
+                    break;
+                case "InvalidEmailAddress":
+                    await Application.Current.MainPage.DisplayAlert("Erro", "O email é inválido", "ok");
+                    break;
+                case "MissingEmail":
+                    await Application.Current.MainPage.DisplayAlert("Erro", "O Email não foi digitado", "ok");
+                    break;
+                case "MissingPassword":
+                    await Application.Current.MainPage.DisplayAlert("Erro", "A senha não foi digitado", "ok");
+                    break;
+                case "WrongPassword":
+                    await Application.Current.MainPage.DisplayAlert("Erro", "A senha está incorreta", "ok");
+                    break;
+                case "error":
+                    await Application.Current.MainPage.DisplayAlert("Erro", "Um erro inesperado aconteceu, tente novamente ", "ok");
+                    break;
+                default:
+                    await Application.Current.MainPage.DisplayAlert("Sucesso", "Logado com sucesso", "ok");
+                    AppData.UserEmail = EntryEmail;
+                    AppData.UserPassword = EntryPassword;
+                    AppData.UserUid = UserUid;
+                    
+                    Shell.Current.GoToAsync("//mainTabBar/Main_Page_Files");
+                    break;
             }
-            else
-            {
-                await Application.Current.MainPage.DisplayAlert("Eror", "Falha ao logar verifique seu email e senha ", "ok");
-            }
+         
            
         }
         public event PropertyChangedEventHandler PropertyChanged;

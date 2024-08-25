@@ -15,7 +15,7 @@
             
    
         <Label Text="Cadastre-se" FontSize="Subtitle" HorizontalOptions="Center" />
-        <Label Text="Nome" FontSize="Subtitle"  Margin="0,20,0,0"  HorizontalOptions="Start"/>
+        <Label Text="Nome" FontSize="Subtitle"  Margin="0,20,0,0"  HorizontalOptions="Start" />
         <Entry Placeholder="Digite seu nome" Margin="0,20,0,0" Text="{Binding EntryName}"/>
         <Label Text="Email" FontSize="Subtitle"  Margin="0,20,0,0"  HorizontalOptions="Start"/>
         <Entry Placeholder="name@example.com" Margin="0,20,0,0" Text="{Binding EntryEmail}"/>

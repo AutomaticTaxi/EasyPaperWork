@@ -137,13 +137,38 @@ namespace EasyPaperWork.ViewModel
             // User.DateUserCreated = DateTimeOffset.UtcNow;
            
             string result = await _FirebaseAuthServices.RegiterUser(User.Email, User.Password, User.Name);
+            switch (result)
+            {
+                case "EmailExists":
+                    await Application.Current.MainPage.DisplayAlert("Erro", "Este Email já está cadastrado", "ok");
+                    break;
+                case "InvalidEmailAddress":
+                    await Application.Current.MainPage.DisplayAlert("Erro", "Este Email é inválido", "ok");
+                    break;
+                case "WeakPassword":
+                    await Application.Current.MainPage.DisplayAlert("Erro", "A senha deve ter mais de 6 caracteres", "ok");
+                    break;
+                case "MissingEmail":
+                    await Application.Current.MainPage.DisplayAlert("Erro", "O Email não foi encontrado", "ok");
+                    break;
+                case "MissingPassword":
+                    await Application.Current.MainPage.DisplayAlert("Erro", "A senha não foi encontrada", "ok");
+                    break;
+                case "error":
+                    await Application.Current.MainPage.DisplayAlert("Erro", "Um erro inesperado aconteceu, tente novamente ", "ok");
+                    break;
+                default:
+                    await Application.Current.MainPage.DisplayAlert("Sucesso", "Você foi cadastrado corretamente", "ok");
+                    break;
+            }
             if ( result == "UserCreated") {
                 string id = await _FirebaseAuthServices.GetUidToken(EntryEmail, EntryPassword1);
 
                 User.Id = id;
                 await FirebaseService.AdicionarObjetoAsync("Users",User.Id, User);
                 result = " ";
-                
+                Shell.Current.GoToAsync("//Page_Login");
+
             }
 
 

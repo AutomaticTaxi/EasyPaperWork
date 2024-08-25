@@ -48,7 +48,7 @@ namespace EasyPaperWork.Services
             }catch(Exception ex) {Debug.WriteLine(ex.ToString());}
            
         }
-        public async Task<bool> SignInButton_Click(string email, string password)
+        public async Task<string> SignInButton_Click(string email, string password)
         {
             try
             {
@@ -62,15 +62,34 @@ namespace EasyPaperWork.Services
                 _UserTokenID = idToken;
                 Debug.WriteLine("ID Token: " + idToken.ToString());
                 Debug.WriteLine("Logado com sucesso");
-                return true;
+                return "success";
 
                 
 
             }
             catch (Firebase.Auth.FirebaseAuthException ex)
             {
-                Debug.WriteLine("Falha ao logar", ex.ToString);
-                return false;
+                if (ex.Reason == Firebase.Auth.AuthErrorReason.InvalidEmailAddress)
+                {
+                    Debug.WriteLine("EmailExists");
+                    return "EmailExists";
+                }
+                if (ex.Reason == Firebase.Auth.AuthErrorReason.MissingEmail)
+                {
+                    Debug.WriteLine("MissingEmail");
+                    return "MissingEmail";
+                }
+                if (ex.Reason == Firebase.Auth.AuthErrorReason.MissingPassword)
+                {
+                    Debug.WriteLine("MissingPassword");
+                    return "MissingPassword";
+                }
+                if (ex.Reason == Firebase.Auth.AuthErrorReason.WrongPassword)
+                {
+                    Debug.WriteLine("WrongPassword");
+                    return "WrongPassword";
+                }
+                return "error";
 
             }
         }
@@ -93,36 +112,77 @@ namespace EasyPaperWork.Services
               
 
                 }
-            catch (FirebaseAuth.FirebaseAuthException ex)
+            catch (Firebase.Auth.FirebaseAuthException ex)
+            {
+                if (ex.Reason == Firebase.Auth.AuthErrorReason.InvalidEmailAddress)
                 {
-                    Debug.WriteLine("Falha ao logar", ex.Message);
-                    return "error";
-
+                    Debug.WriteLine("InvalidEmailAddress");
+                    return "InvalidEmailAddress";
                 }
-            }
+                if (ex.Reason == Firebase.Auth.AuthErrorReason.UnknownEmailAddress)
+                {
+                    Debug.WriteLine("UnknownEmailAddress");
+                    return "UnknownEmailAddress";
+                }
+                if (ex.Reason == Firebase.Auth.AuthErrorReason.MissingEmail)
+                {
+                    Debug.WriteLine("MissingEmail");
+                    return "MissingEmail";
+                }
+                if (ex.Reason == Firebase.Auth.AuthErrorReason.MissingPassword)
+                {
+                    Debug.WriteLine("MissingPassword");
+                    return "MissingPassword";
+                }
+                if (ex.Reason == Firebase.Auth.AuthErrorReason.WrongPassword)
+                {
+                    Debug.WriteLine("WrongPassword");
+                    return "WrongPassword";
+                }
+                return "error";
 
-        public async Task<string> RegiterUser(string email,string password,string name)
+            }
+        }
+
+        public async Task<string> RegiterUser(string email, string password, string name)
         {
             try
             {
                 await _authClient.CreateUserWithEmailAndPasswordAsync(email, password, name);
-                
+
                 return "UserCreated";
             }
             catch (Firebase.Auth.FirebaseAuthException ex)
            {
+
                 if (ex.Reason == Firebase.Auth.AuthErrorReason.EmailExists)
                 {
-                    Debug.WriteLine("O email já está em uso.");
-
+                    Debug.WriteLine("EmailExists");
+                    return "EmailExists";
+                }
                 if (ex.Reason == Firebase.Auth.AuthErrorReason.InvalidEmailAddress)
                 {
-                    Debug.WriteLine("O email é inválido.");
+                    Debug.WriteLine("InvalidEmailAddress");
+                    return "InvalidEmailAddress";
                 }
-
-
-                return "";
+                if (ex.Reason == Firebase.Auth.AuthErrorReason.WeakPassword)
+                {
+                    Debug.WriteLine("WeakPassword");
+                    return "WeakPassword";
+                }
+                if (ex.Reason == Firebase.Auth.AuthErrorReason.MissingEmail)
+                {
+                    Debug.WriteLine("MissingEmail");
+                    return "MissingEmail";
+                }
+                if (ex.Reason == Firebase.Auth.AuthErrorReason.MissingPassword)
+                {
+                    Debug.WriteLine("MissingPassword");
+                    return "MissingPassword";
+                }
               
+
+                return "error";
             }
         }
        

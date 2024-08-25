@@ -128,6 +128,7 @@ namespace EasyPaperWork.Services
             }
             catch (Exception ex)
             {
+                Debug.WriteLine("Documento não encontrado.");
                 Debug.WriteLine($"Exception: {ex.Message}");
                 return null;
             }
@@ -160,36 +161,41 @@ namespace EasyPaperWork.Services
             }
             catch (Exception ex)
             {
+                Debug.WriteLine("Documento não encontrado.");
                 Debug.WriteLine($"Exception: {ex.Message}");
                 return null;
             }
         }
 
-        public async Task<List<Documents>> ListarDocumentosNaMainPageFilesAsync(string colecaoUser,string IdUser,string CollectionDocument)
+        public async Task<List<Documents>> ListFiles(string colecaoUser,string IdUser,string CurrentFolder)
         {
             try
             {
                 if (string.IsNullOrEmpty(colecaoUser))
                     throw new ArgumentException("A coleção não pode ser nula ou vazia.", nameof(colecaoUser));
 
-                CollectionReference collectionRef = _firestoreDb.Collection(colecaoUser).Document(IdUser).Collection(CollectionDocument);
+                CollectionReference collectionRef = _firestoreDb.Collection(colecaoUser).Document(IdUser).Collection(CurrentFolder);
                 QuerySnapshot snapshot = await collectionRef.GetSnapshotAsync();
 
-                List<Documents> documentosList = new List<Documents>();
+              
+                    List<Documents> documentosList = new List<Documents>();
 
-                foreach (DocumentSnapshot document in snapshot.Documents)
-                {
-                    var documents = new Documents()
+                    foreach (DocumentSnapshot document in snapshot.Documents)
                     {
-                        Name = document.ContainsField("Name") ? document.GetValue<string>("Name") : null,
-                        DocumentType = document.ContainsField("DocumentType") ? document.GetValue<string>("DocumentType") : null
-                        // Adicione outros campos conforme necessário
-                    };
+                        var documents = new Documents()
+                        {
+                            Name = document.ContainsField("Name") ? document.GetValue<string>("Name") : null,
+                            DocumentType = document.ContainsField("DocumentType") ? document.GetValue<string>("DocumentType") : null
 
-                    documentosList.Add(documents);
-                }
+                            // Adicione outros campos conforme necessário
+                        };
+                            documentosList.Add(documents);
+                        
 
-                return documentosList;
+                    }
+                    return documentosList;
+                
+               
             }
             catch (ArgumentException ex)
             {
@@ -203,11 +209,11 @@ namespace EasyPaperWork.Services
                 return new List<Documents>();
             }
         }
-        public async Task AdicionarDocumentoNaMainPageFiles<T>(string ColecaoUser, string IdUser, string ColecaoDocument, string IdDocument, T objetoDocumento)
+        public async Task AddFiles<T>(string ColecaoUser, string IdUser, string file_path, string IdDocument, T objFile)
         {
             try {
-                Dictionary<string, object> dados = ConvertToDictionary(objetoDocumento);
-                DocumentReference document = _firestoreDb.Collection(ColecaoUser).Document(IdUser).Collection(ColecaoDocument).Document(IdDocument);
+                Dictionary<string, object> dados = ConvertToDictionary(objFile);
+                DocumentReference document = _firestoreDb.Collection(ColecaoUser).Document(IdUser).Collection(file_path).Document(IdDocument);
                 await document.SetAsync(dados);
 
             } catch (ArgumentException ex) { Debug.WriteLine(ex.Message); }

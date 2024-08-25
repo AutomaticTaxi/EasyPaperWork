@@ -92,9 +92,16 @@ namespace EasyPaperWork.ViewModel
                 if (fileResult.FileName.Contains(".pptx")){
                     documentsModel.DocumentType = ".pptx";
                 }
-                
+                if (AppData.CurrentFolder != null)
+                {
+                    documentsModel.RootFolder = AppData.CurrentFolder;
+                }else if (AppData.CurrentFolder == null)
+                {
+                    documentsModel.RootFolder = "Main_Page_Files";   
+                }
+
                 documentsModel.UrlDownload= await storageService.UploadFileAsync(stream, fileResult.FileName);
-                await firebaseService.AdicionarDocumentoNaMainPageFiles("Users",AppData.UserUid,"Documents",documentsModel.Name,documentsModel);
+                await firebaseService.AddFiles("Users",AppData.UserUid,AppData.CurrentFolder,documentsModel.Name,documentsModel);
 
 
             }

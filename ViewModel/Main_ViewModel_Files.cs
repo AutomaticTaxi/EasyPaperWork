@@ -58,14 +58,9 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             OnPropertyChanged(nameof(ImageDocumento));
         }
     }
- 
-    public UserModel _userModel;
-    public UserModel userModel {
-        get { return _userModel; }
-        set { _userModel = value;
-            OnPropertyChanged(nameof(userModel));
-        }
-    }
+
+
+    private UserModel userModel { get; set; }
     public Documents _Document;
     public Documents Document
     {
@@ -91,6 +86,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         service = new WindowsFileSavePickerService();
 
         UidUser = AppData.UserUid;
+        AppData.CurrentFolder = "Main_Page_Files";
         _firebaseService = new FirebaseService();
         _firebaseStorageService = new FirebaseStorageService();
 
@@ -106,48 +102,34 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                 new Folder_Files { Name = "Adicione uma pasta " }
             };
         DocumentCollection = new ObservableCollection<Documents>();
-        DocumentCollection.Add(Document);
-        
-        Debug.WriteLine(UidUser);
-        //_firebaseService.BuscarDocumentoByIdAsync("Users", UidUser.ToString());
-        
+        list_files();
+
+
     }
 
-    public async void Initialize()
+ public async void list_files()
     {
         if (!string.IsNullOrEmpty(UidUser))
         {
-       
+
             Debug.WriteLine("banco on");
 
-            
+
             userModel = await _firebaseService.BuscarUserModelAsync("Users", UidUser);
-            AppData.UserAccoutType = userModel.AccountType;
-            AppData.UserName = userModel.Name;
-            Debug.WriteLine($"{userModel.Id}");
-            Debug.WriteLine($"{userModel.Name}");
-            Debug.WriteLine($"{userModel.AccountType}");
-            Debug.WriteLine($"{userModel.Email}");
-            Debug.WriteLine($"{userModel.Password}");
-            if (userModel.AccountType == "PersonalAccount")
+            Debug.WriteLine(userModel.Id);
+
+            DocumentCollection.Clear();
+            DocumentCollection.Add(new Documents { Name = "Adicone um documento" });
+            LabelTituloRepositorio = "Seu repositório pessual ";
+
+            List<Documents> list = await _firebaseService.ListFiles("Users", userModel.Id, AppData.CurrentFolder);
+            Debug.WriteLine(list.ToString());
+            foreach (Documents doc in list)
             {
-                LabelTituloRepositorio = "Seu repositório pessual ";
-                DocumentCollection.Clear();
-                List<Documents> list = await _firebaseService.ListarDocumentosNaMainPageFilesAsync("Users",userModel.Id, "Documents");
-                Debug.WriteLine(list.ToString());
-                foreach (Documents doc in list) {
-                    DocumentCollection.Add(doc); 
+
+                DocumentCollection.Add(doc);
+
             }
-            if (userModel.AccountType == "EnterpriseAccount")
-                {
-                    LabelTituloRepositorio = "Repositório empresarial";
-                }
-                else
-                {
-                    LabelTituloRepositorio = "Setor";
-                } 
-            }
-            
         }
         else { Debug.WriteLine("banco off"); }
     }
@@ -161,27 +143,35 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         }
 
         Debug.WriteLine($"Item selecionado: {item.Name}");
-
-        string action = await Application.Current.MainPage.DisplayActionSheet(
-            "Escolha uma ação", "Cancelar", null, "Download", "Visualizar");
-
-        switch (action)
+        if (item.Name == "Adicone um documento")
         {
-            case "Download":
-                await DownloadFile(item);
-                break;
-            case "Visualizar":
-                await VisualizarArquivo(item);
-                break;
-            default:
-                break;
+            AppData.CurrentFolder = "Main_Page_Files";
+
+            Shell.Current.GoToAsync("//mainTabBar/PageUUploadDocs");
+        }
+        else
+        {
+            string action = await Application.Current.MainPage.DisplayActionSheet(
+                "Escolha uma ação", "Cancelar", null, "Download", "Visualizar");
+
+            switch (action)
+            {
+                case "Download":
+                    await DownloadFile(item);
+                    break;
+                case "Visualizar":
+                    await VisualizarArquivo(item);
+                    break;
+                default:
+                    break;
+            }
         }
     }
     private async Task<string> DownloadFile(Documents selectedItem)
     {
         Debug.WriteLine($"Downloading file {selectedItem.Name}");
         byte[] fileBytes = await _firebaseStorageService.DownloadFileByNameAsync(selectedItem.Name); // Sua lógica para obter os bytes do arquivo
-        string path = await service.SaveFileAsync(fileBytes, selectedItem.Name, ".docx");
+        string path = await service.SaveFileAsync(fileBytes, selectedItem.Name,selectedItem.DocumentType);
 
         if (path != null)
         {

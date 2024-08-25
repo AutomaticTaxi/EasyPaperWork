@@ -74,6 +74,20 @@ namespace EasyPaperWork.Models
                 OnPropertyChanged(nameof(UrlDownload));
             }
         }
+
+        private string _RootFolder;
+        public string RootFolder
+        {
+            get
+            {
+                return _RootFolder;
+            }
+            set
+            {
+                _RootFolder = value;
+                OnPropertyChanged(nameof(RootFolder));
+            }
+        }
         public Documents()
         {
             
