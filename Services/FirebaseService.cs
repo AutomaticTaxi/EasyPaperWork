@@ -209,6 +209,23 @@ namespace EasyPaperWork.Services
                 return new List<Documents>();
             }
         }
+        public async Task<List<Folder_Files>> ListFolder(string colecaoUser, string IdUser)
+        {
+            
+                if (string.IsNullOrEmpty(colecaoUser))
+                    throw new ArgumentException("A coleção não pode ser nula ou vazia.", nameof(colecaoUser));
+
+                var documentReference = _firestoreDb.Collection(colecaoUser).Document(IdUser);
+                var subcolletions = documentReference.ListCollectionsAsync();
+                var folderlist = new List<Folder_Files>();
+
+            await foreach (var subcollection in subcolletions)
+                {
+                    folderlist.Add(new Folder_Files { Name = subcollection.Id });
+                }
+            return folderlist;
+            
+        }
         public async Task AddFiles<T>(string ColecaoUser, string IdUser, string file_path, string IdDocument, T objFile)
         {
             try {

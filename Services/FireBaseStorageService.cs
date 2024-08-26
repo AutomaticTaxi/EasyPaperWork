@@ -4,6 +4,7 @@ using Firebase.Auth;
 using Firebase.Auth.Providers;
 using Firebase.Auth.Repository;
 using Firebase.Storage;
+using Org.BouncyCastle.Bcpg.OpenPgp;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -37,8 +38,19 @@ public class FirebaseStorageService
         catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
 
     }
+    public async void CreateFolderAsync(string NameofFolder) {
+        var emptyBytes = new byte[0];
+        userCredential = await _authClient.SignInWithEmailAndPasswordAsync(AppData.UserEmail, AppData.UserPassword);
+        var task = new FirebaseStorage(
+            "easypaperwork-firebase.appspot.com",
 
-    public async Task<string> UploadFileAsync(FileStream stream, string fileName)
+             new FirebaseStorageOptions
+             {
+                 AuthTokenAsyncFactory = () => Task.FromResult(userCredential.User.Credential.IdToken),
+                 ThrowOnCancel = true,
+             }).Child(NameofFolder).PutAsync(new MemoryStream(emptyBytes));
+    } 
+    public async Task<string> UploadFileAsync(FileStream stream, string fileName,string RootFolder )
     {
 
 
@@ -55,6 +67,7 @@ public class FirebaseStorageService
              })
 
               .Child(AppData.UserUid)
+              .Child(RootFolder)
                 .Child(fileName)
                 .PutAsync(stream);
 

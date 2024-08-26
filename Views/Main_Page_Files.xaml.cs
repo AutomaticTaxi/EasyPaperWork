@@ -33,7 +33,7 @@ public partial class Main_Page_Files : ContentPage
     protected override void OnNavigatedTo(NavigatedToEventArgs args)
     {
         base.OnNavigatedTo(args);
-        viewModel.list_files();
+        viewModel.list_files(AppData.CurrentFolder);
 
     }
     protected override void OnNavigatingFrom(NavigatingFromEventArgs args)
@@ -41,13 +41,21 @@ public partial class Main_Page_Files : ContentPage
         base.OnNavigatingFrom(args);
         
     }
-    private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void OnSelectionDocumentChanged(object sender, SelectionChangedEventArgs e)
     {
         var selectedItem = e.CurrentSelection.FirstOrDefault() as Documents;
         if (selectedItem != null)
         {
             // Chame o método para manipular a seleção
-            viewModel.OnItemTapped(selectedItem);
+            viewModel.OnDocumentItemTapped(selectedItem);
+        }
+    }
+    private void OnSelectionFolderChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var folderselectedItem = e.CurrentSelection.FirstOrDefault() as Folder_Files;
+        if (folderselectedItem != null)
+        {
+            viewModel.OnFolderItemTaped(folderselectedItem);
         }
     }
 

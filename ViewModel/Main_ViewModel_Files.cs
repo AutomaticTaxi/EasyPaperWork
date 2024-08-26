@@ -81,33 +81,32 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             OnPropertyChanged(nameof(_UidUser));
         }
     }
+    private Folder_Files Folder_Files;
     public  Main_ViewModel_Files()
     {
         service = new WindowsFileSavePickerService();
 
         UidUser = AppData.UserUid;
-        AppData.CurrentFolder = "Main_Page_Files";
         _firebaseService = new FirebaseService();
         _firebaseStorageService = new FirebaseStorageService();
-
+        
         userModel = new UserModel();
         Document = new Documents();
+        Folder_Files = new Folder_Files();  
         _LabelNomeDocumento = Document.Name;
         _ImageDocumento = Document.Image;
-        
 
 
-        FolderCollection = new ObservableCollection<Folder_Files>
-            {
-                new Folder_Files { Name = "Adicione uma pasta " }
-            };
+
+        FolderCollection = new ObservableCollection<Folder_Files>();
+     
         DocumentCollection = new ObservableCollection<Documents>();
-        list_files();
+        list_files(AppData.CurrentFolder);
 
 
     }
 
- public async void list_files()
+ public async void list_files(string currentfolder)
     {
         if (!string.IsNullOrEmpty(UidUser))
         {
@@ -120,21 +119,44 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
 
             DocumentCollection.Clear();
             DocumentCollection.Add(new Documents { Name = "Adicone um documento" });
-            LabelTituloRepositorio = "Seu repositório pessual ";
-
-            List<Documents> list = await _firebaseService.ListFiles("Users", userModel.Id, AppData.CurrentFolder);
-            Debug.WriteLine(list.ToString());
-            foreach (Documents doc in list)
+            FolderCollection.Clear();
+            FolderCollection.Add(new Folder_Files { Name = "Adicione uma pasta" });
+            FolderCollection.Add(new Folder_Files { Name = "Pasta inicial" });
+            
+            if (string.IsNullOrEmpty(currentfolder))
             {
+                LabelTituloRepositorio = "Pagina inicial";
+                List<Documents> list = await _firebaseService.ListFiles("Users", AppData.UserUid, "Pasta inicial");
+                foreach (Documents doc in list)
+                {
 
-                DocumentCollection.Add(doc);
+                    DocumentCollection.Add(doc);
 
+                }
             }
+            else
+            {
+                LabelTituloRepositorio = currentfolder;
+                List<Documents> list = await _firebaseService.ListFiles("Users", AppData.UserUid, currentfolder);
+                Debug.WriteLine(list.ToString());
+                foreach (Documents doc in list)
+                {
+
+                    DocumentCollection.Add(doc);
+
+                }
+            }
+            List<Folder_Files> list_folder = await _firebaseService.ListFolder("Users", AppData.UserUid);
+            foreach(Folder_Files folder in list_folder)
+            {
+                FolderCollection.Add(folder);   
+            }
+           
         }
         else { Debug.WriteLine("banco off"); }
     }
 
-    public async void OnItemTapped(Documents item)
+    public async void OnDocumentItemTapped(Documents item)
     {
         if (item == null)
         {
@@ -145,8 +167,10 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         Debug.WriteLine($"Item selecionado: {item.Name}");
         if (item.Name == "Adicone um documento")
         {
-            AppData.CurrentFolder = "Main_Page_Files";
-
+         if (string.IsNullOrEmpty(AppData.CurrentFolder))
+            {
+                AppData.CurrentFolder = "Pasta inicial";
+            }
             Shell.Current.GoToAsync("//mainTabBar/PageUUploadDocs");
         }
         else
@@ -165,6 +189,27 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                 default:
                     break;
             }
+        }
+    }
+    public async void OnFolderItemTaped(Folder_Files item)
+    {
+        if(item.Name == "Adicione uma pasta")
+        {
+            string namefolder =  await Application.Current.MainPage.DisplayPromptAsync("Criação de pasta", "Digite o nome de sua pasta", "Ok", "Cancel");
+            if (!string.IsNullOrEmpty(namefolder) && !string.Equals("Adicione uma pasta",namefolder) )
+            {
+                Folder_Files.Name= namefolder;
+                FolderCollection.Add(Folder_Files);
+                await _firebaseService.AdicionarObjetoAsync("Users", AppData.UserUid, Folder_Files);
+                
+            }
+            else { await Application.Current.MainPage.DisplayAlert("Erro", "Nome Inválido", "Ok"); }
+        }
+        else
+        {
+            AppData.CurrentFolder = item.Name;
+            LabelTituloRepositorio = item.Name;
+            list_files(item.Name);
         }
     }
     private async Task<string> DownloadFile(Documents selectedItem)
