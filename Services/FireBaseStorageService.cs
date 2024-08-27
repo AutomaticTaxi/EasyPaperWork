@@ -79,6 +79,35 @@ public class FirebaseStorageService
         return downloadUrl;
 
     }
+    public async Task<bool> DeleteFileAsync(string userid, string RootFolder ,string fileName )
+    {
+
+        try
+        {
+            userCredential = await _authClient.SignInWithEmailAndPasswordAsync(AppData.UserEmail, AppData.UserPassword);
+
+            // Constructr FirebaseStorage, path to where you want to upload the file and Put it there
+            var task = new FirebaseStorage(
+                "easypaperwork-firebase.appspot.com",
+
+                 new FirebaseStorageOptions
+                 {
+                     AuthTokenAsyncFactory = () => Task.FromResult(userCredential.User.Credential.IdToken),
+                     ThrowOnCancel = true,
+                 })
+
+                  .Child(AppData.UserUid)
+                    .Child(RootFolder)
+                        .Child(fileName)
+                        .DeleteAsync();
+            return true;
+        }catch(Exception ex)
+        {
+            Debug.WriteLine(ex.ToString());
+            return false;
+        }
+
+    }
 
     public async Task<byte[]> DownloadFileByNameAsync( string fileName)
     {
@@ -98,14 +127,8 @@ public class FirebaseStorageService
 
               .Child("uploads")
             .Child(fileName);
-
-
-
             // Faz o download do arquivo e o converte para um array de bytes
           var fileBytes = await DownloadFileByUrlAsync(await task.GetDownloadUrlAsync());
-
-
-                
 
             return fileBytes;
         }

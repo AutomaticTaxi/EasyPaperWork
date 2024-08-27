@@ -22,9 +22,16 @@ namespace EasyPaperWork.Services
         private readonly FirestoreDb _firestoreDb;
         public FirebaseService()
         {
-                //Credecial colocada direto no códico F segurança 
-            string pathToCredentials = "C:\\Users\\lucas\\source\\repos\\EasyPaperWork\\easypaperwork-firebase-firebase-adminsdk-4asf7-dc3b16ccbd.json"; 
+            //Credecial colocada direto no códico F segurança 
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+            // Caminho relativo para o arquivo de credenciais
+            string relativePath = @"Services\easypaperwork-firebase-firebase-adminsdk-4asf7-dc3b16ccbd.json";
+
+            // Constrói o caminho completo
+            string pathToCredentials = Path.Combine(baseDirectory, relativePath);
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", pathToCredentials);
+            Debug.WriteLine($"Credential Path: {pathToCredentials}");
             _firestoreDb = FirestoreDb.Create("easypaperwork-firebase"); // Substitua pelo ID do seu projeto Firebase
         }
         public async Task AdicionarDocumentoAsync(string colecao, string documentoId, Dictionary<string, object> dados)
@@ -54,6 +61,28 @@ namespace EasyPaperWork.Services
                 Debug.WriteLine($"Exception: {ex.Message}");
                 throw;
             }
+        }
+        public async Task<bool> DeleteFileAsync(string usercolection, string userId, string rootfolder,string documentid)
+        {
+            try
+            {
+                DocumentReference document = _firestoreDb.Collection(usercolection).Document(userId).Collection(rootfolder).Document(documentid);
+                await document. DeleteAsync();
+                return true;
+                Debug.WriteLine("Documento adicionado com sucesso!");
+            }
+            catch (ArgumentException ex)
+            {
+                Debug.WriteLine($"ArgumentException: {ex.Message}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Exception: {ex.Message}");
+                return false;
+              
+            }
+            
         }
 
         public async Task PrintBuscarDocumentoByIdAsync(string colecao, string documentoId)

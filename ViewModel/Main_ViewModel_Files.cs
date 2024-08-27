@@ -176,7 +176,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         else
         {
             string action = await Application.Current.MainPage.DisplayActionSheet(
-                "Escolha uma ação", "Cancelar", null, "Download", "Visualizar");
+                "Escolha uma ação", "Cancelar", null, "Download", "Visualizar","Excluir");
 
             switch (action)
             {
@@ -185,6 +185,9 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                     break;
                 case "Visualizar":
                     await VisualizarArquivo(item);
+                    break;
+                case "Excluir":
+                    await DeleteFile(item);
                     break;
                 default:
                     break;
@@ -222,8 +225,38 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         {
             // Arquivo salvo com sucesso
             Console.WriteLine($"Arquivo salvo em: {path}");
+            return "success";
         }
-        return "ddhfgdhfg";
+        return "error";
+    }
+    private async Task<string> DeleteFile(Documents selectedItem)
+    {
+       
+        string action = await Application.Current.MainPage.DisplayActionSheet("Tem certeza que deseja remover o documento", "cancel", null, "sim");
+        if (action == "sim") {
+            if (string.IsNullOrEmpty(AppData.CurrentFolder))
+            {
+                if (await _firebaseService.DeleteFileAsync("Users", AppData.UserUid, "Pasta inicial", selectedItem.Name))
+                {
+                    if (await _firebaseStorageService.DeleteFileAsync(AppData.UserUid, "Pasta inicial", selectedItem.Name))
+                    {
+                        DocumentCollection.Remove(selectedItem);
+                        Console.WriteLine("Arquivo removido");
+                        return "success";
+                    }
+                }
+            }
+            else if (await _firebaseService.DeleteFileAsync("Users", AppData.UserUid, AppData.CurrentFolder, selectedItem.Name))
+            {
+                if (await _firebaseStorageService.DeleteFileAsync(AppData.UserUid, AppData.CurrentFolder, selectedItem.Name))
+                {
+                    DocumentCollection.Remove(selectedItem);
+                    Console.WriteLine("Arquivo removido");
+                    return "success";
+                }
+            }
+        }
+        return "error";
     }
 
     private Task VisualizarArquivo(Documents selectedItem)
