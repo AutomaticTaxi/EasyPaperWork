@@ -19,6 +19,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     private FirebaseStorageService _firebaseStorageService;
     private string _LabelTituloRepositorio;
     private IFileSavePickerService _fileSavePickerService;
+
     private WindowsFileSavePickerService service;
 
     public IFileSavePickerService FileSavePickerService
@@ -95,8 +96,6 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         Folder_Files = new Folder_Files();  
         _LabelNomeDocumento = Document.Name;
         _ImageDocumento = Document.Image;
-
-
 
         FolderCollection = new ObservableCollection<Folder_Files>();
      
@@ -283,14 +282,15 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     }
     private async Task DeleteFolder(Folder_Files selectedItem)
     {
-        if (await _firebaseService.DeleteFolderAsync(selectedItem.Name))
-        {
-            if (await _firebaseStorageService.DeleteFolderAsync(selectedItem.Name))
-                FolderCollection.Remove(selectedItem);
-                await Application.Current.MainPage.DisplayAlert("Succsses", "Pasta removida com sucesso", "Ok");
-        }
-        else { await Application.Current.MainPage.DisplayAlert("Error", "Falha em remover a pasta ", "Ok"); }
-        
+        if (await _firebaseStorageService.DeleteFolderAsync(selectedItem.Name))
+         {
+             if (await _firebaseService.DeleteFolderAsync(selectedItem.Name))
+                 FolderCollection.Remove(selectedItem);
+                 await Application.Current.MainPage.DisplayAlert("Succsses", "Pasta removida com sucesso", "Ok");
+         }
+         else { await Application.Current.MainPage.DisplayAlert("Error", "Falha em remover a pasta ", "Ok"); }
+         
+       
     }
     public event PropertyChangedEventHandler PropertyChanged;
 

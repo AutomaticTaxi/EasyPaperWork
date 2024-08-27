@@ -4,20 +4,15 @@ using Firebase.Auth;
 using Firebase.Auth.Providers;
 using Firebase.Auth.Repository;
 using Firebase.Storage;
-using Org.BouncyCastle.Bcpg.OpenPgp;
-using System;
 using System.Diagnostics;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+using EasyPaperWork.Services;
 
 public class FirebaseStorageService
 {
-   
-
     private FirebaseAuthClient _authClient;
     private UserCredential userCredential;
-    private readonly HttpClient _httpClient;
+    private FirebaseService firebaseService;
+    private HttpClient _httpClient;
     public FirebaseStorageService()
     {
         _httpClient = new HttpClient();
@@ -36,7 +31,7 @@ public class FirebaseStorageService
             _authClient = new FirebaseAuthClient(config);
         }
         catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
-
+        firebaseService =new FirebaseService();
     }
     public async void CreateFolderAsync(string NameofFolder) {
         var emptyBytes = new byte[0];
@@ -83,31 +78,24 @@ public class FirebaseStorageService
     {
         try
         {
-            // Referência à pasta
-            userCredential = await _authClient.SignInWithEmailAndPasswordAsync(AppData.UserEmail, AppData.UserPassword);
-
-            // Constructr FirebaseStorage, path to where you want to upload the file and Put it there
-            var task = new FirebaseStorage(
-                "easypaperwork-firebase.appspot.com",
-
-                 new FirebaseStorageOptions
-                 {
-                     AuthTokenAsyncFactory = () => Task.FromResult(userCredential.User.Credential.IdToken),
-                     ThrowOnCancel = true,
-                 })
-
-                  .Child(AppData.UserUid)
-                    .Child(RootFolder).DeleteAsync();
+            List<Documents> documents = new List<Documents>();
+            documents = await ListFilesInFolderAsync(RootFolder);
+            foreach (Documents doc in documents) {
+                DeleteFileAsync(AppData.UserUid, RootFolder, doc.Name);
+            }
             return true;
-
-
-
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Erro ao remover a pasta '{RootFolder}': {ex.Message}");
             return false;
         }
+    }
+    public async Task<List<Documents>> ListFilesInFolderAsync(string folderPath)
+    {
+        List<Documents> listOfFiles = new List<Documents>();
+        listOfFiles = await firebaseService.ListFiles("Users",AppData.UserUid,folderPath);
+        return listOfFiles;
     }
     public async Task<bool> DeleteFileAsync(string userid, string RootFolder ,string fileName )
     {
