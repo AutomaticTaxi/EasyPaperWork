@@ -84,6 +84,49 @@ namespace EasyPaperWork.Services
             }
             
         }
+        public async Task<bool> DeleteFolderAsync( string rootfolder,int batchSize = 20)
+        {
+            try
+            {
+                CollectionReference collectionReference = _firestoreDb.Collection("Users").Document(AppData.UserUid).Collection(rootfolder);
+                QuerySnapshot snapshot;
+                do
+                {
+                    snapshot = await collectionReference.Limit(batchSize).GetSnapshotAsync();
+                    foreach (DocumentSnapshot document in snapshot.Documents)
+                    {
+                        await RecursiveDeleteDocumentAsync(document.Reference);
+                    }
+                } while (snapshot.Count > 0);
+                Console.WriteLine($"Coleção {rootfolder} removida com sucesso.");
+                return true;
+               
+            }
+            catch (ArgumentException ex)
+            {
+                Debug.WriteLine($"ArgumentException: {ex.Message}");
+                return false;
+            }
+            catch (Exception ex) { 
+            
+                Debug.WriteLine($"Exception: {ex.Message}");
+                return false;
+
+            }
+
+        }
+        private async Task RecursiveDeleteDocumentAsync(DocumentReference documentRef)
+        {
+            // Recursively delete any subcollections
+            IAsyncEnumerable<CollectionReference> subcollections = documentRef.ListCollectionsAsync();
+            await foreach (var subcollection in subcollections)
+            {
+                await DeleteFolderAsync(subcollection.Path);
+            }
+
+            await documentRef.DeleteAsync();
+            Console.WriteLine($"Documento {documentRef.Id} removido com sucesso.");
+        }
 
         public async Task PrintBuscarDocumentoByIdAsync(string colecao, string documentoId)
         {

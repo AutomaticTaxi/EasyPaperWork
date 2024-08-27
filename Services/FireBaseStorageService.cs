@@ -79,6 +79,36 @@ public class FirebaseStorageService
         return downloadUrl;
 
     }
+    public async Task<bool> DeleteFolderAsync(string RootFolder)
+    {
+        try
+        {
+            // Referência à pasta
+            userCredential = await _authClient.SignInWithEmailAndPasswordAsync(AppData.UserEmail, AppData.UserPassword);
+
+            // Constructr FirebaseStorage, path to where you want to upload the file and Put it there
+            var task = new FirebaseStorage(
+                "easypaperwork-firebase.appspot.com",
+
+                 new FirebaseStorageOptions
+                 {
+                     AuthTokenAsyncFactory = () => Task.FromResult(userCredential.User.Credential.IdToken),
+                     ThrowOnCancel = true,
+                 })
+
+                  .Child(AppData.UserUid)
+                    .Child(RootFolder).DeleteAsync();
+            return true;
+
+
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao remover a pasta '{RootFolder}': {ex.Message}");
+            return false;
+        }
+    }
     public async Task<bool> DeleteFileAsync(string userid, string RootFolder ,string fileName )
     {
 

@@ -210,9 +210,26 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         }
         else
         {
-            AppData.CurrentFolder = item.Name;
-            LabelTituloRepositorio = item.Name;
-            list_files(item.Name);
+            string action = await Application.Current.MainPage.DisplayActionSheet(
+              "Escolha uma ação", "Cancelar", null, "Abrir", "Editar", "Excluir");
+
+            switch (action)
+            {
+                case "Abrir":
+                    AppData.CurrentFolder = item.Name;
+                    LabelTituloRepositorio = item.Name;
+                    list_files(item.Name);
+                    break;
+                case "Editar":
+                    
+                    break;
+                case "Excluir":
+                    await DeleteFolder(item);
+                    break;
+                default:
+                    break;
+            }
+            
         }
     }
     private async Task<string> DownloadFile(Documents selectedItem)
@@ -232,7 +249,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     private async Task<string> DeleteFile(Documents selectedItem)
     {
        
-        string action = await Application.Current.MainPage.DisplayActionSheet("Tem certeza que deseja remover o documento", "cancel", null, "sim");
+        string action = await Application.Current.MainPage.DisplayActionSheet("Deseja remover o documento", "cancel", null, "sim");
         if (action == "sim") {
             if (string.IsNullOrEmpty(AppData.CurrentFolder))
             {
@@ -263,6 +280,17 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     {
         // Implementar a lógica para visualização
         return Task.CompletedTask;
+    }
+    private async Task DeleteFolder(Folder_Files selectedItem)
+    {
+        if (await _firebaseService.DeleteFolderAsync(selectedItem.Name))
+        {
+            if (await _firebaseStorageService.DeleteFolderAsync(selectedItem.Name))
+                FolderCollection.Remove(selectedItem);
+                await Application.Current.MainPage.DisplayAlert("Succsses", "Pasta removida com sucesso", "Ok");
+        }
+        else { await Application.Current.MainPage.DisplayAlert("Error", "Falha em remover a pasta ", "Ok"); }
+        
     }
     public event PropertyChangedEventHandler PropertyChanged;
 
