@@ -119,27 +119,33 @@ namespace EasyPaperWork.Services
                     Debug.WriteLine("InvalidEmailAddress");
                     return "InvalidEmailAddress";
                 }
-                if (ex.Reason == Firebase.Auth.AuthErrorReason.UnknownEmailAddress)
+                else if (ex.Reason == Firebase.Auth.AuthErrorReason.UnknownEmailAddress)
                 {
                     Debug.WriteLine("UnknownEmailAddress");
                     return "UnknownEmailAddress";
                 }
-                if (ex.Reason == Firebase.Auth.AuthErrorReason.MissingEmail)
+                else if(ex.Reason == Firebase.Auth.AuthErrorReason.MissingEmail)
                 {
                     Debug.WriteLine("MissingEmail");
                     return "MissingEmail";
                 }
-                if (ex.Reason == Firebase.Auth.AuthErrorReason.MissingPassword)
+                else if(ex.Reason == Firebase.Auth.AuthErrorReason.MissingPassword)
                 {
                     Debug.WriteLine("MissingPassword");
                     return "MissingPassword";
                 }
-                if (ex.Reason == Firebase.Auth.AuthErrorReason.WrongPassword)
+                else if(ex.Reason == Firebase.Auth.AuthErrorReason.WrongPassword)
                 {
                     Debug.WriteLine("WrongPassword");
                     return "WrongPassword";
                 }
-                return "error";
+                else if (ex.Reason == Firebase.Auth.AuthErrorReason.TooManyAttemptsTryLater)
+                {
+                    Debug.WriteLine("TooManyAttemptsTryLater");
+                    return "TooManyAttemptsTryLater";
+                }
+                else { return "error"; }
+                
 
             }
         }
@@ -185,8 +191,38 @@ namespace EasyPaperWork.Services
                 return "error";
             }
         }
-       
-        
+        public async Task<string> ChangingUserPassword(string email)
+        {
+            try
+            {
+
+                 await _authClient.ResetEmailPasswordAsync(email);
+                return "Succsses";
+
+            }
+            catch (Firebase.Auth.FirebaseAuthException ex)
+            {
+                if (ex.Reason == Firebase.Auth.AuthErrorReason.MissingEmail)
+                {
+                    Debug.WriteLine("MissingEmail");
+                    return "MissingEmail";
+                }
+                if (ex.Reason == Firebase.Auth.AuthErrorReason.InvalidEmailAddress)
+                {
+                    Debug.WriteLine("InvalidEmailAddress");
+                    return "InvalidEmailAddress";
+                }
+                if (ex.Reason == Firebase.Auth.AuthErrorReason.ResetPasswordExceedLimit)
+                {
+                    Debug.WriteLine("ResetPasswordExceedLimit");
+                    return "ResetPasswordExceedLimit";
+                }
+                return "error";
+
+            }
+        }
+
+
 
         public void SignOutButton_Click()
         {

@@ -58,10 +58,14 @@ namespace EasyPaperWork.ViewModel
                     await Application.Current.MainPage.DisplayAlert("Erro", "O Email não foi digitado", "ok");
                     break;
                 case "MissingPassword":
-                    await Application.Current.MainPage.DisplayAlert("Erro", "A senha não foi digitado", "ok");
+                    await Application.Current.MainPage.DisplayAlert("Erro", "A senha não foi digitada", "ok");
                     break;
                 case "WrongPassword":
                     await Application.Current.MainPage.DisplayAlert("Erro", "A senha está incorreta", "ok");
+                    break;
+                case "TooManyAttemptsTryLater":
+                    await Application.Current.MainPage.DisplayAlert("Erro", "Muitas tentativas feitas", "ok");
+
                     break;
                 case "error":
                     await Application.Current.MainPage.DisplayAlert("Erro", "Um erro inesperado aconteceu, tente novamente ", "ok");

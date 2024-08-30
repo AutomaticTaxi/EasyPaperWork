@@ -261,13 +261,9 @@ namespace EasyPaperWork.Services
 
                             // Adicione outros campos conforme necessário
                         };
-                            documentosList.Add(documents);
-                        
-
+                    documentosList.Add(documents);
                     }
                     return documentosList;
-                
-               
             }
             catch (ArgumentException ex)
             {

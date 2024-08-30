@@ -95,13 +95,13 @@ namespace EasyPaperWork.ViewModel
                 {
                     documentsModel.DocumentType = ".pptx";
                 }
-                if (AppData.CurrentFolder != null)
+                if (!string.IsNullOrEmpty(AppData.CurrentFolder))
                 {
                     documentsModel.RootFolder = AppData.CurrentFolder;
                 }
-                else if (AppData.CurrentFolder == null)
+                else if (string.IsNullOrEmpty(AppData.CurrentFolder))
                 {
-                    documentsModel.RootFolder = "Main_Page_Files";
+                    documentsModel.RootFolder = "Pasta inicial";
                 }
                 if (!string.IsNullOrEmpty(fileResult.FileName) && !string.Equals("Adicone um documento", fileResult.FileName))
                 {
@@ -109,11 +109,13 @@ namespace EasyPaperWork.ViewModel
                     {
                         documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, fileResult.FileName, "Pasta inicial");
                         await firebaseService.AddFiles("Users", AppData.UserUid, "Pasta inicial", documentsModel.Name, documentsModel);
+                        await Application.Current.MainPage.DisplayAlert("Succsses", "Aquivo enviado para Pasta inicial", "Ok");
                     }
                     else
                     {
                         documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, fileResult.FileName, AppData.CurrentFolder);
                         await firebaseService.AddFiles("Users", AppData.UserUid, AppData.CurrentFolder, documentsModel.Name, documentsModel);
+                        await Application.Current.MainPage.DisplayAlert("Succsses", $"Aquivo enviado para {AppData.CurrentFolder} ", "Ok");
                     }
                     
                 }

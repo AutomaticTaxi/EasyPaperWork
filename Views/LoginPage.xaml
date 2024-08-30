@@ -14,7 +14,7 @@
         <Image Source="logo.png"  HeightRequest="300" WidthRequest="300"/>
         <Label Text="Entrar" FlexLayout.AlignSelf="Start"  FontSize="Header"  />
         <Label Text="E-mail" FlexLayout.AlignSelf="Start" FontSize="Title"/>
-        <Entry Placeholder="name@example.com" WidthRequest="500" FlexLayout.AlignSelf="Start" Text="{Binding EntryEmail}"/>
+        <Entry Placeholder="name@example.com" WidthRequest="500" FlexLayout.AlignSelf="Start" Text="{Binding EntryEmail}" x:Name="EntryEmail"/>
         <Label Text="E-mail inválido" TextColor="Red" FlexLayout.AlignSelf="Start" FontSize="Subtitle" IsVisible="False"  />
         <Label Text="Senha" FlexLayout.AlignSelf="Start" FontSize="Title" />
         <Entry  Placeholder="*********" WidthRequest="500" IsPassword="True" Text="{Binding EntryPassword}" FlexLayout.AlignSelf="Start"/>
@@ -34,8 +34,12 @@
                 <ColumnDefinition Width="*" />
                 <!-- Define uma coluna que preenche o restante do espaço disponível -->
             </Grid.ColumnDefinitions>
-            <Label Grid.Row="0" Grid.Column="0" FlexLayout.AlignSelf="Start" HorizontalOptions="Start" Text="Esqueceu senha?" FontSize="Subtitle" />
-            <Label Grid.Row="0" Grid.Column="1" Text="Cadastre-se" FontAttributes="Bold" FontSize="Subtitle"  Margin="0,0,40,0" TextDecorations="Underline" >
+                <Label Grid.Row="0" Grid.Column="0" FlexLayout.AlignSelf="Start" HorizontalOptions="Start" Text="Esqueceu senha?" TextDecorations="Underline" FontSize="Subtitle">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="LabelEsqueceuSenhaTapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label Grid.Row="0" Grid.Column="1" Text="Cadastre-se" FontAttributes="Bold" FontSize="Subtitle"  Margin="0,0,40,0" TextDecorations="Underline" >
                 <Label.GestureRecognizers>
                     <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
                 </Label.GestureRecognizers>

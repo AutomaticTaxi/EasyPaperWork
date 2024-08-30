@@ -69,8 +69,6 @@ namespace EasyPaperWork.ViewModel
                 else { Debug.WriteLine("false"); }
             }
         }
-
-
         public bool _PersonalAccount;
         public bool PersonalAccount
         {
@@ -93,15 +91,6 @@ namespace EasyPaperWork.ViewModel
                 else { Debug.WriteLine("falsepersonal"); }
             }
         }
-
-
-
-
-
-
-
-
-
         FirebaseService FirebaseService { get; set; }
         FirebaseAuthServices _FirebaseAuthServices;
 
@@ -167,19 +156,10 @@ namespace EasyPaperWork.ViewModel
                 User.Id = id;
                 await FirebaseService.AdicionarObjetoAsync("Users",User.Id, User);
                 result = " ";
-                Shell.Current.GoToAsync("//Page_Login");
+                await Shell.Current.GoToAsync("//Page_Login");
 
             }
-
-
-            
-
-
-
         }
-
-
-
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
