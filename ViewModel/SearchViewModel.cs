@@ -40,8 +40,16 @@ namespace EasyPaperWork.ViewModel
         private async Task SearchArchive()
         {
             if (EntryArchiveName != null)
-               Documento = await firebaseService.BuscarDocumentosNaMainPageFilesAsync("Users", AppData.UserUid, "Documents", EntryArchiveName);
-            DocumentCollection.Add(Documento);
+                if (!string.IsNullOrEmpty(AppData.CurrentFolder))
+                {
+                    Documento = await firebaseService.BuscarDocumentosNaMainPageFilesAsync("Users", AppData.UserUid, AppData.CurrentFolder, EntryArchiveName);
+                    DocumentCollection.Add(Documento);
+                }
+                else
+                {
+                    Documento = await firebaseService.BuscarDocumentosNaMainPageFilesAsync("Users", AppData.UserUid, "Pasta inicial", EntryArchiveName);
+                    DocumentCollection.Add(Documento);
+                }
         }
         public event PropertyChangedEventHandler PropertyChanged;
 
