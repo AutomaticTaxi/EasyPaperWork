@@ -120,12 +120,13 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             DocumentCollection.Add(new Documents { Name = "Adicone um documento" });
             FolderCollection.Clear();
             FolderCollection.Add(new Folder_Files { Name = "Adicione uma pasta" });
-            FolderCollection.Add(new Folder_Files { Name = "Pasta inicial" });
+            
             
             if (string.IsNullOrEmpty(currentfolder))
             {
                 LabelTituloRepositorio = "Pagina inicial";
                 List<Documents> list = await _firebaseService.ListFiles("Users", AppData.UserUid, "Pasta inicial");
+                
                 foreach (Documents doc in list)
                 {
 
