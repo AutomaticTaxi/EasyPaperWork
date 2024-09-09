@@ -13,6 +13,7 @@
         <StackLayout>
             <Button Text="Selecionar Arquivo" Command="{Binding PickFileCommand}" />
             <Label Text="{Binding SelectedFileName}" />
+            <Button Text="ScanDocument" Command="{Binding ScanFileCommand}"/>
         </StackLayout>
     </VerticalStackLayout>
 </ContentPage>

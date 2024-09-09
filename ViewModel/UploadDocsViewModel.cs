@@ -27,6 +27,8 @@ namespace EasyPaperWork.ViewModel
         
         private Documents documentsModel;
         public ICommand PickFileCommand { get; }
+        private Scanner scanner;
+        public ICommand ScanFileCommand { get; }
         private FirebaseStorageService storageService;
         private FirebaseService firebaseService;
         private string _selectedFileName;
@@ -56,11 +58,18 @@ namespace EasyPaperWork.ViewModel
             storageService =  new FirebaseStorageService();
             firebaseService = new FirebaseService();
             _UidUser =AppData.UserUid;
-            Initialize();   
+            Initialize();
+            ScanFileCommand = new Command(async () => await ScanFileAsync());
             documentsModel = new Documents();
             PickFileCommand = new Command(async () => await PickAndShowFileAsync());
-
+            scanner = new Scanner();    
            
+        }
+        private async Task ScanFileAsync()
+        {
+            
+            scanner.ScanDocumentAsync(await Application.Current.MainPage.DisplayPromptAsync("Scan", "Isira o nome do arquivo", "Ok", "Cancelar"));
+
         }
         private async Task PickAndShowFileAsync()
         {

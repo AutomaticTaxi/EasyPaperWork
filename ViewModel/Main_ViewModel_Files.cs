@@ -100,7 +100,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         FolderCollection = new ObservableCollection<Folder_Files>();
      
         DocumentCollection = new ObservableCollection<Documents>();
-        list_files(AppData.CurrentFolder);
+       // list_files(AppData.CurrentFolder);
 
 
     }
@@ -225,6 +225,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                     break;
                 case "Excluir":
                     await DeleteFolder(item);
+                    list_files("Pasta inicial");
                     break;
                 default:
                     break;
