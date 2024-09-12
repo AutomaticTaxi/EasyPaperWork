@@ -29,7 +29,8 @@ namespace EasyPaperWork.ViewModel
         public LoginPageViewModel()
         {
             LoginCommand = new Command(Login);
-            
+            EntryEmail = "lucas.antunes.santos81@gmail.com";
+            EntryPassword = "Abajur.857";
 
             _fireBaseAuthServices = new FirebaseAuthServices();
           

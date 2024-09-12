@@ -12,6 +12,7 @@ namespace EasyPaperWork
 
             MainPage = new AppShell();
         }
+
        
     }
 }

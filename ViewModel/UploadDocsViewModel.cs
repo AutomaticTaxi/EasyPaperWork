@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -28,6 +29,7 @@ namespace EasyPaperWork.ViewModel
         private Documents documentsModel;
         public ICommand PickFileCommand { get; }
         private Scanner scanner;
+        private Label LabelMensageError; 
         public ICommand ScanFileCommand { get; }
         private FirebaseStorageService storageService;
         private FirebaseService firebaseService;
@@ -55,6 +57,7 @@ namespace EasyPaperWork.ViewModel
 
         public UploadDocsViewModel()
         {
+            LabelMensageError = new Label();
             storageService =  new FirebaseStorageService();
             firebaseService = new FirebaseService();
             _UidUser =AppData.UserUid;
@@ -67,9 +70,27 @@ namespace EasyPaperWork.ViewModel
         }
         private async Task ScanFileAsync()
         {
-            
-            scanner.ScanDocumentAsync(await Application.Current.MainPage.DisplayPromptAsync("Scan", "Isira o nome do arquivo", "Ok", "Cancelar"));
+            documentsModel.Name = await Application.Current.MainPage.DisplayPromptAsync("Scan", "Isira o nome do arquivo", "Ok", "Cancelar");
+            if (!string.IsNullOrEmpty(documentsModel.Name)) {
 
+                MemoryStream documentscanned = await scanner.ScanDocumentAsync(documentsModel.Name);
+                if (documentscanned != null) {
+
+                    string PathTemporaryFile = Path.Combine(@"Temp",$"{documentsModel.Name}.pdf");
+                    try
+                    {
+                        FileStream DocumentScannedSave = new FileStream(path: PathTemporaryFile, FileMode.CreateNew,FileAccess.ReadWrite);
+                        DocumentScannedSave.Seek(0, SeekOrigin.Begin);
+                        await documentscanned.CopyToAsync(DocumentScannedSave);
+                        await Application.Current.MainPage.DisplayAlert("Sucesso", "Documento Salvo com sucesso", "Ok");
+                    } catch (Exception ex) {
+                        LabelMensageError.Text = ex.Message;    
+                    }
+                }
+
+            } else {
+                await Application.Current.MainPage.DisplayAlert("Error", "Nome inválido", "ok");
+            }
         }
         private async Task PickAndShowFileAsync()
         {

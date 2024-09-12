@@ -27,6 +27,7 @@ public partial class LoginPage : ContentPage
         await Application.Current.MainPage.Navigation.PushAsync(new Page_Register_User());
       
     }
+    
     public async Task OpenEsqueceuSenha()
     {
         string action = await Application.Current.MainPage.DisplayActionSheet("Esqueceu a senha ?", "Cancelar", null, "Sim");
@@ -55,5 +56,24 @@ public partial class LoginPage : ContentPage
         }
      
 
+    }
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        MakeFullScreen();
+
+    }
+    private void MakeFullScreen()
+    {
+        // Defina a janela para tela cheia
+#if WINDOWS
+            var window = (Microsoft.UI.Xaml.Window)MauiWinUIApplication.Current.Application.Windows[0].Handler.PlatformView;
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+            var windowId = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd));
+
+            var displayArea = Microsoft.UI.Windowing.DisplayArea.GetFromWindowId(windowId.Id, Microsoft.UI.Windowing.DisplayAreaFallback.Nearest);
+            var fullScreenSize = displayArea.WorkArea;
+            windowId.MoveAndResize(new Windows.Graphics.RectInt32(0, 0, fullScreenSize.Width, fullScreenSize.Height));
+#endif
     }
 }
