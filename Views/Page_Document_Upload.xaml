@@ -14,6 +14,7 @@
             <Button Text="Selecionar Arquivo" Command="{Binding PickFileCommand}" />
             <Label Text="{Binding SelectedFileName}" />
             <Button Text="ScanDocument" Command="{Binding ScanFileCommand}"/>
+            <Label Text="{Binding LabelMensageError}"/>
         </StackLayout>
     </VerticalStackLayout>
 </ContentPage>

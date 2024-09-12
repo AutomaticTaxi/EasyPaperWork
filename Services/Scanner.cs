@@ -55,14 +55,14 @@ namespace EasyPaperWork.Services
                     byte[] imageBytes = (byte[])imageFile.FileData.get_BinaryData();
 
                     // Criando o PDF e retornando um stream de memória
-                    using (MemoryStream pdfStream = new MemoryStream())
-                    {
-                        PdfSharpCore.Pdf.PdfDocument document = new PdfSharpCore.Pdf.PdfDocument();  // Use o namespace completo
-                        PdfSharpCore.Pdf.PdfPage page = document.AddPage();
-                        XGraphics gfx = XGraphics.FromPdfPage(page);
+                    MemoryStream pdfStream = new MemoryStream();
+                    
+                       PdfDocument document = new PdfDocument();  // Use o namespace completo
+                       PdfPage page = document.AddPage();
+                       XGraphics gfx = XGraphics.FromPdfPage(page);
 
-                        using (MemoryStream imageStream = new MemoryStream(imageBytes))
-                        {
+                    MemoryStream imageStream = new MemoryStream(imageBytes);
+                        
                             XImage image = XImage.FromStream(() => new MemoryStream(imageBytes));  // Passa um Func<Stream>
 
                             // Ajusta o tamanho da página ao tamanho da imagem
@@ -70,7 +70,7 @@ namespace EasyPaperWork.Services
                             page.Height = image.PointHeight;
 
                             gfx.DrawImage(image, 0, 0, image.PointWidth, image.PointHeight);
-                        }
+                        
 
                         // Salva o PDF em um stream de memória
                         document.Save(pdfStream, false);
@@ -80,7 +80,7 @@ namespace EasyPaperWork.Services
                         await Application.Current.MainPage.DisplayAlert("Sucesso", "Documeto scaneado com sucesso", "Ok");
                         Debug.WriteLine("Documeto scaneado com sucesso");
                         return pdfStream;
-                    }
+                    
                 }
                 catch (COMException comEx)
                 {
