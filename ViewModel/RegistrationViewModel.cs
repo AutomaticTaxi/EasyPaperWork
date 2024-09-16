@@ -7,6 +7,9 @@ using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Controls;
 using EasyPaperWork.Services;
 using System.Diagnostics;
+using EasyPaperWork.Security;
+using Microsoft.Maui.Animations;
+using System.Data.SqlTypes;
 
 
 namespace EasyPaperWork.ViewModel
@@ -14,6 +17,7 @@ namespace EasyPaperWork.ViewModel
     public class RegistrationViewModel : INotifyPropertyChanged
     {
         private FirebaseAuthServices firebaseAuthServices;
+        private EncryptData encryptData;
         public ICommand RegistrationCommand { get; set; }
         public ICommand ButtonCommand1 { get; }
         public ICommand ButtonCommand2 { get; }
@@ -97,7 +101,7 @@ namespace EasyPaperWork.ViewModel
         public UserModel User;
         public RegistrationViewModel()
         {
-
+            encryptData = new EncryptData();
             _FirebaseAuthServices = new FirebaseAuthServices();
             RegistrationCommand = new Command(Registration);
             User = new UserModel();
@@ -154,6 +158,12 @@ namespace EasyPaperWork.ViewModel
                 string id = await _FirebaseAuthServices.GetUidToken(EntryEmail, EntryPassword1);
 
                 User.Id = id;
+                User.Salt = encryptData.GenerateSaltString();
+                byte[] key = encryptData.GenerateKey(User.Salt, EntryPassword1);
+                byte[] salt = Convert.FromBase64String(User.Salt);
+                User.Email = encryptData.Encrypt(EntryEmail, key, salt);
+                Debug.WriteLine($"Email criptografado : {User.Email}");
+               
                 await FirebaseService.AdicionarObjetoAsync("Users",User.Id, User);
                 result = " ";
                 await Shell.Current.GoToAsync("//Page_Login");

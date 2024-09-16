@@ -84,6 +84,16 @@ namespace EasyPaperWork.Models
                     OnPropertyChanged(nameof(AccountType));
             }
         }
+        private string _Salt { get; set; }
+        public string Salt
+        {
+            get { return _Salt; }
+            set
+            {
+                _Salt = value;
+                OnPropertyChanged(nameof(Salt));
+            }
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public void OnPropertyChanged(string prop)
