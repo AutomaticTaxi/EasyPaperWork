@@ -1,5 +1,6 @@
 ﻿using Castle.Components.DictionaryAdapter.Xml;
 using EasyPaperWork.Models;
+using EasyPaperWork.Security;
 using EasyPaperWork.Services;
 using Firebase.Auth;
 using Firebase.Auth.Providers;
@@ -27,6 +28,7 @@ namespace EasyPaperWork.ViewModel
     {
         
         private Documents documentsModel;
+        private EncryptData encryptData;
         public ICommand PickFileCommand { get; }
         private Scanner scanner;
         private Label LabelMensageError; 
@@ -57,6 +59,7 @@ namespace EasyPaperWork.ViewModel
 
         public UploadDocsViewModel()
         {
+            encryptData = new EncryptData();
             LabelMensageError = new Label();
             storageService =  new FirebaseStorageService();
             firebaseService = new FirebaseService();
@@ -138,13 +141,16 @@ namespace EasyPaperWork.ViewModel
                     if (string.IsNullOrEmpty(AppData.CurrentFolder))
                     {
                         documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, fileResult.FileName, "Pasta inicial");
+                        
                         await firebaseService.AddFiles("Users", AppData.UserUid, "Pasta inicial", documentsModel.Name, documentsModel);
+
                         await Application.Current.MainPage.DisplayAlert("Succsses", "Aquivo enviado para Pasta inicial", "Ok");
                     }
                     else
                     {
+                        
                         documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, fileResult.FileName, AppData.CurrentFolder);
-                        await firebaseService.AddFiles("Users", AppData.UserUid, AppData.CurrentFolder, documentsModel.Name, documentsModel);
+                      //  await firebaseService.AddFiles("Users", AppData.UserUid, AppData.CurrentFolder, documentsModel.Name, encryptData.EncryptObject(documentsModel,);
                         await Application.Current.MainPage.DisplayAlert("Succsses", $"Aquivo enviado para {AppData.CurrentFolder} ", "Ok");
                     }
                     

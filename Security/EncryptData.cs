@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using Newtonsoft.Json;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace EasyPaperWork.Security
@@ -26,6 +27,13 @@ namespace EasyPaperWork.Security
         }
 
         // Renomear o método de EncryptData para Encrypt
+        public string EncryptObject(object obj, byte[] key, byte[]salt)
+        {
+            string json = JsonConvert.SerializeObject(obj);
+            json = Encrypt(json, key, salt);
+            return json;
+
+        }
         public string Encrypt(string plainText, byte[] key, byte[] salt)
         {
             var aes = Aes.Create();

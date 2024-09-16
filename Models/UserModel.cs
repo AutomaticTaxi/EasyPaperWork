@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace EasyPaperWork.Models
@@ -93,6 +94,13 @@ namespace EasyPaperWork.Models
                 _Salt = value;
                 OnPropertyChanged(nameof(Salt));
             }
+        }
+        public UserModel JsonToObject(string json)
+        {
+            UserModel model = new UserModel();  
+
+            model = JsonSerializer.Deserialize<UserModel>(json);
+            return model;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

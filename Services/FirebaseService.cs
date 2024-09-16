@@ -318,5 +318,43 @@ namespace EasyPaperWork.Services
             return JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
             
         }
+        public async Task<string> GetSalt(string Uid)
+        {
+            try
+            {
+                DocumentReference document = _firestoreDb.Collection("Users").Document(Uid);
+                DocumentSnapshot snapshot = await document.GetSnapshotAsync();
+
+                if (snapshot.Exists)
+                {
+                    Dictionary<string, object> dados = snapshot.ToDictionary();
+                    var userModel = new UserModel
+                    {
+                        Id = dados.ContainsKey("Id") ? dados["Id"].ToString() : string.Empty,
+                        Name = dados.ContainsKey("Name") ? dados["Name"].ToString() : string.Empty,
+                        Email = dados.ContainsKey("Email") ? dados["Email"].ToString() : string.Empty,
+                        Password = dados.ContainsKey("Password") ? dados["Password"].ToString() : string.Empty,
+                        AccountType = dados.ContainsKey("AccountType") ? dados["AccountType"].ToString() : string.Empty,
+                        Salt = dados.ContainsKey("Salt") ? dados["Salt"].ToString() : string.Empty
+
+
+                    };
+                    Debug.WriteLine(userModel);
+                    return userModel.Salt.;
+                }
+                else
+                {
+                    Debug.WriteLine("Documento não encontrado.");
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Documento não encontrado.");
+                Debug.WriteLine($"Exception: {ex.Message}");
+                return null;
+            }
+
+        }
     }
 }

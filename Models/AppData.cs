@@ -19,6 +19,8 @@ namespace EasyPaperWork.Models
         private static string _UserName;
         public static string UserName { get { return _UserName; } set { _UserName = value; } }
         public static string CurrentFolder { get { return _UserName; } set { _UserName = value; } }
+        private static string _Salt;
+        public static string Salt { get { return _Salt; } set { _Salt = value; } }
     }
    
 }

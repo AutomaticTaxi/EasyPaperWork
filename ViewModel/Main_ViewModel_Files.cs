@@ -93,7 +93,8 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         
         userModel = new UserModel();
         Document = new Documents();
-        Folder_Files = new Folder_Files();  
+        Folder_Files = new Folder_Files();
+        AppData.Salt= await _firebaseService.GetSalt(AppData.UserUid);
         _LabelNomeDocumento = Document.Name;
         _ImageDocumento = Document.Image;
 
