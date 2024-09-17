@@ -161,8 +161,9 @@ namespace EasyPaperWork.ViewModel
 
                                 User.Id = id;
                                 User.Salt = encryptData.GenerateSaltString();
-                                byte[] key = encryptData.GetKey(User.Salt, EntryPassword1);
+                              
                                 byte[] salt = Convert.FromBase64String(User.Salt);
+                                byte[] key = encryptData.GetKey(salt, EntryPassword1);
                                 User.Email = encryptData.Encrypt(EntryEmail, key, salt);
                                 User.Name = encryptData.Encrypt(EntryName, key, salt);
                                 User.Password = encryptData.Encrypt(EntryPassword1, key, salt);

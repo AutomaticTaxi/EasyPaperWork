@@ -10,8 +10,7 @@ namespace EasyPaperWork.Security
         
         
         }
-        public byte[] GetKey(string salt_string,string password) {
-            byte[] salt = Convert.FromBase64String(salt_string);
+        public byte[] GetKey(byte[] salt,string password) {
             byte[] key = GenerateKeyFromPasswordAndSalt(password, salt);
             return key;
         }

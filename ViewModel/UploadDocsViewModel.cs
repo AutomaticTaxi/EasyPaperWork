@@ -142,12 +142,11 @@ namespace EasyPaperWork.ViewModel
                     {
                         documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, fileResult.FileName, "Pasta inicial");
                         byte[] key = encryptData.GetKey(AppData.Salt, AppData.UserPassword);
-                        byte[] salt = encryptData.GetSaltBytes(AppData.Salt);
-                        documentsModel.Name = encryptData.Encrypt( fileResult.FileName,key,salt);
-                        documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, salt);
-                        documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, salt);
-                        documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, salt);
-                        documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, salt);
+                        documentsModel.Name = encryptData.Encrypt( fileResult.FileName,key,AppData.Salt);
+                        documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
+                        documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
+                        documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
+                        documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
 
                         await firebaseService.AddFiles("Users", AppData.UserUid, "Pasta inicial", documentsModel.Name, documentsModel);
 
@@ -157,7 +156,14 @@ namespace EasyPaperWork.ViewModel
                     {
                         
                         documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, fileResult.FileName, AppData.CurrentFolder);
-                      //  await firebaseService.AddFiles("Users", AppData.UserUid, AppData.CurrentFolder, documentsModel.Name, encryptData.EncryptObject(documentsModel,);
+                        byte[] key = encryptData.GetKey(AppData.Salt, AppData.UserPassword);
+                        documentsModel.Name = encryptData.Encrypt(fileResult.FileName, key, AppData.Salt);
+                        documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
+                        documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
+                        documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
+                        documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
+
+                        await firebaseService.AddFiles("Users", AppData.UserUid, AppData.CurrentFolder, documentsModel.Name, documentsModel);
                         await Application.Current.MainPage.DisplayAlert("Succsses", $"Aquivo enviado para {AppData.CurrentFolder} ", "Ok");
                     }
                     

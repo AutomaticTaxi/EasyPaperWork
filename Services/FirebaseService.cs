@@ -301,7 +301,8 @@ namespace EasyPaperWork.Services
                 DocumentReference document = _firestoreDb.Collection(ColecaoUser).Document(IdUser).Collection(file_path).Document(IdDocument);
                 await document.SetAsync(dados);
 
-            } catch (ArgumentException ex) { Debug.WriteLine(ex.Message); }
+            } catch (ArgumentException ex) {
+                Debug.WriteLine(ex.Message); }
         }
 
         public async Task AdicionarObjetoAsync<T>(string colecao, string documentoId, T objeto)
@@ -318,7 +319,7 @@ namespace EasyPaperWork.Services
             return JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
             
         }
-        public async Task<string> GetSalt(string Uid)
+        public async Task <string> GetSalt(string Uid)
         {
             try
             {
@@ -339,20 +340,20 @@ namespace EasyPaperWork.Services
 
 
                     };
-                    Debug.WriteLine(userModel);
-                    return userModel.Salt;
+                    string salt = userModel.Salt;
+                    return salt;
                 }
                 else
                 {
                     Debug.WriteLine("Documento não encontrado.");
-                    return null;
+                    return "error";
                 }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine("Documento não encontrado.");
                 Debug.WriteLine($"Exception: {ex.Message}");
-                return null;
+                return "error";
             }
 
         }

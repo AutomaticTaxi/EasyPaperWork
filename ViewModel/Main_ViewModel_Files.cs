@@ -1,5 +1,6 @@
 ﻿using __XamlGeneratedCode__;
 using EasyPaperWork.Models;
+using EasyPaperWork.Security;
 using EasyPaperWork.Services;
 using Microsoft.Maui.Controls.Compatibility;
 using System.Collections.ObjectModel;
@@ -17,6 +18,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     public ObservableCollection<Documents> DocumentCollection { get; set; }
     private FirebaseService _firebaseService;
     private FirebaseStorageService _firebaseStorageService;
+    private EncryptData encryptData;
     private string _LabelTituloRepositorio;
     private IFileSavePickerService _fileSavePickerService;
 
@@ -90,11 +92,10 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         UidUser = AppData.UserUid;
         _firebaseService = new FirebaseService();
         _firebaseStorageService = new FirebaseStorageService();
-        
+        encryptData = new EncryptData();
         userModel = new UserModel();
         Document = new Documents();
         Folder_Files = new Folder_Files();
-        AppData.Salt= await _firebaseService.GetSalt(AppData.UserUid);
         _LabelNomeDocumento = Document.Name;
         _ImageDocumento = Document.Image;
 
@@ -113,7 +114,8 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
 
             Debug.WriteLine("banco on");
 
-
+            AppData.Salt = encryptData.GetSaltBytes( await _firebaseService.GetSalt(AppData.UserUid));
+            AppData.Key = encryptData.GetKey(AppData.Salt,AppData.UserPassword);
             userModel = await _firebaseService.BuscarUserModelAsync("Users", UidUser);
             Debug.WriteLine(userModel.Id);
 
@@ -131,6 +133,8 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                 foreach (Documents doc in list)
                 {
 
+                    doc.Name = encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt);                 
+                    doc.DocumentType = encryptData.Decrypt(doc.DocumentType, AppData.Key, AppData.Salt);                   
                     DocumentCollection.Add(doc);
 
                 }
@@ -142,6 +146,8 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                 Debug.WriteLine(list.ToString());
                 foreach (Documents doc in list)
                 {
+                   doc.Name = encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt);
+                    doc.DocumentType = encryptData.Decrypt(doc.DocumentType, AppData.Key, AppData.Salt);
 
                     DocumentCollection.Add(doc);
 
@@ -211,8 +217,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         }
         else
         {
-            string action = await Application.Current.MainPage.DisplayActionSheet(
-              "Escolha uma ação", "Cancelar", null, "Abrir", "Editar", "Excluir");
+            string action = await Application.Current.MainPage.DisplayActionSheet("Escolha uma ação", "Cancelar", null, "Abrir", "Editar", "Excluir");
 
             switch (action)
             {
