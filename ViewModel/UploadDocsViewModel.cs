@@ -141,7 +141,14 @@ namespace EasyPaperWork.ViewModel
                     if (string.IsNullOrEmpty(AppData.CurrentFolder))
                     {
                         documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, fileResult.FileName, "Pasta inicial");
-                        
+                        byte[] key = encryptData.GetKey(AppData.Salt, AppData.UserPassword);
+                        byte[] salt = encryptData.GetSaltBytes(AppData.Salt);
+                        documentsModel.Name = encryptData.Encrypt( fileResult.FileName,key,salt);
+                        documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, salt);
+                        documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, salt);
+                        documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, salt);
+                        documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, salt);
+
                         await firebaseService.AddFiles("Users", AppData.UserUid, "Pasta inicial", documentsModel.Name, documentsModel);
 
                         await Application.Current.MainPage.DisplayAlert("Succsses", "Aquivo enviado para Pasta inicial", "Ok");

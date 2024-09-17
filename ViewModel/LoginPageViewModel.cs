@@ -13,6 +13,7 @@ using EasyPaperWork.Services;
 using System.Web;
 using System.Text.Encodings.Web;
 using EasyPaperWork.Models;
+using EasyPaperWork.Security;
 
 namespace EasyPaperWork.ViewModel
 {
@@ -25,6 +26,7 @@ namespace EasyPaperWork.ViewModel
         public ICommand LoginCommand { get; set; }
         public ICommand CadastroCommand { get; set; }
         private FirebaseAuthServices _fireBaseAuthServices;
+      
 
         public LoginPageViewModel()
         {

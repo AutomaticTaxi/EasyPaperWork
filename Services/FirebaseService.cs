@@ -340,7 +340,7 @@ namespace EasyPaperWork.Services
 
                     };
                     Debug.WriteLine(userModel);
-                    return userModel.Salt.;
+                    return userModel.Salt;
                 }
                 else
                 {
