@@ -301,7 +301,8 @@ namespace EasyPaperWork.Services
                 DocumentReference document = _firestoreDb.Collection(ColecaoUser).Document(IdUser).Collection(file_path).Document(IdDocument);
                 await document.SetAsync(dados);
 
-            } catch (ArgumentException ex) { Debug.WriteLine(ex.Message); }
+            } catch (ArgumentException ex) {
+                Debug.WriteLine(ex.Message); }
         }
 
         public async Task AdicionarObjetoAsync<T>(string colecao, string documentoId, T objeto)
@@ -317,6 +318,44 @@ namespace EasyPaperWork.Services
             Debug.Write(json);
             return JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
             
+        }
+        public async Task <string> GetSalt(string Uid)
+        {
+            try
+            {
+                DocumentReference document = _firestoreDb.Collection("Users").Document(Uid);
+                DocumentSnapshot snapshot = await document.GetSnapshotAsync();
+
+                if (snapshot.Exists)
+                {
+                    Dictionary<string, object> dados = snapshot.ToDictionary();
+                    var userModel = new UserModel
+                    {
+                        Id = dados.ContainsKey("Id") ? dados["Id"].ToString() : string.Empty,
+                        Name = dados.ContainsKey("Name") ? dados["Name"].ToString() : string.Empty,
+                        Email = dados.ContainsKey("Email") ? dados["Email"].ToString() : string.Empty,
+                        Password = dados.ContainsKey("Password") ? dados["Password"].ToString() : string.Empty,
+                        AccountType = dados.ContainsKey("AccountType") ? dados["AccountType"].ToString() : string.Empty,
+                        Salt = dados.ContainsKey("Salt") ? dados["Salt"].ToString() : string.Empty
+
+
+                    };
+                    string salt = userModel.Salt;
+                    return salt;
+                }
+                else
+                {
+                    Debug.WriteLine("Documento não encontrado.");
+                    return "error";
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Documento não encontrado.");
+                Debug.WriteLine($"Exception: {ex.Message}");
+                return "error";
+            }
+
         }
     }
 }

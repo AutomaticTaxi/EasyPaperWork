@@ -13,6 +13,7 @@ using EasyPaperWork.Services;
 using System.Web;
 using System.Text.Encodings.Web;
 using EasyPaperWork.Models;
+using EasyPaperWork.Security;
 
 namespace EasyPaperWork.ViewModel
 {
@@ -25,11 +26,12 @@ namespace EasyPaperWork.ViewModel
         public ICommand LoginCommand { get; set; }
         public ICommand CadastroCommand { get; set; }
         private FirebaseAuthServices _fireBaseAuthServices;
+      
 
         public LoginPageViewModel()
         {
             LoginCommand = new Command(Login);
-            EntryEmail = "lucas.antunes.santos81@gmail.com";
+            EntryEmail = "contact.lsadecoration@gmail.com";
             EntryPassword = "Abajur.857";
 
             _fireBaseAuthServices = new FirebaseAuthServices();

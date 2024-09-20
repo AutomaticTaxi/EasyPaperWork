@@ -19,6 +19,11 @@ namespace EasyPaperWork.Models
         private static string _UserName;
         public static string UserName { get { return _UserName; } set { _UserName = value; } }
         public static string CurrentFolder { get { return _UserName; } set { _UserName = value; } }
+        private static byte[] _Salt;
+        public static byte [] Salt { get { return _Salt; } set { _Salt = value; } }
+      
+        private static byte[] _Key;
+        public static byte[] Key { get { return _Key; } set { _Key = value; } }
     }
    
 }

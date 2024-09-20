@@ -1,5 +1,6 @@
 ﻿using Castle.Components.DictionaryAdapter.Xml;
 using EasyPaperWork.Models;
+using EasyPaperWork.Security;
 using EasyPaperWork.Services;
 using Firebase.Auth;
 using Firebase.Auth.Providers;
@@ -27,6 +28,7 @@ namespace EasyPaperWork.ViewModel
     {
         
         private Documents documentsModel;
+        private EncryptData encryptData;
         public ICommand PickFileCommand { get; }
         private Scanner scanner;
         private Label LabelMensageError; 
@@ -57,6 +59,7 @@ namespace EasyPaperWork.ViewModel
 
         public UploadDocsViewModel()
         {
+            encryptData = new EncryptData();
             LabelMensageError = new Label();
             storageService =  new FirebaseStorageService();
             firebaseService = new FirebaseService();
@@ -138,12 +141,28 @@ namespace EasyPaperWork.ViewModel
                     if (string.IsNullOrEmpty(AppData.CurrentFolder))
                     {
                         documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, fileResult.FileName, "Pasta inicial");
+                        byte[] key = encryptData.GetKey(AppData.Salt, AppData.UserPassword);
+                        documentsModel.Name = encryptData.Encrypt( fileResult.FileName,key,AppData.Salt);
+                        documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
+                        documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
+                        documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
+                        documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
+
                         await firebaseService.AddFiles("Users", AppData.UserUid, "Pasta inicial", documentsModel.Name, documentsModel);
+
                         await Application.Current.MainPage.DisplayAlert("Succsses", "Aquivo enviado para Pasta inicial", "Ok");
                     }
                     else
                     {
+                        
                         documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, fileResult.FileName, AppData.CurrentFolder);
+                        byte[] key = encryptData.GetKey(AppData.Salt, AppData.UserPassword);
+                        documentsModel.Name = encryptData.Encrypt(fileResult.FileName, key, AppData.Salt);
+                        documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
+                        documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
+                        documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
+                        documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
+
                         await firebaseService.AddFiles("Users", AppData.UserUid, AppData.CurrentFolder, documentsModel.Name, documentsModel);
                         await Application.Current.MainPage.DisplayAlert("Succsses", $"Aquivo enviado para {AppData.CurrentFolder} ", "Ok");
                     }
