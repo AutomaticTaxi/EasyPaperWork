@@ -143,7 +143,8 @@ public class FirebaseStorageService
                  ThrowOnCancel = true,
              })
 
-              .Child("uploads")
+              .Child(AppData.UserUid)
+              .Child (AppData.CurrentFolder)
             .Child(fileName);
             // Faz o download do arquivo e o converte para um array de bytes
           var fileBytes = await DownloadFileByUrlAsync(await task.GetDownloadUrlAsync());

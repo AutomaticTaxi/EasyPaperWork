@@ -16,7 +16,13 @@ namespace EasyPaperWork.Security
         }
         public byte[] GetSaltBytes(string salt_string)
         {
+            //Conversão desfeita pois estes caracteres são sensíveis ao firebase
+            salt_string = salt_string.Replace("@", "/")
+                             .Replace("#", "+")
+                             .Replace("$", "=");
+
             return Convert.FromBase64String(salt_string);
+
         }
         
 
@@ -26,7 +32,12 @@ namespace EasyPaperWork.Security
             byte[] salt = new byte[32];
             var rng = RandomNumberGenerator.Create();
             rng.GetBytes(salt);
-            return Convert.ToBase64String(salt);
+            string saltstring = Convert.ToBase64String(salt);
+            //Conversão feita pois estes caracteres são sensíveis ao firebase
+            saltstring = saltstring.Replace("/", "@")
+                                         .Replace("+", "#")
+                                         .Replace("=", "$");
+            return saltstring;
         }
 
         // Renomear o método de EncryptData para Encrypt
@@ -53,12 +64,23 @@ namespace EasyPaperWork.Security
             swEncrypt.Close();
 
             byte[] encryptedBytes = msEncrypt.ToArray();
-            return Convert.ToBase64String(encryptedBytes);
+            string EncryptString = Convert.ToBase64String(encryptedBytes);
+
+            // Conversão feita pois estes caracteres são sensíveis ao Firebase
+            EncryptString = EncryptString.Replace("/", "@")
+                                         .Replace("+", "#")
+                                         .Replace("=", "$");
+
+            return EncryptString;
         }
 
         // Renomear o método de DecryptData para Decrypt
         public string Decrypt(string cipherText, byte[] key, byte[] salt)
         {
+            //Conversão desfeita pois estes caracteres são sensíveis ao firebase           
+            cipherText = cipherText.Replace("@", "/")
+                .Replace("#", "+")
+                .Replace("$", "=");          
             byte[] fullCipher = Convert.FromBase64String(cipherText);
             var aes = Aes.Create();
             aes.Key = key;
@@ -73,7 +95,7 @@ namespace EasyPaperWork.Security
             var msDecrypt = new MemoryStream(cipherBytes);
             var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
             var srDecrypt = new StreamReader(csDecrypt);
-
+            
             return srDecrypt.ReadToEnd();
         }
         public  byte[] GenerateKeyFromPasswordAndSalt(string password, byte[] salt, int keySize = 32)

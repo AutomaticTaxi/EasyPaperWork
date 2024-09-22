@@ -1,4 +1,5 @@
-﻿using __XamlGeneratedCode__;
+﻿
+using __XamlGeneratedCode__;
 using EasyPaperWork.Models;
 using EasyPaperWork.Security;
 using EasyPaperWork.Services;
@@ -87,6 +88,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     private Folder_Files Folder_Files;
     public  Main_ViewModel_Files()
     {
+
         service = new WindowsFileSavePickerService();
 
         UidUser = AppData.UserUid;
@@ -311,5 +313,4 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
 
 
 }
-
 

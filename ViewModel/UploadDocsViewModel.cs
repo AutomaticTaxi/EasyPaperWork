@@ -29,6 +29,7 @@ namespace EasyPaperWork.ViewModel
         
         private Documents documentsModel;
         private EncryptData encryptData;
+        private byte[] key;
         public ICommand PickFileCommand { get; }
         private Scanner scanner;
         private Label LabelMensageError; 
@@ -68,8 +69,9 @@ namespace EasyPaperWork.ViewModel
             ScanFileCommand = new Command(async () => await ScanFileAsync());
             documentsModel = new Documents();
             PickFileCommand = new Command(async () => await PickAndShowFileAsync());
-            scanner = new Scanner();    
-           
+            scanner = new Scanner();
+            key = encryptData.GetKey(AppData.Salt, AppData.UserPassword);
+
         }
         private async Task ScanFileAsync()
         {
@@ -79,16 +81,46 @@ namespace EasyPaperWork.ViewModel
                 MemoryStream documentscanned = await scanner.ScanDocumentAsync(documentsModel.Name);
                 if (documentscanned != null) {
 
-                    string PathTemporaryFile = Path.Combine(@"Temp",$"{documentsModel.Name}.pdf");
+                string PathTemporaryFile =Path.Combine( Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),$"{documentsModel.Name}.pdf");
+
                     try
                     {
                         FileStream DocumentScannedSave = new FileStream(path: PathTemporaryFile, FileMode.CreateNew,FileAccess.ReadWrite);
                         DocumentScannedSave.Seek(0, SeekOrigin.Begin);
                         await documentscanned.CopyToAsync(DocumentScannedSave);
-                        await Application.Current.MainPage.DisplayAlert("Sucesso", "Documento Salvo com sucesso", "Ok");
+                        if (string.IsNullOrEmpty(AppData.CurrentFolder))
+                        {
+                            byte[] key = encryptData.GetKey(AppData.Salt, AppData.UserPassword);
+                           // documentsModel.UrlDownload = await storageService.UploadFileAsync(DocumentScannedSave, documentsModel.Name, "Pasta inicial");
+                            documentsModel.DocumentType = ".pdf";
+                            documentsModel.RootFolder = "Pasta inicial";
+                            documentsModel.Name = encryptData.Encrypt(documentsModel.Name, key, AppData.Salt);
+                           // documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
+                            documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
+                            documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);  
+                            documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
+
+                            await firebaseService.AddFiles("Users", AppData.UserUid, documentsModel.RootFolder, documentsModel.Name, documentsModel);
+                            await Application.Current.MainPage.DisplayAlert("Succsses", "Aquivo enviado para Pasta inicial ", "Ok");
+                        }
+                        else
+                        {
+                           // documentsModel.UrlDownload = await storageService.UploadFileAsync(DocumentScannedSave, documentsModel.Name, AppData.CurrentFolder);
+                            documentsModel.DocumentType = ".pdf";
+                            documentsModel.RootFolder = AppData.CurrentFolder;
+                            documentsModel.Name = encryptData.Encrypt(documentsModel.Name, key, AppData.Salt);
+                           // documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
+                            documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
+                            documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
+                            documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
+                            await firebaseService.AddFiles("Users", AppData.UserUid, documentsModel.RootFolder, documentsModel.Name, documentsModel);
+                            await Application.Current.MainPage.DisplayAlert("Succsses", $"Aquivo enviado para {AppData.CurrentFolder} ", "Ok");
+                        }
+                      
                     } catch (Exception ex) {
                         LabelMensageError.Text = ex.Message;    
                     }
+                 
                 }
 
             } else {
@@ -140,8 +172,7 @@ namespace EasyPaperWork.ViewModel
                 {
                     if (string.IsNullOrEmpty(AppData.CurrentFolder))
                     {
-                        documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, fileResult.FileName, "Pasta inicial");
-                        byte[] key = encryptData.GetKey(AppData.Salt, AppData.UserPassword);
+                        documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, fileResult.FileName, "Pasta inicial");                      
                         documentsModel.Name = encryptData.Encrypt( fileResult.FileName,key,AppData.Salt);
                         documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
                         documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
@@ -155,8 +186,7 @@ namespace EasyPaperWork.ViewModel
                     else
                     {
                         
-                        documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, fileResult.FileName, AppData.CurrentFolder);
-                        byte[] key = encryptData.GetKey(AppData.Salt, AppData.UserPassword);
+                        documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, fileResult.FileName, AppData.CurrentFolder);                     
                         documentsModel.Name = encryptData.Encrypt(fileResult.FileName, key, AppData.Salt);
                         documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
                         documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
