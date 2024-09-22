@@ -81,7 +81,7 @@ namespace EasyPaperWork.ViewModel
                 MemoryStream documentscanned = await scanner.ScanDocumentAsync(documentsModel.Name);
                 if (documentscanned != null) {
 
-                string PathTemporaryFile =Path.Combine( Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),$"{documentsModel.Name}.pdf");
+                string PathTemporaryFile =Path.Combine("C:\\Users\\lucas\\OneDrive\\Pictures\\Digitalizações", $"{documentsModel.Name}.pdf");
 
                     try
                     {
@@ -91,29 +91,29 @@ namespace EasyPaperWork.ViewModel
                         if (string.IsNullOrEmpty(AppData.CurrentFolder))
                         {
                             byte[] key = encryptData.GetKey(AppData.Salt, AppData.UserPassword);
-                           // documentsModel.UrlDownload = await storageService.UploadFileAsync(DocumentScannedSave, documentsModel.Name, "Pasta inicial");
+                            documentsModel.UrlDownload = await storageService.UploadFileAsync(DocumentScannedSave, documentsModel.Name, "Pasta inicial");
                             documentsModel.DocumentType = ".pdf";
                             documentsModel.RootFolder = "Pasta inicial";
                             documentsModel.Name = encryptData.Encrypt(documentsModel.Name, key, AppData.Salt);
-                           // documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
+                          documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
                             documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
                             documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);  
                             documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
 
-                            await firebaseService.AddFiles("Users", AppData.UserUid, documentsModel.RootFolder, documentsModel.Name, documentsModel);
+                            await firebaseService.AddFiles("Users", AppData.UserUid, "Pasta inicial", documentsModel.Name, documentsModel);
                             await Application.Current.MainPage.DisplayAlert("Succsses", "Aquivo enviado para Pasta inicial ", "Ok");
                         }
                         else
                         {
-                           // documentsModel.UrlDownload = await storageService.UploadFileAsync(DocumentScannedSave, documentsModel.Name, AppData.CurrentFolder);
+                           documentsModel.UrlDownload = await storageService.UploadFileAsync(DocumentScannedSave, documentsModel.Name, AppData.CurrentFolder);
                             documentsModel.DocumentType = ".pdf";
                             documentsModel.RootFolder = AppData.CurrentFolder;
                             documentsModel.Name = encryptData.Encrypt(documentsModel.Name, key, AppData.Salt);
-                           // documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
+                            documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
                             documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
                             documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
                             documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
-                            await firebaseService.AddFiles("Users", AppData.UserUid, documentsModel.RootFolder, documentsModel.Name, documentsModel);
+                            await firebaseService.AddFiles("Users", AppData.UserUid, AppData.CurrentFolder, documentsModel.Name, documentsModel);
                             await Application.Current.MainPage.DisplayAlert("Succsses", $"Aquivo enviado para {AppData.CurrentFolder} ", "Ok");
                         }
                       

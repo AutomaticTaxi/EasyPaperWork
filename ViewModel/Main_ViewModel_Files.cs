@@ -130,7 +130,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             if (string.IsNullOrEmpty(currentfolder))
             {
                 LabelTituloRepositorio = "Pasta inicial";
-                List<Documents> list = await _firebaseService.ListFiles("Users", AppData.UserUid, "Pasta inicial");
+                List<Documents> list = await _firebaseService.ListFiles("Users", AppData.UserUid, encryptData.Encrypt("Pasta inicial",key);
                 
                 foreach (Documents doc in list)
                 {

@@ -45,6 +45,7 @@
 		<GenerateTestArtifacts>True</GenerateTestArtifacts>
 		<AppInstallerUri>C:\Users\lucas\Downloads</AppInstallerUri>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+		<DefaultLanguage>pt-br</DefaultLanguage>
 	</PropertyGroup>
 
 
@@ -101,7 +102,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="FirebaseAdmin" Version="3.0.0" />
+		<PackageReference Include="FirebaseAdmin" Version="3.0.1" />
 		<PackageReference Include="FirebaseAuth" Version="2.0.6" />
 		<PackageReference Include="FirebaseAuthentication.net" Version="4.1.0" />
 		<PackageReference Include="FirebaseStorage.net" Version="1.0.3" />
@@ -150,7 +151,7 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <PackageReference Update="Microsoft.Maui.Controls" Version="8.0.80" />
+	  <PackageReference Update="Microsoft.Maui.Controls" Version="8.0.90" />
 	</ItemGroup>
 	
 	<ItemGroup>

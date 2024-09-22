@@ -1,4 +1,4 @@
-﻿#if WINDOWS10_0_17763_0_OR_GREATER
+﻿#if WINDOWS
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,5 +39,22 @@ namespace EasyPaperWork.Services
             return null;
         }
     }
+}
+#else
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace EasyPaperWork.Services
+{
+    public class WindowsFileSavePickerService
+    {
+        public async Task<string> SaveFileAsync(byte[] fileBytes, string suggestedFileName, string fileType)
+        {
+            return "Erro";
+        }
+    } 
 }
 #endif
