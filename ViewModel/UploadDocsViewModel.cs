@@ -215,6 +215,10 @@ namespace EasyPaperWork.ViewModel
                         await firebaseService.AddFiles("Users", AppData.UserUid, AppData.CurrentFolder, documentsModel.Name, documentsModel);
                         await Application.Current.MainPage.DisplayAlert("Succsses", $"Aquivo enviado para {AppData.CurrentFolder} ", "Ok");
                     }
+                    if (File.Exists(PathTemporaryEncryptFile))
+                    {
+                        File.Delete(PathTemporaryEncryptFile);
+                    }
                     
                 }
                 else

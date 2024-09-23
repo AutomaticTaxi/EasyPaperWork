@@ -256,15 +256,18 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         if (fileBytes != null)
         {
             string path = await service.PickFolderAsync();
-            string CompletedPath = Path.Combine(path, $"{selectedItem.Name}decrypt.pdf");
-            string PathTemporaryFile = Path.Combine(path, $"{selectedItem.Name}.pdf");
+            string CompletedPath = Path.Combine(path, $"{selectedItem.Name}.pdf");
+            string PathTemporaryFile = Path.Combine(Path.GetTempPath(), $"{selectedItem.Name}encrypt.pdf");
             FileStream DocumentEncryptSave = new FileStream(PathTemporaryFile, FileMode.Create, FileAccess.Write);
             DocumentEncryptSave.Write(fileBytes);
             DocumentEncryptSave.Dispose();
             DocumentEncryptSave.Close();
             
             encryptData.DecryptFile(PathTemporaryFile,CompletedPath,AppData.UserPassword);
-
+            if (File.Exists(PathTemporaryFile))
+            {
+                File.Delete(PathTemporaryFile);
+            }
 
             if (path != null)
             {
