@@ -1,12 +1,12 @@
 ﻿#if WINDOWS
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.Storage.Pickers;
-using Windows.Storage;
 using System.Diagnostics;
+using System.Threading.Tasks;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using WinRT.Interop;
 
 namespace EasyPaperWork.Services
 {
@@ -38,6 +38,29 @@ namespace EasyPaperWork.Services
 
             return null;
         }
+        public async Task<string> PickFolderAsync()
+        {
+            var picker = new FolderPicker();
+            picker.SuggestedStartLocation = PickerLocationId.Desktop;
+
+            // Definir as extensões de arquivo para garantir a compatibilidade com todas as pastas
+            picker.FileTypeFilter.Add("*");
+
+            // Inicializar o picker com a janela ativa
+            var hwnd = ((MauiWinUIWindow)App.Current.Windows[0].Handler.PlatformView).WindowHandle;
+            InitializeWithWindow.Initialize(picker, hwnd);
+
+            StorageFolder folder = await picker.PickSingleFolderAsync();
+
+            if (folder != null)
+            {
+                return folder.Path;  // Retorna o caminho da pasta selecionada
+            }
+
+            return null;
+        }
+
+
     }
 }
 #else
@@ -53,8 +76,12 @@ namespace EasyPaperWork.Services
     {
         public async Task<string> SaveFileAsync(byte[] fileBytes, string suggestedFileName, string fileType)
         {
-            return "Erro";
+            return "Função para windows";
         }
-    } 
+        public async Task<string> PickFolderAsync()
+        {
+            return "Função para windows";
+        }
+    }
 }
 #endif

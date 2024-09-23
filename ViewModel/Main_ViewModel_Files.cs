@@ -130,7 +130,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             if (string.IsNullOrEmpty(currentfolder))
             {
                 LabelTituloRepositorio = "Pasta inicial";
-                List<Documents> list = await _firebaseService.ListFiles("Users", AppData.UserUid, encryptData.Encrypt("Pasta inicial",key);
+                List<Documents> list = await _firebaseService.ListFiles("Users", AppData.UserUid, "Pasta inicial");
                 
                 foreach (Documents doc in list)
                 {
@@ -244,14 +244,39 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     private async Task<string> DownloadFile(Documents selectedItem)
     {
         Debug.WriteLine($"Downloading file {selectedItem.Name}");
-        byte[] fileBytes = await _firebaseStorageService.DownloadFileByNameAsync(selectedItem.Name); // Sua lógica para obter os bytes do arquivo
-        string path = await service.SaveFileAsync(fileBytes, selectedItem.Name,selectedItem.DocumentType);
-
-        if (path != null)
+        byte[] fileBytes;
+        if (string.IsNullOrEmpty(AppData.CurrentFolder))
         {
-            // Arquivo salvo com sucesso
-            Console.WriteLine($"Arquivo salvo em: {path}");
-            return "success";
+           fileBytes = await _firebaseStorageService.DownloadFileByNameAsync(AppData.UserUid,"Pasta inicial", selectedItem.Name); // Sua lógica para obter os bytes do arquivo
+        }
+        else
+        {
+           fileBytes = await _firebaseStorageService.DownloadFileByNameAsync(AppData.UserUid,AppData.CurrentFolder, selectedItem.Name); // Sua lógica para obter os bytes do arquivo
+        }
+        if (fileBytes != null)
+        {
+            string path = await service.PickFolderAsync();
+            string CompletedPath = Path.Combine(path, $"{selectedItem.Name}decrypt.pdf");
+            string PathTemporaryFile = Path.Combine(path, $"{selectedItem.Name}.pdf");
+            FileStream DocumentEncryptSave = new FileStream(PathTemporaryFile, FileMode.Create, FileAccess.Write);
+            DocumentEncryptSave.Write(fileBytes);
+            DocumentEncryptSave.Dispose();
+            DocumentEncryptSave.Close();
+            
+            encryptData.DecryptFile(PathTemporaryFile,CompletedPath,AppData.UserPassword);
+
+
+            if (path != null)
+            {
+                // Arquivo salvo com sucesso
+                Console.WriteLine($"Arquivo salvo em: {path}");
+                return "success";
+            }
+            else
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", "Caminho para downlod inválido", "ok");
+                return "caminho inválido";
+            }
         }
         return "error";
     }

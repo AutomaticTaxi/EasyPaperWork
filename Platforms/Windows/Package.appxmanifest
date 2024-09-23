@@ -43,43 +43,8 @@
       </uap:VisualElements>
     </Application>
   </Applications>
-
-  <Capabilities>
-	  <rescap:Capability Name="runFullTrust" />
-	  <rescap:Capability Name="allowElevation" />
-	  <iot:Capability Name="systemManagement"/>
-	  <uap6:Capability Name="graphicsCapture"/>
-	  <uap:Capability Name="picturesLibrary"/>
-	  <uap:Capability Name="musicLibrary"/>
-	  <uap:Capability Name="videosLibrary"/>
-	  <uap:Capability Name="sharedUserCertificates"/>
-	  <uap:Capability Name="phoneCall"/>
-	  <uap:Capability Name="voipCall"/>
-	  <uap:Capability Name="appointments"/>
-	  <uap:Capability Name="contacts"/>
-	  <Capability Name="codeGeneration"/>
-	  <iot:Capability Name="lowLevelDevices"/>
-	  <uap4:Capability Name="offlineMapsManagement"/>
-	  <uap:Capability Name="userAccountInformation"/>
-	  <Capability Name="internetClientServer"/>
-	  <Capability Name="internetClient"/>
-	  <uap:Capability Name="blockedChatMessages"/>
-	  <uap:Capability Name="objects3D"/>
-	  <uap3:Capability Name="userNotificationListener"/>
-	  <uap2:Capability Name="spatialPerception"/>
-	  <uap2:Capability Name="phoneCallHistoryPublic"/>
-	  <Capability Name="privateNetworkClientServer"/>
-	  <uap3:Capability Name="backgroundMediaPlayback"/>
-	  <uap3:Capability Name="remoteSystem"/>
-	  <uap4:Capability Name="userDataTasks"/>
-	  <DeviceCapability Name="lowLevel"/>
-	  <DeviceCapability Name="bluetooth"/>
-	  <DeviceCapability Name="location"/>
-	  <DeviceCapability Name="microphone"/>
-	  <DeviceCapability Name="gazeInput"/>
-	  <DeviceCapability Name="pointOfService"/>
-	  <DeviceCapability Name="proximity"/>
-	  <DeviceCapability Name="webcam"/>
-  </Capabilities>
+	<Capabilities>
+		<rescap:Capability Name="runFullTrust" />
+	</Capabilities>
 
 </Package>
