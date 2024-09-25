@@ -41,14 +41,14 @@ namespace EasyPaperWork.Services
         public async Task<string> PickFolderAsync()
         {
             var picker = new FolderPicker();
-            picker.SuggestedStartLocation = PickerLocationId.Desktop;
+            picker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
 
             // Definir as extensões de arquivo para garantir a compatibilidade com todas as pastas
             picker.FileTypeFilter.Add("*");
 
             // Inicializar o picker com a janela ativa
             var hwnd = ((MauiWinUIWindow)App.Current.Windows[0].Handler.PlatformView).WindowHandle;
-            InitializeWithWindow.Initialize(picker, hwnd);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
 
             StorageFolder folder = await picker.PickSingleFolderAsync();
 

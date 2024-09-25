@@ -243,45 +243,64 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     }
     private async Task<string> DownloadFile(Documents selectedItem)
     {
-        Debug.WriteLine($"Downloading file {selectedItem.Name}");
-        byte[] fileBytes;
-        if (string.IsNullOrEmpty(AppData.CurrentFolder))
+        try
         {
-           fileBytes = await _firebaseStorageService.DownloadFileByNameAsync(AppData.UserUid,"Pasta inicial", selectedItem.Name); // Sua lógica para obter os bytes do arquivo
-        }
-        else
-        {
-           fileBytes = await _firebaseStorageService.DownloadFileByNameAsync(AppData.UserUid,AppData.CurrentFolder, selectedItem.Name); // Sua lógica para obter os bytes do arquivo
-        }
-        if (fileBytes != null)
-        {
-            string path = await service.PickFolderAsync();
-            string CompletedPath = Path.Combine(path, $"{selectedItem.Name}.pdf");
-            string PathTemporaryFile = Path.Combine(Path.GetTempPath(), $"{selectedItem.Name}encrypt.pdf");
-            FileStream DocumentEncryptSave = new FileStream(PathTemporaryFile, FileMode.Create, FileAccess.Write);
-            DocumentEncryptSave.Write(fileBytes);
-            DocumentEncryptSave.Dispose();
-            DocumentEncryptSave.Close();
-            
-            encryptData.DecryptFile(PathTemporaryFile,CompletedPath,AppData.UserPassword);
-            if (File.Exists(PathTemporaryFile))
+            Debug.WriteLine($"Downloading file {selectedItem.Name}");
+            byte[] fileBytes;
+            if (string.IsNullOrEmpty(AppData.CurrentFolder))
             {
-                File.Delete(PathTemporaryFile);
-            }
-
-            if (path != null)
-            {
-                // Arquivo salvo com sucesso
-                Console.WriteLine($"Arquivo salvo em: {path}");
-                return "success";
+                fileBytes = await _firebaseStorageService.DownloadFileByNameAsync(AppData.UserUid, "Pasta inicial", selectedItem.Name); // Sua lógica para obter os bytes do arquivo
             }
             else
             {
-                await Application.Current.MainPage.DisplayAlert("Error", "Caminho para downlod inválido", "ok");
-                return "caminho inválido";
+                fileBytes = await _firebaseStorageService.DownloadFileByNameAsync(AppData.UserUid, AppData.CurrentFolder, selectedItem.Name); // Sua lógica para obter os bytes do arquivo
             }
+            if (fileBytes != null)
+            {
+                string path = await service.PickFolderAsync();
+                string CompletedPath = Path.Combine(path, $"{selectedItem.Name}.pdf");
+                string PathTemporaryFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), $"{selectedItem.Name}encrypt.pdf");
+                FileStream DocumentEncryptSave = new FileStream(PathTemporaryFile, FileMode.Create, FileAccess.Write);
+                DocumentEncryptSave.Write(fileBytes);
+                DocumentEncryptSave.Dispose();
+                DocumentEncryptSave.Close();
+
+                encryptData.DecryptFile(PathTemporaryFile, CompletedPath, AppData.UserPassword);
+                if (File.Exists(PathTemporaryFile))
+                {
+                    File.Delete(PathTemporaryFile);
+                }
+
+                if (path != null)
+                {
+                    // Arquivo salvo com sucesso
+                    Console.WriteLine($"Arquivo salvo em: {path}");
+                    return "success";
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", "Caminho para downlod inválido", "ok");
+                    return "caminho inválido";
+                }
+            }
+            return "error";
         }
-        return "error";
+        catch (DirectoryNotFoundException ex)
+        {
+            await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "Ok");
+            return "error";
+        }
+        catch (PermissionException ex)
+        {
+            await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "Ok");
+            return "error";
+        }
+        catch (Exception ex) {
+
+            await Application.Current.MainPage.DisplayAlert("Error", ex.ToString(), "Ok");
+            return "error";
+
+        }
     }
     private async Task<string> DeleteFile(Documents selectedItem)
     {
