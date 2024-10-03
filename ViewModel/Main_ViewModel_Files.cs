@@ -17,6 +17,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
 {
     public ObservableCollection<Folder_Files> FolderCollection { get; set; }
     public ObservableCollection<Documents> DocumentCollection { get; set; }
+    private Log log;
     private FirebaseService _firebaseService;
     private FirebaseStorageService _firebaseStorageService;
     private EncryptData encryptData;
@@ -90,7 +91,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     {
 
         service = new WindowsFileSavePickerService();
-
+        Log log = new Log();
         UidUser = AppData.UserUid;
         _firebaseService = new FirebaseService();
         _firebaseStorageService = new FirebaseStorageService();
@@ -249,10 +250,14 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             byte[] fileBytes;
             if (string.IsNullOrEmpty(AppData.CurrentFolder))
             {
+                Log newlog = log.CreateLogDownloadFile(selectedItem.Name);
+                await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                 fileBytes = await _firebaseStorageService.DownloadFileByNameAsync(AppData.UserUid, "Pasta inicial", selectedItem.Name); // Sua lógica para obter os bytes do arquivo
             }
             else
             {
+                Log newlog = log.CreateLogDownloadFile(selectedItem.Name);
+                await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                 fileBytes = await _firebaseStorageService.DownloadFileByNameAsync(AppData.UserUid, AppData.CurrentFolder, selectedItem.Name); // Sua lógica para obter os bytes do arquivo
             }
             if (fileBytes != null)
@@ -313,6 +318,8 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                 {
                     if (await _firebaseStorageService.DeleteFileAsync(AppData.UserUid, "Pasta inicial", selectedItem.Name))
                     {
+                        Log newlog = log.CreateLogDeleteFile(selectedItem.Name);
+                        await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                         DocumentCollection.Remove(selectedItem);
                         Console.WriteLine("Arquivo removido");
                         return "success";
@@ -323,6 +330,8 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             {
                 if (await _firebaseStorageService.DeleteFileAsync(AppData.UserUid, AppData.CurrentFolder, selectedItem.Name))
                 {
+                    Log newlog = log.CreateLogDeleteFile(selectedItem.Name);
+                    await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                     DocumentCollection.Remove(selectedItem);
                     Console.WriteLine("Arquivo removido");
                     return "success";

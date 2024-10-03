@@ -20,26 +20,26 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Input;
-using ModuleScanner;
 
-#if WINDOWS
-using Windows.ApplicationModel;
-#endif
+
+
 using System.Threading.Tasks;
+using System.Security.Principal;
 
 
 namespace EasyPaperWork.ViewModel
 {
 
-    public class UploadDocsViewModel: INotifyPropertyChanged
+    public class UploadDocsViewModel : INotifyPropertyChanged
     {
-        
+
         private Documents documentsModel;
         private EncryptData encryptData;
+        private Log log;
         private byte[] key;
         public ICommand PickFileCommand { get; }
         private Scanner scanner;
-        private Label LabelMensageError; 
+        private Label LabelMensageError;
         public ICommand ScanFileCommand { get; }
         private FirebaseStorageService storageService;
         private FirebaseService firebaseService;
@@ -62,17 +62,18 @@ namespace EasyPaperWork.ViewModel
             {
                 UidUser = HttpUtility.UrlDecode(value);
                 OnPropertyChanged(nameof(_UidUser));
-               
+
             }
         }
 
         public UploadDocsViewModel()
         {
+            log = new Log();
             encryptData = new EncryptData();
             LabelMensageError = new Label();
-            storageService =  new FirebaseStorageService();
+            storageService = new FirebaseStorageService();
             firebaseService = new FirebaseService();
-            _UidUser =AppData.UserUid;
+            _UidUser = AppData.UserUid;
             Initialize();
             ScanFileCommand = new Command(async () => await ScanFileAsync());
             documentsModel = new Documents();
@@ -81,90 +82,81 @@ namespace EasyPaperWork.ViewModel
             key = encryptData.GetKey(AppData.Salt, AppData.UserPassword);
 
         }
-        public void CloseExeFile()
+        public bool IsRunningAsAdministrator()
         {
-            try
+            using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
             {
-                if (_process != null && !_process.HasExited)
+                WindowsPrincipal principal = new WindowsPrincipal(identity);
+                return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            }
+        }
+
+        public async void RestartAsAdministrator()
+        {
+            if (!IsRunningAsAdministrator())
+            {
+                // Cria um novo processo do próprio aplicativo com privilégios de administrador
+                var processInfo = new ProcessStartInfo
                 {
-                    _process.Kill(); // Fecha o processo
-                    _process.Dispose();
-                    Console.WriteLine("Executável fechado.");
+                    FileName = Process.GetCurrentProcess().MainModule.FileName, // Nome do executável atual
+                    UseShellExecute = true,
+                    Verb = "runas",
+                    Arguments = string.Empty // Executa com permissões elevadas
+                };
+
+                try
+                {
+                    Process atual = Process.GetCurrentProcess();
+
+                    // Inicia o novo processo com permissões elevadas
+                    Process newProcess = Process.Start(processInfo);
+
+                    if (newProcess != null)
+                    {
+                        // Aguarda que o novo processo seja iniciado
+                        await Task.Delay(2000);
+
+                        // Verifica se o novo processo foi iniciado corretamente
+                        if (!newProcess.HasExited)
+                        {
+                            // Finaliza o processo atual de forma controlada
+                            Debug.WriteLine($"Novo processo iniciado com PID: {newProcess.Id}. Encerrando o processo atual.");
+                            Environment.Exit(0);  // Encerra o processo atual de forma limpa
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Caso o usuário cancele ou ocorra outro erro
+                    Debug.WriteLine($"Erro ao tentar reiniciar o aplicativo como administrador: {ex.Message}");
                 }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erro ao fechar o arquivo .exe: {ex.Message}");
-            }
         }
-        public async Task<string> LaunchWin32AppAsync(string nome)
-        {
-#if WINDOWS
 
-            try
-    {
-        string pathModuleScan = Path.Combine("C:\\Users\\lucas\\source\\repos\\ModuleScanner\\bin\\Debug\\net8.0\\ModuleScanner.exe");
-        
-        // Inicia o processo do módulo externo
-        _process = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = pathModuleScan,
-                UseShellExecute = true
-            }
-        };
-        _process.Start();
 
-        // Inicia o servidor de pipe para enviar o parâmetro
-        PipeClient pipeClient = new PipeClient();
-        return await pipeClient.StartClientAsync(nome);
-        
-        
-    }
-    catch (Exception ex)
-    {
-        Debug.WriteLine($"Erro ao abrir o arquivo .exe: {ex}");
-        return null;
-    }
-
-#else
-            Debug.WriteLine("O lançamento de processo FullTrust não está disponível nesta plataforma.");
-            return null;
-#endif
-        }
 
         private async Task ScanFileAsync()
         {
-            
-            documentsModel.Name = await Application.Current.MainPage.DisplayPromptAsync("Scan", "Isira o nome do arquivo", "Ok", "Cancelar");
-            if (!string.IsNullOrEmpty(documentsModel.Name)) {
-                await LaunchWin32AppAsync(documentsModel.Name);
-                string strinbt = AppData.ServerResult;
-                if (!string.IsNullOrEmpty(strinbt))
+            if (IsRunningAsAdministrator())
+            {
+                documentsModel.Name = await Application.Current.MainPage.DisplayPromptAsync("Scan", "Isira o nome do arquivo", "Ok", "Cancelar");
+                if (!string.IsNullOrEmpty(documentsModel.Name))
                 {
-                    byte[] bytesfile = Convert.FromBase64String(strinbt);
-                    MemoryStream documentscanned = new MemoryStream();
-                    documentscanned.Write(bytesfile);
-                    if (documentscanned != null)
+                    string filepath = await scanner.ScanDocumentAsync(documentsModel.Name);
+
+                    if (!string.IsNullOrEmpty(filepath))
                     {
 
-                        string PathTemporaryFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), $"{documentsModel.Name}.pdf");
                         string PathTemporaryEncryptFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), string.Concat("Encrypt", documentsModel.Name, ".pdf"));
                         try
                         {
-                            FileStream DocumentScannedSave = new FileStream(path: PathTemporaryFile, FileMode.CreateNew, FileAccess.ReadWrite);
-                            DocumentScannedSave.Seek(0, SeekOrigin.Begin);
-                            await documentscanned.CopyToAsync(DocumentScannedSave);
-                            DocumentScannedSave.Dispose();
-                            DocumentScannedSave.Close();
-                            documentscanned.Dispose();
-                            documentscanned.Close();
-                            encryptData.EncryptFile(PathTemporaryFile, PathTemporaryEncryptFile, AppData.UserPassword, AppData.Salt);
+                            encryptData.EncryptFile(filepath, PathTemporaryEncryptFile, AppData.UserPassword, AppData.Salt);
                             var stream = File.Open(PathTemporaryEncryptFile, FileMode.Open);
                             if (string.IsNullOrEmpty(AppData.CurrentFolder))
                             {
                                 documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, documentsModel.Name, "Pasta inicial");
+                                Log newlog = log.CreateLogAddFile(documentsModel.Name);
+                                await firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                                 documentsModel.DocumentType = ".pdf";
                                 documentsModel.RootFolder = "Pasta inicial";
                                 documentsModel.Name = encryptData.Encrypt(documentsModel.Name, key, AppData.Salt);
@@ -173,6 +165,7 @@ namespace EasyPaperWork.ViewModel
                                 documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
                                 documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
 
+
                                 await firebaseService.AddFiles("Users", AppData.UserUid, "Pasta inicial", documentsModel.Name, documentsModel);
                                 await Application.Current.MainPage.DisplayAlert("Succsses", "Aquivo enviado para Pasta inicial ", "Ok");
                             }
@@ -180,6 +173,8 @@ namespace EasyPaperWork.ViewModel
                             {
 
                                 documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, documentsModel.Name, AppData.CurrentFolder);
+                                Log newlog = log.CreateLogAddFile(documentsModel.Name);
+                                await firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                                 documentsModel.DocumentType = ".pdf";
                                 documentsModel.RootFolder = AppData.CurrentFolder;
                                 documentsModel.Name = encryptData.Encrypt(documentsModel.Name, key, AppData.Salt);
@@ -192,32 +187,34 @@ namespace EasyPaperWork.ViewModel
                             }
                             stream.Dispose();
                             stream.Close();
-                            if (File.Exists(PathTemporaryFile))
+                            if (File.Exists(filepath))
                             {
-                                File.Delete(PathTemporaryFile);
+                                File.Delete(filepath);
                             }
                             if (File.Exists(PathTemporaryEncryptFile))
                             {
                                 File.Delete(PathTemporaryEncryptFile);
                             }
 
-                            CloseExeFile();
 
                         }
                         catch (Exception ex)
                         {
                             await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "Ok");
                         }
-                    }
-                }else
-                {
-                    await Application.Current.MainPage.DisplayAlert("Error", " falha ao abrir modulo", "Ok");
-                    CloseExeFile();
-                }
 
-            } else {
-                await Application.Current.MainPage.DisplayAlert("Error", "Nome inválido", "ok");
-                CloseExeFile();
+                    }
+
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", "Nome inválido", "ok");
+
+                }
+            }
+            else
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", "Re inicie a aplicação em modo administrador ", "ok");
             }
         }
         private async Task PickAndShowFileAsync()
@@ -235,7 +232,7 @@ namespace EasyPaperWork.ViewModel
                     { DevicePlatform.iOS, new[] { "com.adobe.pdf", "org.openxmlformats.wordprocessingml.document", "com.microsoft.word.doc", "com.microsoft.excel.xls", "org.openxmlformats.spreadsheetml.sheet", "org.openxmlformats.presentationml.presentation" } }
                 })
                 });
-                
+
                 if (fileResult != null)
                 {
 
@@ -275,6 +272,8 @@ namespace EasyPaperWork.ViewModel
                         {
 
                             documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, fileResult.FileName, "Pasta inicial");
+                            Log newlog = log.CreateLogAddFile(fileResult.FileName);
+                            await firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                             documentsModel.Name = encryptData.Encrypt(fileResult.FileName, key, AppData.Salt);
                             documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
                             documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
@@ -289,6 +288,8 @@ namespace EasyPaperWork.ViewModel
                         {
 
                             documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, fileResult.FileName, AppData.CurrentFolder);
+                            Log newlog = log.CreateLogAddFile(fileResult.FileName);
+                            await firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                             documentsModel.Name = encryptData.Encrypt(fileResult.FileName, key, AppData.Salt);
                             documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
                             documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
@@ -314,7 +315,8 @@ namespace EasyPaperWork.ViewModel
 
 
                 }
-            }catch(System.Exception ex)
+            }
+            catch (System.Exception ex)
             {
                 await Application.Current.MainPage.DisplayAlert("Error", ex.ToString(), "Ok");
             }
@@ -362,7 +364,8 @@ namespace EasyPaperWork.ViewModel
             {
                 Debug.WriteLine("Recebeu UId");
             }
-            else {
+            else
+            {
                 Debug.WriteLine("Não Recebeu UId");
             }
         }
@@ -374,3 +377,4 @@ namespace EasyPaperWork.ViewModel
         }
     }
 }
+

@@ -12,7 +12,7 @@ namespace EasyPaperWork.Services
 {
     public class Scanner
     {
-        public async Task<MemoryStream> ScanDocumentAsync(string filename)
+        public async Task<string> ScanDocumentAsync(string filename)
         {
             try
             {
@@ -33,80 +33,109 @@ namespace EasyPaperWork.Services
 
                 if (availableScanner == null)
                 {
-                    await Application.Current.MainPage.DisplayAlert("Erro", "Nenhum scanner detectado", "Ok");
+                    Console.WriteLine("Nenhum scanner detectado.");
                     return null;
                 }
 
                 try
                 {
                     // Conecta ao scanner disponível
-                    IDevice scannerDevice = availableScanner.Connect();  // Use o alias WiaDevice
+                    IDevice scannerDevice = availableScanner.Connect();
 
                     // Seleciona o item do scanner
                     Item scannerItem = scannerDevice.Items[1];
 
                     // Configura o processo de digitalização
                     var commonDialog = new CommonDialog();
-                    ImageFile imageFile = (ImageFile)commonDialog.ShowTransfer(scannerItem, "{B96B3CAF-0728-11D3-9D7B-0000F81EF32E}",false);
+                    ImageFile imageFile = (ImageFile)commonDialog.ShowTransfer(scannerItem, "{B96B3CAF-0728-11D3-9D7B-0000F81EF32E}", false);
 
                     // Salva o arquivo digitalizado
                     imageFile.SaveFile(filename);
-                    Debug.WriteLine($"Arquivo salvo como: {filename}");
+                    Console.WriteLine($"Arquivo salvo como: {filename}");
+
+                    // Converte os dados binários da imagem
                     byte[] imageBytes = (byte[])imageFile.FileData.get_BinaryData();
 
                     // Criando o PDF e retornando um stream de memória
-                    MemoryStream pdfStream = new MemoryStream();
-                    
-                       PdfDocument document = new PdfDocument();  // Use o namespace completo
-                       PdfPage page = document.AddPage();
-                       XGraphics gfx = XGraphics.FromPdfPage(page);
+                    using (MemoryStream pdfStream = new MemoryStream())
+                    {
+                        PdfDocument document = new PdfDocument();
+                        PdfPage page = document.AddPage();
+                        XGraphics gfx = XGraphics.FromPdfPage(page);
 
-                    MemoryStream imageStream = new MemoryStream(imageBytes);
-                        
-                            XImage image = XImage.FromStream(() => new MemoryStream(imageBytes));  // Passa um Func<Stream>
+                        using (MemoryStream imageStream = new MemoryStream(imageBytes))
+                        {
+                            XImage image = XImage.FromStream(() => new MemoryStream(imageBytes));
 
                             // Ajusta o tamanho da página ao tamanho da imagem
                             page.Width = image.PointWidth;
                             page.Height = image.PointHeight;
 
                             gfx.DrawImage(image, 0, 0, image.PointWidth, image.PointHeight);
-                        
 
-                        // Salva o PDF em um stream de memória
-                        document.Save(pdfStream, false);
+                            // Salva o PDF em um stream de memória
+                            document.Save(pdfStream, false);
+                        }
 
-                        // Retorna o stream de memória com o PDF
-                        pdfStream.Position = 0;  // Reseta a posição do stream para o início
-                        await Application.Current.MainPage.DisplayAlert("Sucesso", "Documeto scaneado com sucesso", "Ok");
-                        Debug.WriteLine("Documeto scaneado com sucesso");
-                        return pdfStream;
-                    
+                        // Define o caminho do arquivo PDF a ser salvo
+                        string PathTemporaryFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), $"{filename}.pdf");
+
+                        // Verifica se o arquivo já existe
+                        if (File.Exists(PathTemporaryFile))
+                        {
+                            string action = await Application.Current.MainPage.DisplayActionSheet(
+                            "Na pasta Documentos este arquivo já existe ", null, null, "Remover", "Manter Ambos");
+
+                            switch (action)
+                            {
+                                case "Remover":
+                                    File.Delete(PathTemporaryFile);
+                                    break;
+                                case "Manter Ambos":
+                                    PathTemporaryFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), $"{filename}{DateTime.Now}.pdf");
+                                    break;                             
+                                default:
+                                    break;
+                            }
+                             
+                        }
+
+                        // Salva o PDF no caminho especificado
+                        using (FileStream DocumentScannedSave = new FileStream(PathTemporaryFile, FileMode.Create, FileAccess.ReadWrite))
+                        {
+                            pdfStream.Position = 0; // Reseta a posição do stream para o início
+                            await pdfStream.CopyToAsync(DocumentScannedSave);
+                        }
+
+                        await Application.Current.MainPage.DisplayAlert("Sucesso","Documento escaneado e salvo com sucesso.","Ok");
+                        return PathTemporaryFile;
+                    }
                 }
                 catch (COMException comEx)
                 {
                     // Trata a exceção COMException específica do scanner
-                    Debug.WriteLine($"Erro de COM: {comEx.Message}");
-                  
+                    await Application.Current.MainPage.DisplayAlert("Error", $"Erro de COM: {comEx.Message}", "ok");
+
                     if (comEx.ErrorCode == unchecked((int)0x8021000A))
                     {
-                        await Application.Current.MainPage.DisplayAlert("Erro", "O scanner está ocupado ou não está disponível.", "Ok");
+                        Console.WriteLine("O scanner está ocupado ou não está disponível.");
                     }
                     else
                     {
-                        await Application.Current.MainPage.DisplayAlert("Erro", $"Erro desconhecido: {comEx.Message}", "Ok");
+                        await Application.Current.MainPage.DisplayAlert("Error",$"Erro desconhecido: {comEx.Message}", "ok");
                     }
                 }
             }
             catch (Exception ex)
             {
-                if (ex.Message== "Acesso negado. (0x80070005 (E_ACCESSDENIED))")
+                if (ex.Message == "Acesso negado. (0x80070005 (E_ACCESSDENIED))")
                 {
-                    await Application.Current.MainPage.DisplayAlert("Erro", "Para efetuar o scaneameto execute o aplicativo em modo administrador.", "Ok");
+                   await Application.Current.MainPage.DisplayAlert("Error","Execute o aplicativo em modo administrador para realizar o escaneamento.","ok");
                 }
-                await Application.Current.MainPage.DisplayAlert("Erro", "Erro ao scannear", "Ok");
+                await Application.Current.MainPage.DisplayAlert("Error",$"Erro ao escanear: {ex.Message}","ok");
             }
 
-            return null;  // Retorna null em caso de erro
+            return null; // Retorna null em caso de erro
         }
     }
 }

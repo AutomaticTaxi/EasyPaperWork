@@ -1,11 +1,11 @@
 ﻿using EasyPaperWork.Models;
-using ModuleScanner;
+
 using System.Diagnostics;
 using System.IO.Pipes;
 
 public class PipeClient
 {
-    ScannerModule scannerModule = new ScannerModule();
+
 
     public async Task<string> StartClientAsync(string nome)
     {
