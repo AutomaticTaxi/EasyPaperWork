@@ -47,31 +47,39 @@ public class FirebaseStorageService
     } 
     public async Task<string> UploadFileAsync(FileStream stream, string fileName,string RootFolder )
     {
+        try
+        {
 
+            userCredential = await _authClient.SignInWithEmailAndPasswordAsync(AppData.UserEmail, AppData.UserPassword);
 
-        userCredential = await _authClient.SignInWithEmailAndPasswordAsync(AppData.UserEmail, AppData.UserPassword);
+            // Constructr FirebaseStorage, path to where you want to upload the file and Put it there
+            var task = new FirebaseStorage(
+                "easypaperwork-firebase.appspot.com",
 
-        // Constructr FirebaseStorage, path to where you want to upload the file and Put it there
-        var task = new FirebaseStorage(
-            "easypaperwork-firebase.appspot.com",
+                 new FirebaseStorageOptions
+                 {
+                     AuthTokenAsyncFactory = () => Task.FromResult(userCredential.User.Credential.IdToken),
+                     ThrowOnCancel = true,
+                 })
 
-             new FirebaseStorageOptions
-             {
-                 AuthTokenAsyncFactory = () => Task.FromResult(userCredential.User.Credential.IdToken),
-                 ThrowOnCancel = true,
-             })
+                  .Child(AppData.UserUid)
+                  .Child(RootFolder)
+                    .Child(fileName)
+                    .PutAsync(stream);
 
-              .Child(AppData.UserUid)
-              .Child(RootFolder)
-                .Child(fileName)
-                .PutAsync(stream);
+            // Track progress of the upload
+            task.Progress.ProgressChanged += (s, e) => Debug.WriteLine($"Progress: {e.Percentage} %");
 
-        // Track progress of the upload
-        task.Progress.ProgressChanged += (s, e) => Debug.WriteLine($"Progress: {e.Percentage} %");
-
-        // await the task to wait until upload completes and get the download url
-        var downloadUrl = await task;
-        return downloadUrl;
+            // await the task to wait until upload completes and get the download url
+            var downloadUrl = await task;
+            return downloadUrl;
+        }
+        catch (Exception ex)
+        {
+            
+            await Application.Current.MainPage.DisplayAlert("Error", $"Erro ao enviar para o servidor de arquivo {ex.Message}","Ok");
+            return "error";
+        }
 
     }
     public async Task<bool> DeleteFolderAsync(string RootFolder)
@@ -127,7 +135,7 @@ public class FirebaseStorageService
 
     }
 
-    public async Task<byte[]> DownloadFileByNameAsync( string fileName)
+    public async Task<byte[]> DownloadFileByNameAsync(string uid,string filepath, string fileName)
     {
         try
         {
@@ -143,17 +151,26 @@ public class FirebaseStorageService
                  ThrowOnCancel = true,
              })
 
-              .Child("uploads")
+              .Child(uid)
+              .Child (filepath)
             .Child(fileName);
             // Faz o download do arquivo e o converte para um array de bytes
           var fileBytes = await DownloadFileByUrlAsync(await task.GetDownloadUrlAsync());
+            if (fileBytes != null)
+            {
 
-            return fileBytes;
+                return fileBytes;
+            }
+            else
+            {
+                return null;
+            }
+
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Erro ao fazer download do arquivo: {ex.Message}");
-            throw;
+            await Application.Current.MainPage.DisplayAlert("Error",$"Erro ao fazer download do arquivo: {ex.Message}","ok");
+            return null;
         }
 
     }
@@ -167,8 +184,8 @@ public class FirebaseStorageService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Erro ao baixar o arquivo: {ex.Message}");
-            throw;
+            await Application.Current.MainPage.DisplayAlert("Error",$"Erro ao baixar o arquivo: {ex.Message}","Ok");
+            return null;
         }
     }
 }

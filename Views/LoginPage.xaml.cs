@@ -62,6 +62,7 @@ public partial class LoginPage : ContentPage
         base.OnAppearing();
         MakeFullScreen();
 
+
     }
     private void MakeFullScreen()
     {

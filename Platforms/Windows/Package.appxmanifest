@@ -4,9 +4,14 @@
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap rescap">
+  xmlns:iot="http://schemas.microsoft.com/appx/manifest/iot/windows10"
+  xmlns:uap6="http://schemas.microsoft.com/appx/manifest/uap/windows10/6"
+  xmlns:uap4="http://schemas.microsoft.com/appx/manifest/uap/windows10/4"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  xmlns:uap2="http://schemas.microsoft.com/appx/manifest/uap/windows10/2"
+  IgnorableNamespaces="uap rescap iot uap6 uap4 uap3 uap2">
 
-  <Identity Name="maui-package-name-placeholder" Publisher="CN=lucas" Version="1.0.2.0" />
+  <Identity Name="maui-package-name-placeholder" Publisher="CN=lucas" Version="1.0.5.0" />
 
   <mp:PhoneIdentity PhoneProductId="0CC4D04C-0DA5-4C63-9503-2BAA64638A67" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -36,11 +41,27 @@
         <uap:DefaultTile Square71x71Logo="$placeholder$.png" Wide310x150Logo="$placeholder$.png" Square310x310Logo="$placeholder$.png" />
         <uap:SplashScreen Image="$placeholder$.png" />
       </uap:VisualElements>
+      <Extensions>
+        <uap:Extension Category="windows.appService" Executable="ModuleScanner.exe" EntryPoint="Program.cs">
+          <uap:AppService Name="ModuleScanner"/>
+        </uap:Extension>
+      </Extensions>
+
     </Application>
   </Applications>
 
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />
-  </Capabilities>
 
+    <!-- Permissões do sistema e bibliotecas -->
+    <uap:Capability Name="documentsLibrary"/>
+    <uap:Capability Name="videosLibrary"/>
+    <uap:Capability Name="musicLibrary"/>
+    <uap:Capability Name="picturesLibrary"/>
+    <uap:Capability Name="removableStorage"/>
+    <uap:Capability Name="sharedUserCertificates"/>
+    <uap:Capability Name="appointments"/>
+    <uap:Capability Name="userAccountInformation"/>
+
+  </Capabilities>
 </Package>

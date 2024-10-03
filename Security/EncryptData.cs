@@ -16,7 +16,13 @@ namespace EasyPaperWork.Security
         }
         public byte[] GetSaltBytes(string salt_string)
         {
+            //Conversão desfeita pois estes caracteres são sensíveis ao firebase
+            salt_string = salt_string.Replace("@", "/")
+                             .Replace("#", "+")
+                             .Replace("$", "=");
+
             return Convert.FromBase64String(salt_string);
+
         }
         
 
@@ -26,7 +32,12 @@ namespace EasyPaperWork.Security
             byte[] salt = new byte[32];
             var rng = RandomNumberGenerator.Create();
             rng.GetBytes(salt);
-            return Convert.ToBase64String(salt);
+            string saltstring = Convert.ToBase64String(salt);
+            //Conversão feita pois estes caracteres são sensíveis ao firebase
+            saltstring = saltstring.Replace("/", "@")
+                                         .Replace("+", "#")
+                                         .Replace("=", "$");
+            return saltstring;
         }
 
         // Renomear o método de EncryptData para Encrypt
@@ -53,12 +64,23 @@ namespace EasyPaperWork.Security
             swEncrypt.Close();
 
             byte[] encryptedBytes = msEncrypt.ToArray();
-            return Convert.ToBase64String(encryptedBytes);
+            string EncryptString = Convert.ToBase64String(encryptedBytes);
+
+            // Conversão feita pois estes caracteres são sensíveis ao Firebase
+            EncryptString = EncryptString.Replace("/", "@")
+                                         .Replace("+", "#")
+                                         .Replace("=", "$");
+
+            return EncryptString;
         }
 
         // Renomear o método de DecryptData para Decrypt
         public string Decrypt(string cipherText, byte[] key, byte[] salt)
         {
+            //Conversão desfeita pois estes caracteres são sensíveis ao firebase           
+            cipherText = cipherText.Replace("@", "/")
+                .Replace("#", "+")
+                .Replace("$", "=");          
             byte[] fullCipher = Convert.FromBase64String(cipherText);
             var aes = Aes.Create();
             aes.Key = key;
@@ -73,8 +95,49 @@ namespace EasyPaperWork.Security
             var msDecrypt = new MemoryStream(cipherBytes);
             var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
             var srDecrypt = new StreamReader(csDecrypt);
-
+            
             return srDecrypt.ReadToEnd();
+        }
+        public void EncryptFile(string inputFilePath, string outputFilePath, string password, byte[] salt)
+        {
+            var aes = Aes.Create();
+            Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(password, salt, 10000);
+            aes.Key = key.GetBytes(aes.KeySize / 8);
+            aes.IV = key.GetBytes(aes.BlockSize / 8);
+            var fileStream = new FileStream(outputFilePath, FileMode.Create);     
+            fileStream.Write(salt, 0, salt.Length);
+            var cryptoStream = new CryptoStream(fileStream, aes.CreateEncryptor(), CryptoStreamMode.Write);
+            var inputStream = new FileStream(inputFilePath, FileMode.Open);
+            inputStream.CopyTo(cryptoStream); 
+            inputStream.Dispose();
+            inputStream.Close();
+            cryptoStream.Dispose();
+            cryptoStream.Close();
+
+        }
+        public void DecryptFile(string inputFilePath, string outputFilePath, string password)
+        {
+            var fileStream = new FileStream(inputFilePath, FileMode.Open);
+
+            
+            byte[] salt = new byte[32];
+            fileStream.Read(salt, 0, salt.Length);
+
+            // Derivar a chave e IV a partir da senha e salt
+            var aes = Aes.Create();
+            Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(password, salt, 10000);
+            aes.Key = key.GetBytes(aes.KeySize / 8);
+            aes.IV = key.GetBytes(aes.BlockSize / 8);
+
+            var cryptoStream = new CryptoStream(fileStream, aes.CreateDecryptor(), CryptoStreamMode.Read);
+            var outputStream = new FileStream(outputFilePath, FileMode.Create);
+
+            // Descriptografar o conteúdo do arquivo
+            cryptoStream.CopyTo(outputStream);
+
+            outputStream.Close();
+            cryptoStream.Close();
+            fileStream.Close();
         }
         public  byte[] GenerateKeyFromPasswordAndSalt(string password, byte[] salt, int keySize = 32)
         {
