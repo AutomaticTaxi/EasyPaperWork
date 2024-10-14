@@ -12,11 +12,12 @@
       Shell.TabBarIsVisible="False"/>
 
     <ShellContent 
-        Title=""
+        Title="Cadastre-se"
         ContentTemplate="{DataTemplate pages:Page_Register_User} "
         Route="Page_Register_User"
         Shell.BackgroundColor="LightGray"
         Shell.TabBarIsVisible="False"/>
+    
 
     <TabBar  Route="mainTabBar">
       
@@ -29,12 +30,21 @@
             Title="Upload Documentos"
             ContentTemplate="{DataTemplate pages:Page_Document_Upload}"
             Icon="uploadicon.png"
-            Route="PageUUploadDocs"/>
+            Route="PageUUploadDocs"
+            />
         <ShellContent
             Title="Documentos"
             ContentTemplate="{DataTemplate pages:Main_Page_Files}"
             Icon="docsicon.png"
-            Route="Main_Page_Files"/>
+            Route="Main_Page_Files"
+            />
+        <ShellContent 
+            Title="Logs"
+            ContentTemplate="{DataTemplate pages:Logs_Page} "
+            Route="Logs_Page"
+            Shell.BackgroundColor="LightGray"
+            Shell.TabBarIsVisible="True"
+            Icon="log_icon.svg"/>
 
     </TabBar>
 </Shell>

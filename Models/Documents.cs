@@ -20,6 +20,11 @@ namespace EasyPaperWork.Models
             set
             {
                 _Name = value;
+                if(_Name == "Adicone um documento")
+                {
+                    Image = "add_file.png";
+                }
+                
                 OnPropertyChanged(nameof(_Name));
             }
         }
@@ -34,16 +39,16 @@ namespace EasyPaperWork.Models
                 switch (DocumentType)
                 {
                     case ".pdf":
-                        Image = "pdficon.png";
+                        Image = "pdf_icon.png";
                         break;
                     case ".docx":
-                        Image = "wordfileicon.png";
+                        Image = "doc_icon.png";
                         break;
                     case ".xlsx":
-                        Image = "excelicon.png";
+                        Image = "xlsx_icon.png";
                         break;
                     case ".pptx":
-                        Image = "powerpointicon.png";
+                        Image = "ppt_icon.png";
                         break;
 
                 }

@@ -17,6 +17,11 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
 {
     public ObservableCollection<Folder_Files> FolderCollection { get; set; }
     public ObservableCollection<Documents> DocumentCollection { get; set; }
+  
+    public ICommand BtSearchFile { get; }
+    public ICommand BtSearchFolder { get; }
+    public ICommand BtRefresh { get; }
+    private Documents Documento;
     private Log log;
     private FirebaseService _firebaseService;
     private FirebaseStorageService _firebaseStorageService;
@@ -26,6 +31,26 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
 
     private WindowsFileSavePickerService service;
 
+    private string _EntryArchiveName;
+    public string EntryArchiveName
+    {
+        get { return _EntryArchiveName; }
+        set
+        {
+            _EntryArchiveName = value;
+            OnPropertyChanged(nameof(EntryArchiveName));
+        }
+    }
+    private string _EntryFolderName;
+    public string EntryFolderName
+    {
+        get { return _EntryFolderName; }
+        set
+        {
+            _EntryFolderName = value;
+            OnPropertyChanged(nameof(EntryFolderName));
+        }
+    }
     public IFileSavePickerService FileSavePickerService
     {
         get => _fileSavePickerService;
@@ -89,7 +114,8 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     private Folder_Files Folder_Files;
     public  Main_ViewModel_Files()
     {
-
+        BtSearchFile = new Command(async () => await SearchFile());
+        BtRefresh = new Command(async () => list_files(AppData.CurrentFolder));
         service = new WindowsFileSavePickerService();
         Log log = new Log();
         UidUser = AppData.UserUid;
@@ -137,7 +163,8 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                 {
 
                     doc.Name = encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt);                 
-                    doc.DocumentType = encryptData.Decrypt(doc.DocumentType, AppData.Key, AppData.Salt);                   
+                    doc.DocumentType = encryptData.Decrypt(doc.DocumentType, AppData.Key, AppData.Salt); 
+                    
                     DocumentCollection.Add(doc);
 
                 }
@@ -218,6 +245,10 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             }
             else { await Application.Current.MainPage.DisplayAlert("Erro", "Nome Inválido", "Ok"); }
         }
+        else if(item.Name == "Logs")
+        {
+            await Shell.Current.GoToAsync("//Logs_Page");
+        }
         else
         {
             string action = await Application.Current.MainPage.DisplayActionSheet("Escolha uma ação", "Cancelar", null, "Abrir", "Editar", "Excluir");
@@ -250,13 +281,14 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             byte[] fileBytes;
             if (string.IsNullOrEmpty(AppData.CurrentFolder))
             {
-                Log newlog = log.CreateLogDownloadFile(selectedItem.Name);
+                Log newlog = new Log(selectedItem.Name,4);
+               
                 await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                 fileBytes = await _firebaseStorageService.DownloadFileByNameAsync(AppData.UserUid, "Pasta inicial", selectedItem.Name); // Sua lógica para obter os bytes do arquivo
             }
             else
             {
-                Log newlog = log.CreateLogDownloadFile(selectedItem.Name);
+                Log newlog = new Log(selectedItem.Name,4);
                 await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                 fileBytes = await _firebaseStorageService.DownloadFileByNameAsync(AppData.UserUid, AppData.CurrentFolder, selectedItem.Name); // Sua lógica para obter os bytes do arquivo
             }
@@ -318,7 +350,8 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                 {
                     if (await _firebaseStorageService.DeleteFileAsync(AppData.UserUid, "Pasta inicial", selectedItem.Name))
                     {
-                        Log newlog = log.CreateLogDeleteFile(selectedItem.Name);
+                        Log newlog = new Log(selectedItem.Name, 2);
+
                         await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                         DocumentCollection.Remove(selectedItem);
                         Console.WriteLine("Arquivo removido");
@@ -330,7 +363,9 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             {
                 if (await _firebaseStorageService.DeleteFileAsync(AppData.UserUid, AppData.CurrentFolder, selectedItem.Name))
                 {
-                    Log newlog = log.CreateLogDeleteFile(selectedItem.Name);
+
+                    Log newlog = new Log(selectedItem.Name, 2);
+
                     await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                     DocumentCollection.Remove(selectedItem);
                     Console.WriteLine("Arquivo removido");
@@ -357,6 +392,62 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
          else { await Application.Current.MainPage.DisplayAlert("Error", "Falha em remover a pasta ", "Ok"); }
          
        
+    }
+    private async Task SearchFile()
+    {
+        if (EntryArchiveName != null)
+            if (!string.IsNullOrEmpty(AppData.CurrentFolder))
+            {
+                var result = DocumentCollection
+                 .Where(doc => doc.Name != null &&
+                               doc.Name.IndexOf(EntryArchiveName, StringComparison.OrdinalIgnoreCase) >= 0)
+                 .ToList();
+                DocumentCollection.Clear();
+                foreach (Documents doc in result)
+                {
+                  DocumentCollection.Add(doc);
+                }
+            }
+            else
+            {
+                var result = DocumentCollection
+                .Where(doc => doc.Name != null &&
+                              doc.Name.IndexOf(EntryArchiveName, StringComparison.OrdinalIgnoreCase) >= 0)
+                .ToList();
+                DocumentCollection.Clear();
+                foreach (Documents doc in result)
+                {
+                    DocumentCollection.Add(doc);
+                }
+            }
+    }
+    private async Task SearchFolder()
+    {
+        if (EntryArchiveName != null)
+            if (!string.IsNullOrEmpty(AppData.CurrentFolder))
+            {
+                var result = FolderCollection
+                 .Where(doc => doc.Name != null &&
+                               doc.Name.IndexOf(EntryArchiveName, StringComparison.OrdinalIgnoreCase) >= 0)
+                 .ToList();
+                FolderCollection.Clear();
+                foreach (Folder_Files folder in result)
+                {
+                    FolderCollection.Add(folder);
+                }
+            }
+            else
+            {
+                var result = FolderCollection
+                .Where(doc => doc.Name != null &&
+                              doc.Name.IndexOf(EntryArchiveName, StringComparison.OrdinalIgnoreCase) >= 0)
+                .ToList();
+                FolderCollection.Clear();
+                foreach (Folder_Files folder in result)
+                {
+                    FolderCollection.Add(folder);
+                }
+            }
     }
     public event PropertyChangedEventHandler PropertyChanged;
 

@@ -73,7 +73,7 @@ namespace EasyPaperWork.ViewModel
                     await Application.Current.MainPage.DisplayAlert("Erro", "Um erro inesperado aconteceu, tente novamente ", "ok");
                     break;
                 default:
-                    await Application.Current.MainPage.DisplayAlert("Sucesso", "Logado com sucesso", "ok");
+                 
                     AppData.UserEmail = EntryEmail;
                     AppData.UserPassword = EntryPassword;
                     AppData.UserUid = UserUid;

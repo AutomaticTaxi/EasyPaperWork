@@ -277,6 +277,40 @@ namespace EasyPaperWork.Services
                 return new List<Documents>();
             }
         }
+        public async Task<List<Log>> ListLogs()
+        {
+            try
+            {
+                CollectionReference collectionRef = _firestoreDb.Collection("Users").Document(AppData.UserUid).Collection("Logs");
+                QuerySnapshot snapshot = await collectionRef.GetSnapshotAsync();
+
+                List<Log> logList = new List<Log>();
+
+                foreach (DocumentSnapshot document in snapshot.Documents)
+                {
+                    var documents = new Log()
+                    {
+                        menssage = document.ContainsField("menssage") ? document.GetValue<string>("menssage") : null,
+                        dateTime = document.ContainsField("dateTime") ? document.GetValue<DateTime?>("dateTime") : null // Alteração para DateTime?
+
+                        // Adicione outros campos conforme necessário
+                    };
+                    logList.Add(documents);
+                }
+                return logList;
+            }
+            catch (ArgumentException ex)
+            {
+                Debug.WriteLine($"ArgumentException: {ex.Message}");
+                return new List<Log>();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Exception: {ex.Message}");
+                return new List<Log>();
+            }
+        }
+
         public async Task<List<Folder_Files>> ListFolder(string colecaoUser, string IdUser)
         {
             

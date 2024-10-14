@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="EasyPaperWork.Views.Main_Page_Files"
-             Title="Main_Page_Files">
+             Title="">
   
     <ScrollView>
     <VerticalStackLayout Padding="20">
@@ -13,33 +13,78 @@
             FontSize="Title"
             VerticalOptions="Center" 
             HorizontalOptions="Center" />
+            <HorizontalStackLayout>
+                <Entry Placeholder="Procure uma pasta" Text="{Binding EntryFolderName}"/>
+                <Button Text="Pesquisar" Command="{Binding BtSearchFolder}"/>
+                <Grid   >
+                    <ImageButton Grid.Column="1" Source="refresh_icon.png"  Aspect="Center" WidthRequest="28" HeightRequest="28"  Command="{Binding BtRefresh}"/>
 
-            <CollectionView ItemsSource="{Binding FolderCollection}"
-            SelectionMode="Single"
-            SelectionChanged="OnSelectionFolderChanged">
-                <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <StackLayout Padding="10">
-                        <Label Text="{Binding Name}" 
-                               FontSize="20" />
-                    
-                    </StackLayout>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-        <VerticalStackLayout>
+                </Grid>
+            </HorizontalStackLayout>
+            <ScrollView>
+                <CollectionView ItemsSource="{Binding FolderCollection}"
+                     SelectionMode="Single"
+                    SelectionChanged="OnSelectionFolderChanged">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical" Span="5" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Padding="10" ColumnSpacing="10" >
 
-                <CollectionView ItemsSource="{Binding DocumentCollection}"
-                SelectionMode="Single"
-                SelectionChanged="OnSelectionDocumentChanged">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                            <Grid Padding="10">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
+
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Image Grid.RowSpan="2"
+                        Source="{Binding Image}"
+                        Aspect="AspectFill"
+                        HeightRequest="60"
+                        WidthRequest="60" />
+                                <Label Grid.Column="1"
+                        Text="{Binding Name}"
+                        FontAttributes="Bold" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </ScrollView>
+            <HorizontalStackLayout>
+                <Entry Placeholder="Pesquise arquivos na Pasta" Text="{Binding EntryArchiveName}"/>
+                <Button Text="Pesquisar" Command="{Binding BtSearchFile}"/>
+                <Grid   >
+                    <ImageButton Grid.Column="1" Source="refresh_icon.png"  Aspect="Center" WidthRequest="28" HeightRequest="28"  Command="{Binding BtRefresh}"/>
+                   
+                </Grid>
+
+
+            </HorizontalStackLayout>
+            
+            <ScrollView>
+                <CollectionView ItemsSource="{Binding DocumentCollection}"
+                SelectionMode="Single"
+                SelectionChanged="OnSelectionDocumentChanged">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical" Span="5" />
+                    </CollectionView.ItemsLayout>
+
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Padding="10" ColumnSpacing="10" >
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
@@ -51,15 +96,13 @@
                                 <Label Grid.Column="1"
                                    Text="{Binding Name}"
                                    FontAttributes="Bold" />
-                            
-                            </Grid>
-                           
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </VerticalStackLayout>
-        
- 
+                                    </Grid> 
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                </ScrollView>
+
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

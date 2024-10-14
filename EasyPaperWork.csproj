@@ -85,18 +85,23 @@
 	  <None Remove="Resources\AppIcon\appicon_android.svg" />
 	  <None Remove="Resources\Fonts\Roboto-Medium.ttf" />
 	  <None Remove="Resources\Fonts\Roboto-Regular.ttf" />
+	  <None Remove="Resources\Images\add_file.png" />
+	  <None Remove="Resources\Images\add_folder.png" />
 	  <None Remove="Resources\Images\avatar.svg" />
-	  <None Remove="Resources\Images\docsicon.svg" />
-	  <None Remove="Resources\Images\excelicon.svg" />
+	  <None Remove="Resources\Images\doc_icon.png" />
+	  <None Remove="Resources\Images\folder_icon.png" />
 	  <None Remove="Resources\Images\Google.png" />
 	  <None Remove="Resources\Images\img_page_upload.png" />
 	  <None Remove="Resources\Images\logo.png" />
-	  <None Remove="Resources\Images\pdficon.svg" />
-	  <None Remove="Resources\Images\powerpointicon.svg" />
+	  <None Remove="Resources\Images\log_icon.svg" />
+	  <None Remove="Resources\Images\pdf_icon.png" />
+	  <None Remove="Resources\Images\ppt_icon.png" />
+	  <None Remove="Resources\Images\refresh_icon.png" />
 	  <None Remove="Resources\Images\searchicon.svg" />
 	  <None Remove="Resources\Images\setaDireita.png" />
+	  <None Remove="Resources\Images\txt_icon.png" />
 	  <None Remove="Resources\Images\uploadicon.svg" />
-	  <None Remove="Resources\Images\wordfileicon.svg" />
+	  <None Remove="Resources\Images\xlsx_icon.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -132,6 +137,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\LoginPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Logs_Page.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Main_Page_Files.xaml">

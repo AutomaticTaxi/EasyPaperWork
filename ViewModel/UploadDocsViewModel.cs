@@ -68,7 +68,7 @@ namespace EasyPaperWork.ViewModel
 
         public UploadDocsViewModel()
         {
-            log = new Log();
+       
             encryptData = new EncryptData();
             LabelMensageError = new Label();
             storageService = new FirebaseStorageService();
@@ -155,7 +155,7 @@ namespace EasyPaperWork.ViewModel
                             if (string.IsNullOrEmpty(AppData.CurrentFolder))
                             {
                                 documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, documentsModel.Name, "Pasta inicial");
-                                Log newlog = log.CreateLogAddFile(documentsModel.Name);
+                                Log newlog = new Log(documentsModel.Name,1);
                                 await firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                                 documentsModel.DocumentType = ".pdf";
                                 documentsModel.RootFolder = "Pasta inicial";
@@ -173,7 +173,7 @@ namespace EasyPaperWork.ViewModel
                             {
 
                                 documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, documentsModel.Name, AppData.CurrentFolder);
-                                Log newlog = log.CreateLogAddFile(documentsModel.Name);
+                                Log newlog = new Log(documentsModel.Name, 1);
                                 await firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                                 documentsModel.DocumentType = ".pdf";
                                 documentsModel.RootFolder = AppData.CurrentFolder;
@@ -272,7 +272,7 @@ namespace EasyPaperWork.ViewModel
                         {
 
                             documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, fileResult.FileName, "Pasta inicial");
-                            Log newlog = log.CreateLogAddFile(fileResult.FileName);
+                            Log newlog = new Log(fileResult.FileName, 1);
                             await firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                             documentsModel.Name = encryptData.Encrypt(fileResult.FileName, key, AppData.Salt);
                             documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
@@ -288,7 +288,7 @@ namespace EasyPaperWork.ViewModel
                         {
 
                             documentsModel.UrlDownload = await storageService.UploadFileAsync(stream, fileResult.FileName, AppData.CurrentFolder);
-                            Log newlog = log.CreateLogAddFile(fileResult.FileName);
+                            Log newlog = new Log(fileResult.FileName, 1);
                             await firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                             documentsModel.Name = encryptData.Encrypt(fileResult.FileName, key, AppData.Salt);
                             documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
