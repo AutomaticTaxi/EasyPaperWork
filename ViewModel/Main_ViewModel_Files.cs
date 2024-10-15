@@ -225,7 +225,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                 AppData.CurrentFolder = "Pasta inicial";
             }
             string action = await Application.Current.MainPage.DisplayActionSheet(
-                "Escolha uma ação", "Cancelar", null, "Buscar no PC", "Scannear", "Excluir");
+                "Escolha uma ação", "Cancelar", null, "Buscar no PC", "Scannear");
             switch (action)
             {
                 case "Buscar no PC":
@@ -233,7 +233,8 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                     {
                         await Application.Current.MainPage.DisplayAlert("Ação não permitida", "Re inicie o programa em modo não administrador", "Ok");
                     }
-                    await PickAndShowFileAsync();
+                    else { await PickAndShowFileAsync(); }
+                    
                     break;
                 case "Scannear":
                     await ScanFileAsync();
@@ -327,7 +328,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             if (fileBytes != null)
             {
                 string path = await service.PickFolderAsync();
-                string CompletedPath = Path.Combine(path, $"{selectedItem.Name}.pdf");
+                string CompletedPath = Path.Combine(path, $"{selectedItem.Name}");
                 string PathTemporaryFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), $"{selectedItem.Name}encrypt.pdf");
                 FileStream DocumentEncryptSave = new FileStream(PathTemporaryFile, FileMode.Create, FileAccess.Write);
                 DocumentEncryptSave.Write(fileBytes);
@@ -483,90 +484,111 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     }
     private async Task ScanFileAsync()
     {
-        if (IsRunningAsAdministrator())
+        try
         {
-            documentsModel.Name = await Application.Current.MainPage.DisplayPromptAsync("Scan", "Isira o nome do arquivo", "Ok", "Cancelar");
-            if (!string.IsNullOrEmpty(documentsModel.Name))
+            IsVisibleDocumentCollection = false;
+            IsVisibleGifLoading = true;
+            if (IsRunningAsAdministrator())
             {
-                string filepath = await scanner.ScanDocumentAsync(documentsModel.Name);
-
-                if (!string.IsNullOrEmpty(filepath))
+                documentsModel.Name = await Application.Current.MainPage.DisplayPromptAsync("Scan", "Isira o nome do arquivo", "Ok", "Cancelar");
+                if (!string.IsNullOrEmpty(documentsModel.Name))
                 {
+                    string filepath = await scanner.ScanDocumentAsync(documentsModel.Name);
 
-                    string PathTemporaryEncryptFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), string.Concat("Encrypt", documentsModel.Name, ".pdf"));
-                    try
+                    if (!string.IsNullOrEmpty(filepath))
                     {
-                        encryptData.EncryptFile(filepath, PathTemporaryEncryptFile, AppData.UserPassword, AppData.Salt);
-                        var stream = File.Open(PathTemporaryEncryptFile, FileMode.Open);
-                        if (string.IsNullOrEmpty(AppData.CurrentFolder))
+
+                        string PathTemporaryEncryptFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), string.Concat("Encrypt", documentsModel.Name, ".pdf"));
+                        try
                         {
-                            documentsModel.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, documentsModel.Name, "Pasta inicial");
-                            Log newlog = new Log(documentsModel.Name, 1);
-                            await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
-                            documentsModel.DocumentType = ".pdf";
-                            documentsModel.RootFolder = "Pasta inicial";
-                            documentsModel.Name = encryptData.Encrypt(documentsModel.Name, key, AppData.Salt);
-                            documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
-                            documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
-                            documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
-                            documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
+                            encryptData.EncryptFile(filepath, PathTemporaryEncryptFile, AppData.UserPassword, AppData.Salt);
+                            var stream = File.Open(PathTemporaryEncryptFile, FileMode.Open);
+                            if (string.IsNullOrEmpty(AppData.CurrentFolder))
+                            {
+                                documentsModel.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, documentsModel.Name, "Pasta inicial");
+                                Log newlog = new Log(documentsModel.Name, 1);
+                                await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
+                                documentsModel.DocumentType = ".pdf";
+                                documentsModel.RootFolder = "Pasta inicial";
+                                documentsModel.Name = encryptData.Encrypt(documentsModel.Name, key, AppData.Salt);
+                                documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
+                                documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
+                                documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
+                                documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
 
 
-                            await _firebaseService.AddFiles("Users", AppData.UserUid, "Pasta inicial", documentsModel.Name, documentsModel);
-                            await Application.Current.MainPage.DisplayAlert("Succsses", "Aquivo enviado para Pasta inicial ", "Ok");
+                                await _firebaseService.AddFiles("Users", AppData.UserUid, "Pasta inicial", documentsModel.Name, documentsModel);
+                                Documents doc = new Documents();
+                                doc.Name = encryptData.Decrypt(documentsModel.Name, key, AppData.Salt);
+                                doc.Image = encryptData.Decrypt(documentsModel.Image, key, AppData.Salt);
+                                DocumentCollection.Add(doc);
+                                await Application.Current.MainPage.DisplayAlert("Succsses", "Aquivo enviado para Pasta inicial ", "Ok");
+                            }
+                            else
+                            {
+
+                                documentsModel.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, documentsModel.Name, AppData.CurrentFolder);
+                                Log newlog = new Log(documentsModel.Name, 1);
+                                await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
+                                documentsModel.DocumentType = ".pdf";
+                                documentsModel.RootFolder = AppData.CurrentFolder;
+                                documentsModel.Name = encryptData.Encrypt(documentsModel.Name, key, AppData.Salt);
+                                documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
+                                documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
+                                documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
+                                documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
+                                await _firebaseService.AddFiles("Users", AppData.UserUid, AppData.CurrentFolder, documentsModel.Name, documentsModel);
+                                Documents doc = new Documents();
+                                doc.Name = encryptData.Decrypt(documentsModel.Name, key, AppData.Salt);
+                                doc.Image = encryptData.Decrypt(documentsModel.Image, key, AppData.Salt);
+                                DocumentCollection.Add(doc);
+                                await Application.Current.MainPage.DisplayAlert("Succsses", $"Aquivo enviado para {AppData.CurrentFolder} ", "Ok");
+                            }
+                            stream.Dispose();
+                            stream.Close();
+                            if (File.Exists(filepath))
+                            {
+                                File.Delete(filepath);
+                            }
+                            if (File.Exists(PathTemporaryEncryptFile))
+                            {
+                                File.Delete(PathTemporaryEncryptFile);
+                            }
+
+
                         }
-                        else
+                        catch (Exception ex)
                         {
-
-                            documentsModel.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, documentsModel.Name, AppData.CurrentFolder);
-                            Log newlog = new Log(documentsModel.Name, 1);
-                            await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
-                            documentsModel.DocumentType = ".pdf";
-                            documentsModel.RootFolder = AppData.CurrentFolder;
-                            documentsModel.Name = encryptData.Encrypt(documentsModel.Name, key, AppData.Salt);
-                            documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
-                            documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
-                            documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
-                            documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
-                            await _firebaseService.AddFiles("Users", AppData.UserUid, AppData.CurrentFolder, documentsModel.Name, documentsModel);
-                            await Application.Current.MainPage.DisplayAlert("Succsses", $"Aquivo enviado para {AppData.CurrentFolder} ", "Ok");
-                        }
-                        stream.Dispose();
-                        stream.Close();
-                        if (File.Exists(filepath))
-                        {
-                            File.Delete(filepath);
-                        }
-                        if (File.Exists(PathTemporaryEncryptFile))
-                        {
-                            File.Delete(PathTemporaryEncryptFile);
+                            await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "Ok");
                         }
 
-
-                    }
-                    catch (Exception ex)
-                    {
-                        await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "Ok");
                     }
 
                 }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", "Nome inválido", "ok");
 
+                }
             }
             else
             {
-                await Application.Current.MainPage.DisplayAlert("Error", "Nome inválido", "ok");
-
+                await Application.Current.MainPage.DisplayAlert("Error", "Re inicie a aplicação em modo administrador ", "ok");
             }
         }
-        else
+        finally
         {
-            await Application.Current.MainPage.DisplayAlert("Error", "Re inicie a aplicação em modo administrador ", "ok");
+            IsVisibleDocumentCollection = true;
+            IsVisibleGifLoading = false;
         }
     }
     private async Task PickAndShowFileAsync()
     {
         try
         {
+            IsVisibleDocumentCollection = false;
+            IsVisibleGifLoading = true;
+            
             var fileResult = await FilePicker.Default.PickAsync(new PickOptions
             {
                 PickerTitle = "Por favor selecione um arquivo",
@@ -627,7 +649,10 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                         documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
 
                         await _firebaseService.AddFiles("Users", AppData.UserUid, "Pasta inicial", documentsModel.Name, documentsModel);
-
+                        Documents doc = new Documents();
+                        doc.Name = encryptData.Decrypt(documentsModel.Name, key, AppData.Salt);
+                        doc.Image = encryptData.Decrypt(documentsModel.Image, key, AppData.Salt);
+                        DocumentCollection.Add(doc);
                         await Application.Current.MainPage.DisplayAlert("Succsses", "Aquivo enviado para Pasta inicial", "Ok");
                     }
                     else
@@ -643,6 +668,10 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                         documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
 
                         await _firebaseService.AddFiles("Users", AppData.UserUid, AppData.CurrentFolder, documentsModel.Name, documentsModel);
+                        Documents doc = new Documents();
+                        doc.Name = encryptData.Decrypt(documentsModel.Name, key, AppData.Salt);
+                        doc.Image = encryptData.Decrypt(documentsModel.Image,key, AppData.Salt);
+                        DocumentCollection.Add(doc);
                         await Application.Current.MainPage.DisplayAlert("Succsses", $"Aquivo enviado para {AppData.CurrentFolder} ", "Ok");
                     }
                     stream.Dispose();
@@ -665,6 +694,11 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         catch (System.Exception ex)
         {
             await Application.Current.MainPage.DisplayAlert("Error", ex.ToString(), "Ok");
+        }
+        finally
+        {
+            IsVisibleGifLoading = false;
+            IsVisibleDocumentCollection = true;
         }
     }
     public bool IsRunningAsAdministrator()

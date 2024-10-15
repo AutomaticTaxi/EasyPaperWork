@@ -26,6 +26,8 @@ namespace EasyPaperWork.Services
                     WiaDeviceInfo deviceInfo = deviceManager.DeviceInfos[i];
                     if (deviceInfo.Type == WiaDeviceType.ScannerDeviceType)
                     {
+                        
+                        //ToDo mostrar aos usuários scanners disponíveis
                         availableScanner = deviceInfo;
                         break;
                     }
