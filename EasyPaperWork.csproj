@@ -92,6 +92,7 @@
 	  <None Remove="Resources\Images\folder_icon.png" />
 	  <None Remove="Resources\Images\Google.png" />
 	  <None Remove="Resources\Images\img_page_upload.png" />
+	  <None Remove="Resources\Images\loading2.gif" />
 	  <None Remove="Resources\Images\logo.png" />
 	  <None Remove="Resources\Images\log_icon.svg" />
 	  <None Remove="Resources\Images\pdf_icon.png" />

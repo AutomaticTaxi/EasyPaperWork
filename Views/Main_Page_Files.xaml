@@ -64,9 +64,10 @@
 
 
             </HorizontalStackLayout>
-            
+            <Image Source="loading2.gif" IsAnimationPlaying="True" Aspect="Center" IsVisible="{Binding IsVisibleGifLoading}"/>
+            <Label Text="Aguarde" TextDecorations="Underline" FontSize="Subtitle" FontAttributes="Bold" IsVisible="{Binding IsVisibleGifLoading}" HorizontalOptions="Center" VerticalOptions="Center"/>
             <ScrollView>
-                <CollectionView ItemsSource="{Binding DocumentCollection}"
+                <CollectionView IsVisible="{Binding IsVisibleDocumentCollection}" ItemsSource="{Binding DocumentCollection}"
                 SelectionMode="Single"
                 SelectionChanged="OnSelectionDocumentChanged">
                     <CollectionView.ItemsLayout>

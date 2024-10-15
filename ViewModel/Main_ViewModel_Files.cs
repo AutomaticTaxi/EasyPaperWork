@@ -92,8 +92,20 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         }
     }
     private UserModel userModel { get; set; }
-
-
+    private bool _IsVisibleGifLoading;
+    public bool IsVisibleGifLoading
+    {
+        get { return _IsVisibleGifLoading; }
+        set { _IsVisibleGifLoading = value;
+        OnPropertyChanged(nameof(IsVisibleGifLoading));}
+    }
+    private bool _IsVisibleDocumentCollection;
+    public bool IsVisibleDocumentCollection
+    {
+        get => _IsVisibleDocumentCollection;
+        set { _IsVisibleDocumentCollection = value;
+        OnPropertyChanged(nameof(IsVisibleDocumentCollection));}
+    }
     private string UidUser;
     public string _UidUser
     {
@@ -129,63 +141,72 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
 
     }
 
- public async void list_files(string currentfolder)
+    public async Task list_files(string currentfolder)
     {
-        if (!string.IsNullOrEmpty(UidUser))
-        {
-
-            Debug.WriteLine("banco on");
-            
-            AppData.Salt = encryptData.GetSaltBytes( await _firebaseService.GetSalt(AppData.UserUid));
-
-            AppData.Key = encryptData.GetKey(AppData.Salt,AppData.UserPassword);
-            key = encryptData.GetKey(AppData.Salt, AppData.UserPassword);
-            userModel = await _firebaseService.BuscarUserModelAsync("Users", UidUser);
-            Debug.WriteLine(userModel.Id);
-
-            DocumentCollection.Clear();
-            DocumentCollection.Add(new Documents { Name = "Adicone um documento" });
-            FolderCollection.Clear();
-            FolderCollection.Add(new Folder_Files { Name = "Adicione uma pasta" });
-            
-            
-            if (string.IsNullOrEmpty(currentfolder))
+        IsVisibleDocumentCollection = false;
+        IsVisibleGifLoading = true;
+        try {
+            if (!string.IsNullOrEmpty(UidUser))
             {
-                LabelTituloRepositorio = "Pasta inicial";
-                List<Documents> list = await _firebaseService.ListFiles("Users", AppData.UserUid, "Pasta inicial");
-                
-                foreach (Documents doc in list)
+
+                Debug.WriteLine("banco on");
+
+                AppData.Salt = encryptData.GetSaltBytes(await _firebaseService.GetSalt(AppData.UserUid));
+
+                AppData.Key = encryptData.GetKey(AppData.Salt, AppData.UserPassword);
+                key = encryptData.GetKey(AppData.Salt, AppData.UserPassword);
+                userModel = await _firebaseService.BuscarUserModelAsync("Users", UidUser);
+                Debug.WriteLine(userModel.Id);
+
+                DocumentCollection.Clear();
+                DocumentCollection.Add(new Documents { Name = "Adicone um documento" });
+                FolderCollection.Clear();
+                FolderCollection.Add(new Folder_Files { Name = "Adicione uma pasta" });
+
+
+                if (string.IsNullOrEmpty(currentfolder))
                 {
+                    LabelTituloRepositorio = "Pasta inicial";
+                    List<Documents> list = await _firebaseService.ListFiles("Users", AppData.UserUid, "Pasta inicial");
 
-                    doc.Name = encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt);                 
-                    doc.DocumentType = encryptData.Decrypt(doc.DocumentType, AppData.Key, AppData.Salt); 
-                    
-                    DocumentCollection.Add(doc);
+                    foreach (Documents doc in list)
+                    {
 
+                        doc.Name = encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt);
+                        doc.DocumentType = encryptData.Decrypt(doc.DocumentType, AppData.Key, AppData.Salt);
+
+                        DocumentCollection.Add(doc);
+
+                    }
                 }
-            }
-            else
-            {
-                LabelTituloRepositorio = currentfolder;
-                List<Documents> list = await _firebaseService.ListFiles("Users", AppData.UserUid, currentfolder);
-                Debug.WriteLine(list.ToString());
-                foreach (Documents doc in list)
+                else
                 {
-                   doc.Name = encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt);
-                    doc.DocumentType = encryptData.Decrypt(doc.DocumentType, AppData.Key, AppData.Salt);
+                    LabelTituloRepositorio = currentfolder;
+                    List<Documents> list = await _firebaseService.ListFiles("Users", AppData.UserUid, currentfolder);
+                    Debug.WriteLine(list.ToString());
+                    foreach (Documents doc in list)
+                    {
+                        doc.Name = encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt);
+                        doc.DocumentType = encryptData.Decrypt(doc.DocumentType, AppData.Key, AppData.Salt);
 
-                    DocumentCollection.Add(doc);
+                        DocumentCollection.Add(doc);
 
+                    }
                 }
+                List<Folder_Files> list_folder = await _firebaseService.ListFolder("Users", AppData.UserUid);
+                foreach (Folder_Files folder in list_folder)
+                {
+                    FolderCollection.Add(folder);
+                }
+
             }
-            List<Folder_Files> list_folder = await _firebaseService.ListFolder("Users", AppData.UserUid);
-            foreach(Folder_Files folder in list_folder)
-            {
-                FolderCollection.Add(folder);   
-            }
-           
+            else { Debug.WriteLine("banco off"); }
         }
-        else { Debug.WriteLine("banco off"); }
+        finally
+        {
+            IsVisibleDocumentCollection = true;
+            IsVisibleGifLoading = false;
+        }
     }
 
     public async void OnDocumentItemTapped(Documents item)
