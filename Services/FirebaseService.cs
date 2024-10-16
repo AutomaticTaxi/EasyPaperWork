@@ -186,6 +186,7 @@ namespace EasyPaperWork.Services
                         Email = dados.ContainsKey("Email") ? dados["Email"].ToString() : string.Empty,
                         Password = dados.ContainsKey ("Password")? dados["Password"].ToString():string.Empty,
                         AccountType = dados.ContainsKey("AccountType") ? dados["AccountType"].ToString():string.Empty
+                        
                        
                         
                     };
@@ -218,7 +219,8 @@ namespace EasyPaperWork.Services
                     var documentsModel = new Documents
                     {
                         Name = dados.ContainsKey("Name") ? dados["Name"].ToString() : string.Empty,
-                        DocumentType = dados.ContainsKey("DocumentType") ? dados["DocumentType"].ToString() : string.Empty
+                        DocumentType = dados.ContainsKey("DocumentType") ? dados["DocumentType"].ToString() : string.Empty,
+                        UploadTime = dados.ContainsKey("UploadTime") ? dados["UploadTime"].ToString() : string.Empty
 
 
                     };

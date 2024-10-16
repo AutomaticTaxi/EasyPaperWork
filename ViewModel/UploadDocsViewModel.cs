@@ -91,45 +91,44 @@ namespace EasyPaperWork.ViewModel
             }
         }
 
-        public async void RestartAsAdministrator()
+        public  void RestartAsAdministrator()
         {
             if (!IsRunningAsAdministrator())
             {
-                // Cria um novo processo do próprio aplicativo com privilégios de administrador
-                var processInfo = new ProcessStartInfo
-                {
-                    FileName = Process.GetCurrentProcess().MainModule.FileName, // Nome do executável atual
-                    UseShellExecute = true,
-                    Verb = "runas",
-                    Arguments = string.Empty // Executa com permissões elevadas
-                };
-
                 try
                 {
+                    // Cria um novo processo do próprio aplicativo com privilégios de administrador
+                    ProcessStartInfo processInfo = new ProcessStartInfo
+                    {
+                        FileName = Process.GetCurrentProcess().MainModule.FileName, // Nome do executável atual
+                        UseShellExecute = true,
+                        Verb = "runas",
+                        Arguments = string.Empty,
+                        // Executa com permissões elevadas
+                    };
                     Process atual = Process.GetCurrentProcess();
 
                     // Inicia o novo processo com permissões elevadas
-                    Process newProcess = Process.Start(processInfo);
-
-                    if (newProcess != null)
+                    using (Process newProcess = Process.Start(processInfo))
                     {
-                        // Aguarda que o novo processo seja iniciado
-                        await Task.Delay(2000);
-
-                        // Verifica se o novo processo foi iniciado corretamente
-                        if (!newProcess.HasExited)
-                        {
-                            // Finaliza o processo atual de forma controlada
-                            Debug.WriteLine($"Novo processo iniciado com PID: {newProcess.Id}. Encerrando o processo atual.");
-                            Environment.Exit(0);  // Encerra o processo atual de forma limpa
-                        }
                     }
                 }
-                catch (Exception ex)
+                finally
                 {
-                    // Caso o usuário cancele ou ocorra outro erro
-                    Debug.WriteLine($"Erro ao tentar reiniciar o aplicativo como administrador: {ex.Message}");
+                    try
+                    {
+                        Environment.Exit(0);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Caso o usuário cancele ou ocorra outro erro
+                        Debug.WriteLine($"Erro ao tentar reiniciar o aplicativo como administrador: {ex.Message}");
+                    }
+
                 }
+               
+
+                
             }
         }
 
@@ -215,6 +214,7 @@ namespace EasyPaperWork.ViewModel
             else
             {
                 await Application.Current.MainPage.DisplayAlert("Error", "Re inicie a aplicação em modo administrador ", "ok");
+                RestartAsAdministrator(); 
             }
         }
         private async Task PickAndShowFileAsync()

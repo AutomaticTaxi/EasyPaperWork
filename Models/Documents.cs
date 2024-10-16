@@ -79,6 +79,19 @@ namespace EasyPaperWork.Models
                 OnPropertyChanged(nameof(UrlDownload));
             }
         }
+        private string _UploadTime;
+        public string UploadTime
+        {
+            get
+            {
+                return _UploadTime;
+            }
+            set
+            {
+                _UploadTime = value;
+                OnPropertyChanged(nameof(UploadTime));
+            }
+        }
 
         private string _RootFolder;
         public string RootFolder

@@ -315,15 +315,32 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             if (string.IsNullOrEmpty(AppData.CurrentFolder))
             {
                 Log newlog = new Log(selectedItem.Name,4);
-               //Consertar download
+              
                 await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
-                fileBytes = await _firebaseStorageService.DownloadFileByNameAsync(AppData.UserUid, "Pasta inicial", selectedItem.Name); // Sua lógica para obter os bytes do arquivo
+                List<Documents> list = await _firebaseService.ListFiles("Users", AppData.UserUid, "Pasta inicial");
+                foreach (Documents doc in list)
+                {
+                    if (encryptData.Decrypt(doc.Name, key, AppData.Salt) == selectedItem.Name)
+                    {
+                        fileBytes = await _firebaseStorageService.DownloadFileByNameAsync(AppData.UserUid, "Pasta inicial", doc.Name);
+                        break;
+                    }
+                }
             }
             else
             {
                 Log newlog = new Log(selectedItem.Name,4);
                 await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
-                fileBytes = await _firebaseStorageService.DownloadFileByNameAsync(AppData.UserUid, AppData.CurrentFolder, selectedItem.Name); // Sua lógica para obter os bytes do arquivo
+                List<Documents> list = await _firebaseService.ListFiles("Users", AppData.UserUid, AppData.CurrentFolder);
+                foreach (Documents doc in list)
+                {
+                    if (encryptData.Decrypt(doc.Name, key, AppData.Salt) == selectedItem.Name)
+                    {
+                        fileBytes = await _firebaseStorageService.DownloadFileByNameAsync(AppData.UserUid, AppData.CurrentFolder, doc.Name);
+                        break;
+                    }
+                }
+                
             }
             if (fileBytes != null)
             {
@@ -505,17 +522,18 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                             var stream = File.Open(PathTemporaryEncryptFile, FileMode.Open);
                             if (string.IsNullOrEmpty(AppData.CurrentFolder))
                             {
+                                documentsModel.Name = encryptData.Encrypt(documentsModel.Name, key, AppData.Salt);
                                 documentsModel.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, documentsModel.Name, "Pasta inicial");
                                 Log newlog = new Log(documentsModel.Name, 1);
                                 await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                                 documentsModel.DocumentType = ".pdf";
                                 documentsModel.RootFolder = "Pasta inicial";
-                                documentsModel.Name = encryptData.Encrypt(documentsModel.Name, key, AppData.Salt);
+                                
                                 documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
                                 documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
                                 documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
                                 documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
-
+                                documentsModel.UploadTime = encryptData.Encrypt(DateTime.UtcNow.ToString(), key, AppData.Salt);
 
                                 await _firebaseService.AddFiles("Users", AppData.UserUid, "Pasta inicial", documentsModel.Name, documentsModel);
                                 Documents doc = new Documents();
@@ -526,17 +544,18 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                             }
                             else
                             {
-
+                                documentsModel.Name = encryptData.Encrypt(documentsModel.Name, key, AppData.Salt);
                                 documentsModel.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, documentsModel.Name, AppData.CurrentFolder);
                                 Log newlog = new Log(documentsModel.Name, 1);
                                 await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                                 documentsModel.DocumentType = ".pdf";
                                 documentsModel.RootFolder = AppData.CurrentFolder;
-                                documentsModel.Name = encryptData.Encrypt(documentsModel.Name, key, AppData.Salt);
+                                
                                 documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
                                 documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
                                 documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
                                 documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
+                                documentsModel.UploadTime = encryptData.Encrypt(DateTime.UtcNow.ToString(), key, AppData.Salt);
                                 await _firebaseService.AddFiles("Users", AppData.UserUid, AppData.CurrentFolder, documentsModel.Name, documentsModel);
                                 Documents doc = new Documents();
                                 doc.Name = encryptData.Decrypt(documentsModel.Name, key, AppData.Salt);
@@ -638,34 +657,36 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                 {
                     if (string.IsNullOrEmpty(AppData.CurrentFolder))
                     {
-
-                        documentsModel.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, fileResult.FileName, "Pasta inicial");
+                        documentsModel.Name = encryptData.Encrypt(fileResult.FileName, key, AppData.Salt);
+                        documentsModel.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, documentsModel.Name, "Pasta inicial");
                         Log newlog = new Log(fileResult.FileName, 1);
                         await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
-                        documentsModel.Name = encryptData.Encrypt(fileResult.FileName, key, AppData.Salt);
+                        
                         documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
                         documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
                         documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
                         documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
-
+                        documentsModel.UploadTime = encryptData.Encrypt(DateTime.UtcNow.ToString(), key, AppData.Salt);
                         await _firebaseService.AddFiles("Users", AppData.UserUid, "Pasta inicial", documentsModel.Name, documentsModel);
                         Documents doc = new Documents();
                         doc.Name = encryptData.Decrypt(documentsModel.Name, key, AppData.Salt);
                         doc.Image = encryptData.Decrypt(documentsModel.Image, key, AppData.Salt);
                         DocumentCollection.Add(doc);
+                        DateTime.UtcNow.ToString();
                         await Application.Current.MainPage.DisplayAlert("Succsses", "Aquivo enviado para Pasta inicial", "Ok");
                     }
                     else
                     {
-
-                        documentsModel.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, fileResult.FileName, AppData.CurrentFolder);
+                        documentsModel.Name = encryptData.Encrypt(fileResult.FileName, key, AppData.Salt);
+                        documentsModel.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, documentsModel.Name, AppData.CurrentFolder);
                         Log newlog = new Log(fileResult.FileName, 1);
                         await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
-                        documentsModel.Name = encryptData.Encrypt(fileResult.FileName, key, AppData.Salt);
+                        
                         documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
                         documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
                         documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
                         documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
+                        documentsModel.UploadTime = encryptData.Encrypt(DateTime.UtcNow.ToString(), key, AppData.Salt);
 
                         await _firebaseService.AddFiles("Users", AppData.UserUid, AppData.CurrentFolder, documentsModel.Name, documentsModel);
                         Documents doc = new Documents();
