@@ -26,6 +26,8 @@ namespace EasyPaperWork.Models
         public static byte[] Key { get { return _Key; } set { _Key = value; } }
         private static string _ServerResult;
         public static string ServerResult { get { return _ServerResult; } set { _ServerResult = value; } }
+        private static List<Documents> _listdocs;
+        public static List<Documents> listdocs { get { return _listdocs; } set { _listdocs = value; } }
     }
    
 }

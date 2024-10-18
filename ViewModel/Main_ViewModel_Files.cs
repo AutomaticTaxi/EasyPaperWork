@@ -167,31 +167,44 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                 if (string.IsNullOrEmpty(currentfolder))
                 {
                     LabelTituloRepositorio = "Pasta inicial";
-                    List<Documents> list = await _firebaseService.ListFiles("Users", AppData.UserUid, "Pasta inicial");
-
-                    foreach (Documents doc in list)
+                    AppData.listdocs = await _firebaseService.ListFiles("Users", AppData.UserUid, "Pasta inicial");
+                    List<Documents> decryptedDocs = new List<Documents>();
+                    foreach (Documents doc in AppData.listdocs)
                     {
+                        Documents decryptedDoc = new Documents
+                        {
+                            Name = encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt),
+                            DocumentType = encryptData.Decrypt(doc.DocumentType, AppData.Key, AppData.Salt),
 
-                        doc.Name = encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt);
-                        doc.DocumentType = encryptData.Decrypt(doc.DocumentType, AppData.Key, AppData.Salt);
-
+                        };
+                        decryptedDocs.Add(decryptedDoc);
+                    }
+                    foreach (Documents doc in decryptedDocs)
+                    {
                         DocumentCollection.Add(doc);
-
                     }
                 }
                 else
                 {
+
                     LabelTituloRepositorio = currentfolder;
-                    List<Documents> list = await _firebaseService.ListFiles("Users", AppData.UserUid, currentfolder);
-                    Debug.WriteLine(list.ToString());
-                    foreach (Documents doc in list)
+                    AppData.listdocs = await _firebaseService.ListFiles("Users", AppData.UserUid, currentfolder);
+                    List<Documents> decryptedDocs = new List<Documents>();
+                    foreach (Documents doc in AppData.listdocs)
                     {
-                        doc.Name = encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt);
-                        doc.DocumentType = encryptData.Decrypt(doc.DocumentType, AppData.Key, AppData.Salt);
+                        Documents decryptedDoc = new Documents
+                        {
+                            Name = encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt),
+                            DocumentType = encryptData.Decrypt(doc.DocumentType, AppData.Key, AppData.Salt),
 
-                        DocumentCollection.Add(doc);
-
+                        };
+                        decryptedDocs.Add(decryptedDoc);
                     }
+                    foreach (Documents doc in decryptedDocs)
+                    {
+                        DocumentCollection.Add(doc);
+                    }
+                    
                 }
                 List<Folder_Files> list_folder = await _firebaseService.ListFolder("Users", AppData.UserUid);
                 foreach (Folder_Files folder in list_folder)
@@ -311,7 +324,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         try
         {
             Debug.WriteLine($"Downloading file {selectedItem.Name}");
-            byte[] fileBytes;
+            byte[] fileBytes = null;
             if (string.IsNullOrEmpty(AppData.CurrentFolder))
             {
                 Log newlog = new Log(selectedItem.Name,4);
@@ -394,34 +407,43 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
        
         string action = await Application.Current.MainPage.DisplayActionSheet("Deseja remover o documento", "cancel", null, "sim");
         if (action == "sim") {
-            if (string.IsNullOrEmpty(AppData.CurrentFolder))
+            foreach (Documents doc in AppData.listdocs)
             {
-                if (await _firebaseService.DeleteFileAsync("Users", AppData.UserUid, "Pasta inicial", selectedItem.Name))
+                if (encryptData.Decrypt(doc.Name, key, AppData.Salt) == selectedItem.Name)
                 {
-                    if (await _firebaseStorageService.DeleteFileAsync(AppData.UserUid, "Pasta inicial", selectedItem.Name))
+                    if (string.IsNullOrEmpty(AppData.CurrentFolder))
                     {
-                        Log newlog = new Log(selectedItem.Name, 2);
 
-                        await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
-                        DocumentCollection.Remove(selectedItem);
-                        Console.WriteLine("Arquivo removido");
-                        return "success";
+
+                        if (await _firebaseService.DeleteFileAsync("Users", AppData.UserUid, "Pasta inicial", doc.Name))
+                        {
+                            if (await _firebaseStorageService.DeleteFileAsync(AppData.UserUid, "Pasta inicial", doc.Name))
+                            {
+                                Log newlog = new Log(selectedItem.Name, 2);
+
+                                await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
+                                DocumentCollection.Remove(selectedItem);
+                                Console.WriteLine("Arquivo removido");
+                                return "success";
+                            }//Adicionar algoritimo para solucionar caso a exclusão falar em umas das partes 
+                        }
                     }
+                    else if (await _firebaseService.DeleteFileAsync("Users", AppData.UserUid, AppData.CurrentFolder, doc.Name))
+                    {
+                        if (await _firebaseStorageService.DeleteFileAsync(AppData.UserUid, AppData.CurrentFolder, doc.Name))
+                        {
+
+                            Log newlog = new Log(selectedItem.Name, 2);
+
+                            await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
+                            DocumentCollection.Remove(selectedItem);
+                            Console.WriteLine("Arquivo removido");
+                            return "success";
+                        }
+                    }//Adicionar algoritimo para solucionar caso a exclusão falar em umas das partes 
                 }
             }
-            else if (await _firebaseService.DeleteFileAsync("Users", AppData.UserUid, AppData.CurrentFolder, selectedItem.Name))
-            {
-                if (await _firebaseStorageService.DeleteFileAsync(AppData.UserUid, AppData.CurrentFolder, selectedItem.Name))
-                {
-
-                    Log newlog = new Log(selectedItem.Name, 2);
-
-                    await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
-                    DocumentCollection.Remove(selectedItem);
-                    Console.WriteLine("Arquivo removido");
-                    return "success";
-                }
-            }
+            
         }
         return "error";
     }
@@ -658,6 +680,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                     if (string.IsNullOrEmpty(AppData.CurrentFolder))
                     {
                         documentsModel.Name = encryptData.Encrypt(fileResult.FileName, key, AppData.Salt);
+                        documentsModel.Name = encryptData.Encrypt(fileResult.FileName, key, AppData.Salt);
                         documentsModel.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, documentsModel.Name, "Pasta inicial");
                         Log newlog = new Log(fileResult.FileName, 1);
                         await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
@@ -678,7 +701,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                     else
                     {
                         documentsModel.Name = encryptData.Encrypt(fileResult.FileName, key, AppData.Salt);
-                        documentsModel.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, documentsModel.Name, AppData.CurrentFolder);
+                        documentsModel.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, documentsModel.Name, string.Concat("Pasta inicial/", AppData.CurrentFolder));
                         Log newlog = new Log(fileResult.FileName, 1);
                         await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                         
