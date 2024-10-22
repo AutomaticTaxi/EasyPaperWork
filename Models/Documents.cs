@@ -50,6 +50,9 @@ namespace EasyPaperWork.Models
                     case ".pptx":
                         Image = "ppt_icon.png";
                         break;
+                    case "folder":
+                        Image = "folder_icon.png";
+                        break;
 
                 }
                 OnPropertyChanged(nameof(DocumentType));

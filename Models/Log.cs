@@ -18,20 +18,20 @@ namespace EasyPaperWork.Models
             switch (option)
             {
                 case '1':
-                    menssage = string.Concat("Documento adicionado. Nome = ", filename);
+                    _menssage = string.Concat("Documento adicionado. Nome = ", filename);
                     dateTime = DateTime.UtcNow;
                 break;
                 case '2':
-                    menssage = string.Concat("Documento Removido. Nome = ", filename);
-                    dateTime = DateTime.UtcNow;
+                    _menssage = string.Concat("Documento Removido. Nome = ", filename);
+                    _dateTime = DateTime.UtcNow;
                     break;
                 case '3':
-                    menssage = string.Concat("Documento Atualizado. Nome =  ", filename);
-                    dateTime = DateTime.UtcNow;
+                    _menssage = string.Concat("Documento Atualizado. Nome =  ", filename);
+                    _dateTime = DateTime.UtcNow;
                     break;
                 case '4':
-                    menssage = string.Concat("Documento Baixado. Nome =  ", filename);
-                    dateTime = DateTime.UtcNow;
+                    _menssage = string.Concat("Documento Baixado. Nome =  ", filename);
+                    _dateTime = DateTime.UtcNow;
                     break;
              
             }

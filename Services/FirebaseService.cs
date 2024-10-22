@@ -279,6 +279,8 @@ namespace EasyPaperWork.Services
                 return new List<Documents>();
             }
         }
+       
+        
         public async Task<List<Log>> ListLogs()
         {
             try
@@ -313,32 +315,93 @@ namespace EasyPaperWork.Services
             }
         }
 
-        public async Task<List<Folder_Files>> ListFolder(string colecaoUser, string IdUser)
+        public async Task<List<Folder_Files>> ListFolder(string colecaoUser, string IdUser, string caminhoCompleto)
         {
-            
-                if (string.IsNullOrEmpty(colecaoUser))
-                    throw new ArgumentException("A coleção não pode ser nula ou vazia.", nameof(colecaoUser));
+            try
+            {
+                // Quebra o caminho de subcoleções e documentos (ex: "Pasta1/Pasta2/Pasta3")
+                var subPastas = caminhoCompleto.Split('/');
 
-                var documentReference = _firestoreDb.Collection(colecaoUser).Document(IdUser);
-                var subcolletions = documentReference.ListCollectionsAsync();
+                // Começa acessando a coleção principal
+                DocumentReference docRef = _firestoreDb.Collection(colecaoUser).Document(IdUser);
+
+                // Itera através das subcoleções para chegar ao nível desejado
+                for (int i = 0; i < subPastas.Length; i++)
+                {
+                    // Acessa o documento e a subcoleção correspondente no caminho
+                    docRef = docRef.Collection(subPastas[i]).Document(subPastas[i]);
+                }
+
+                // Pega todas as subcoleções dentro do último documento acessado
+                var subcolecoes = docRef.ListCollectionsAsync();
+
+                // Lista as subcoleções encontradas
+                Debug.WriteLine("Subcoleções encontradas:");
                 var folderlist = new List<Folder_Files>();
 
-            await foreach (var subcollection in subcolletions)
+                // Use 'await foreach' para iterar através das subcoleções
+                await foreach (var colecao in subcolecoes)
                 {
-                    folderlist.Add(new Folder_Files { Name = subcollection.Id });
+                    // Adiciona cada subcoleção à lista de pastas
+                    folderlist.Add(new Folder_Files { Name = colecao.Id });
                 }
-            return folderlist;
-            
+
+                return folderlist;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao listar subcoleções: {ex.Message}");
+                return null;
+            }
         }
-        public async Task AddFiles<T>(string ColecaoUser, string IdUser, string file_path, string IdDocument, T objFile)
+        public async Task AddFiles<T>(string colecaoUser, string idUser, string caminhoCompleto, string idDocument, T objFile)
         {
-            try {
+            try
+            {
+                // Converte o objeto em um dicionário
                 Dictionary<string, object> dados = ConvertToDictionary(objFile);
-                DocumentReference document = _firestoreDb.Collection(ColecaoUser).Document(IdUser).Collection(file_path).Document(IdDocument);
+
+                // Quebra o caminho de subcoleções e documentos (ex: "Pasta1/Pasta2/Pasta3")
+                var subPastas = caminhoCompleto.Split('/');
+
+                // Começa acessando a coleção principal
+                CollectionReference colecao = _firestoreDb.Collection(colecaoUser).Document(idUser).Collection(subPastas[0]);
+
+                // Itera através das subcoleções, criando o caminho dinamicamente
+                for (int i = 1; i < subPastas.Length; i++)
+                {
+                    // Acessa o próximo documento e subcoleção
+                    colecao = colecao.Document(subPastas[i - 1]).Collection(subPastas[i]);
+                }
+
+                // Acessa o documento dentro da última subcoleção e insere os dados
+                DocumentReference document = colecao.Document(idDocument);
                 await document.SetAsync(dados);
 
-            } catch (ArgumentException ex) {
-                Debug.WriteLine(ex.Message); }
+                Console.WriteLine("Dados inseridos com sucesso!");
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao adicionar arquivo: {ex.Message}");
+            }
+        }
+
+
+
+        public async Task AddFolder<T>(string ColecaoUser, string IdUser, string folder_path, string IdDocument, T objFile)
+        {
+            try
+            {
+                Dictionary<string, object> dados = ConvertToDictionary(objFile);
+                DocumentReference document = _firestoreDb.Collection(ColecaoUser).Document(IdUser).Collection(folder_path).Document(IdDocument);
+                await document.SetAsync(dados);
+
+            }
+            catch (ArgumentException ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
         }
 
         public async Task AdicionarObjetoAsync<T>(string colecao, string documentoId, T objeto)

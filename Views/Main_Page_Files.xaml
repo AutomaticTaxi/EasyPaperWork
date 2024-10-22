@@ -17,7 +17,7 @@
                 <Entry Placeholder="Procure uma pasta" Text="{Binding EntryFolderName}"/>
                 <Button Text="Pesquisar" Command="{Binding BtSearchFolder}"/>
                 <Grid   >
-                    <ImageButton Grid.Column="1" Source="refresh_icon.png"  Aspect="Center" WidthRequest="28" HeightRequest="28"  Command="{Binding BtRefresh}"/>
+                    <ImageButton Grid.Row="1" Grid.Column="1" Source="home_icon.png" Aspect="Center" WidthRequest="28" HeightRequest="28" Command="{Binding BtHome}"/>
                 </Grid>
             </HorizontalStackLayout>
             <ScrollView>

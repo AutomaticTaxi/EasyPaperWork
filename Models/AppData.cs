@@ -29,5 +29,5 @@ namespace EasyPaperWork.Models
         private static List<Documents> _listdocs;
         public static List<Documents> listdocs { get { return _listdocs; } set { _listdocs = value; } }
     }
-   
+ 
 }

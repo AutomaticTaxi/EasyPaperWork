@@ -167,7 +167,8 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                 if (string.IsNullOrEmpty(currentfolder))
                 {
                     LabelTituloRepositorio = "Pasta inicial";
-                    AppData.listdocs = await _firebaseService.ListFiles("Users", AppData.UserUid, "Pasta inicial");
+                    AppData.CurrentFolder = "Pasta inicial";
+                    AppData.listdocs = await _firebaseService.ListFiles("Users", AppData.UserUid, AppData.CurrentFolder);
                     List<Documents> decryptedDocs = new List<Documents>();
                     foreach (Documents doc in AppData.listdocs)
                     {
@@ -175,6 +176,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                         {
                             Name = encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt),
                             DocumentType = encryptData.Decrypt(doc.DocumentType, AppData.Key, AppData.Salt),
+                           
 
                         };
                         decryptedDocs.Add(decryptedDoc);
@@ -182,35 +184,63 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                     foreach (Documents doc in decryptedDocs)
                     {
                         DocumentCollection.Add(doc);
+                    }
+                    List<Folder_Files> list_folder = new List<Folder_Files>();
+                       list_folder = await _firebaseService.ListFolder("Users", AppData.UserUid,AppData.CurrentFolder);
+                    foreach (Folder_Files folder in list_folder)
+                    {
+                        Folder_Files decrypt_folder = new Folder_Files
+                        {
+                            //Name = encryptData.Decrypt(folder.Name, key, AppData.Salt)
+                            Name= folder.Name,
+                        };
+                        FolderCollection.Add(decrypt_folder);
                     }
                 }
                 else
                 {
-
-                    LabelTituloRepositorio = currentfolder;
-                    AppData.listdocs = await _firebaseService.ListFiles("Users", AppData.UserUid, currentfolder);
-                    List<Documents> decryptedDocs = new List<Documents>();
-                    foreach (Documents doc in AppData.listdocs)
+                    try
                     {
-                        Documents decryptedDoc = new Documents
+                        LabelTituloRepositorio = currentfolder;
+                        AppData.listdocs = await _firebaseService.ListFiles("Users", AppData.UserUid, currentfolder);
+                        List<Documents> decryptedDocs = new List<Documents>();
+                        foreach (Documents doc in AppData.listdocs)
                         {
-                            Name = encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt),
-                            DocumentType = encryptData.Decrypt(doc.DocumentType, AppData.Key, AppData.Salt),
+                            Documents decryptedDoc = new Documents();
 
-                        };
-                        decryptedDocs.Add(decryptedDoc);
+                            decryptedDoc.Name = encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt);
+                                if (string.IsNullOrEmpty(doc.DocumentType))
+                                {
+                                decryptedDoc.DocumentType = "folder";
+                            }
+                            else {
+                                decryptedDoc.DocumentType = encryptData.Decrypt(doc.DocumentType, AppData.Key, AppData.Salt);
+                                }
+                                    
+                            decryptedDocs.Add(decryptedDoc);
+                        }
+                           foreach (Documents doc in decryptedDocs)
+                           {
+                               DocumentCollection.Add(doc);
+                           }
+                        List<Folder_Files> list_folder = new List<Folder_Files>();
+                        list_folder = await _firebaseService.ListFolder("Users", AppData.UserUid, AppData.CurrentFolder);
+                        foreach (Folder_Files folder in list_folder)
+                        {
+                            Folder_Files decrypt_folder = new Folder_Files
+                            {
+                                //Name = encryptData.Decrypt(folder.Name, key, AppData.Salt)
+                                Name = folder.Name,
+                            };
+                            FolderCollection.Add(decrypt_folder);
+                        }
                     }
-                    foreach (Documents doc in decryptedDocs)
+                    catch(Exception ex)
                     {
-                        DocumentCollection.Add(doc);
+                        await Application.Current.MainPage.DisplayAlert("error", ex.ToString(), "ok");
                     }
-                    
                 }
-                List<Folder_Files> list_folder = await _firebaseService.ListFolder("Users", AppData.UserUid);
-                foreach (Folder_Files folder in list_folder)
-                {
-                    FolderCollection.Add(folder);
-                }
+                
 
             }
             else { Debug.WriteLine("banco off"); }
@@ -235,7 +265,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         {
          if (string.IsNullOrEmpty(AppData.CurrentFolder))
             {
-                AppData.CurrentFolder = "Pasta inicial";
+                AppData.CurrentFolder = encryptData.Encrypt("Pasta inicial",key,salt:AppData.Salt);
             }
             string action = await Application.Current.MainPage.DisplayActionSheet(
                 "Escolha uma ação", "Cancelar", null, "Buscar no PC", "Scannear");
@@ -284,9 +314,24 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             string namefolder =  await Application.Current.MainPage.DisplayPromptAsync("Criação de pasta", "Digite o nome de sua pasta", "Ok", "Cancel");
             if (!string.IsNullOrEmpty(namefolder) && !string.Equals("Adicione uma pasta",namefolder) )
             {
-                Folder_Files.Name= namefolder;
-                FolderCollection.Add(Folder_Files);
-                await _firebaseService.AdicionarObjetoAsync("Users", AppData.UserUid, Folder_Files);
+                Folder_Files.Name= encryptData.Encrypt(namefolder,key,AppData.Salt);
+                Folder_Files Decrypt_folder = new Folder_Files{
+                    Name=namefolder
+                };
+                FolderCollection.Add(Decrypt_folder);
+                if (string.IsNullOrEmpty(AppData.CurrentFolder))
+                {
+                    await _firebaseService.AddFolder("Users", AppData.UserUid, AppData.CurrentFolder, Folder_Files.Name, Folder_Files);
+
+
+                }
+                else
+                {
+                   await _firebaseService.AddFolder("Users",AppData.UserUid,AppData.CurrentFolder,Folder_Files.Name, Folder_Files);
+                    
+                    
+                }
+                
                 
             }
             else { await Application.Current.MainPage.DisplayAlert("Erro", "Nome Inválido", "Ok"); }
@@ -297,21 +342,19 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         }
         else
         {
-            string action = await Application.Current.MainPage.DisplayActionSheet("Escolha uma ação", "Cancelar", null, "Abrir", "Editar", "Excluir");
+            string action = await Application.Current.MainPage.DisplayActionSheet("Escolha uma ação", "Cancelar", null, "Abrir", "Excluir");
 
             switch (action)
             {
                 case "Abrir":
-                    AppData.CurrentFolder = item.Name;
+                    AppData.CurrentFolder = string.Concat(AppData.CurrentFolder,"/",item.Name);
                     LabelTituloRepositorio = item.Name;
-                    list_files(item.Name);
+                    await list_files(AppData.CurrentFolder);
                     break;
-                case "Editar":
-                    
-                    break;
+               
                 case "Excluir":
                     await DeleteFolder(item);
-                    list_files("Pasta inicial");
+                    await list_files("Pasta inicial");
                     break;
                 default:
                     break;
@@ -679,6 +722,8 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                 {
                     if (string.IsNullOrEmpty(AppData.CurrentFolder))
                     {
+                        List<Folder_Files> listFolder = new List<Folder_Files>();
+                        listFolder = await _firebaseService.ListFolder("Users", AppData.UserUid, encryptData.Encrypt("Pasta inicial", key, AppData.Salt));
                         documentsModel.Name = encryptData.Encrypt(fileResult.FileName, key, AppData.Salt);
                         documentsModel.Name = encryptData.Encrypt(fileResult.FileName, key, AppData.Salt);
                         documentsModel.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, documentsModel.Name, "Pasta inicial");
@@ -690,7 +735,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                         documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
                         documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
                         documentsModel.UploadTime = encryptData.Encrypt(DateTime.UtcNow.ToString(), key, AppData.Salt);
-                        await _firebaseService.AddFiles("Users", AppData.UserUid, "Pasta inicial", documentsModel.Name, documentsModel);
+                        await _firebaseService.AddFiles("Users", AppData.UserUid, encryptData.Encrypt("Pasta inicial",key,AppData.Salt), documentsModel.Name, documentsModel);
                         Documents doc = new Documents();
                         doc.Name = encryptData.Decrypt(documentsModel.Name, key, AppData.Salt);
                         doc.Image = encryptData.Decrypt(documentsModel.Image, key, AppData.Salt);
@@ -701,7 +746,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                     else
                     {
                         documentsModel.Name = encryptData.Encrypt(fileResult.FileName, key, AppData.Salt);
-                        documentsModel.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, documentsModel.Name, string.Concat("Pasta inicial/", AppData.CurrentFolder));
+                        documentsModel.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, documentsModel.Name,AppData.CurrentFolder);
                         Log newlog = new Log(fileResult.FileName, 1);
                         await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                         
@@ -711,7 +756,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                         documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
                         documentsModel.UploadTime = encryptData.Encrypt(DateTime.UtcNow.ToString(), key, AppData.Salt);
 
-                        await _firebaseService.AddFiles("Users", AppData.UserUid, AppData.CurrentFolder, documentsModel.Name, documentsModel);
+                        await _firebaseService.AddFiles("Users", AppData.UserUid,AppData.CurrentFolder, documentsModel.Name, documentsModel);
                         Documents doc = new Documents();
                         doc.Name = encryptData.Decrypt(documentsModel.Name, key, AppData.Salt);
                         doc.Image = encryptData.Decrypt(documentsModel.Image,key, AppData.Salt);
@@ -744,6 +789,20 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             IsVisibleGifLoading = false;
             IsVisibleDocumentCollection = true;
         }
+    }
+    public string nextfolder(string previus, string next)
+    {
+        return string.Join(previus, next);
+    }
+    public string backfolder(string path)
+    {
+        int indexUltimaBarra = path.LastIndexOf('/');
+        string newpath = path.Substring(0, indexUltimaBarra);
+        return newpath;        
+    }
+    public string homefolder()
+    {
+        return "Pasta inicial";
     }
     public bool IsRunningAsAdministrator()
     {
