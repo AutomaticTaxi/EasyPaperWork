@@ -1,6 +1,4 @@
-﻿
-using __XamlGeneratedCode__;
-using EasyPaperWork.Models;
+﻿using EasyPaperWork.Models;
 using EasyPaperWork.Security;
 using EasyPaperWork.Services;
 using Microsoft.Maui.Controls.Compatibility;
@@ -12,6 +10,7 @@ using System.Security.Principal;
 using System.Web;
 using System.Windows.Input;
 
+
 namespace EasyPaperWork.ViewModel;
 
 public  class Main_ViewModel_Files: INotifyPropertyChanged
@@ -21,6 +20,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     private Documents documentsModel;
     private Scanner scanner;
     public ICommand BtSearchFile { get; }
+    public ICommand BtHome { get; }
     public ICommand BtSearchFolder { get; }
     public ICommand BtRefresh { get; }
     private Documents Documento;
@@ -120,7 +120,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
     {
         BtSearchFile = new Command(async () => await SearchFile());
         BtRefresh = new Command(async () => list_files(AppData.CurrentFolder));
-       
+        BtHome= new Command( async () => homefolder());
         service = new WindowsFileSavePickerService();
         scanner = new Scanner();
         Log log = new Log();
@@ -172,13 +172,18 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                     List<Documents> decryptedDocs = new List<Documents>();
                     foreach (Documents doc in AppData.listdocs)
                     {
-                        Documents decryptedDoc = new Documents
-                        {
-                            Name = encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt),
-                            DocumentType = encryptData.Decrypt(doc.DocumentType, AppData.Key, AppData.Salt),
-                           
+                        Documents decryptedDoc = new Documents();
 
-                        };
+                        decryptedDoc.Name = encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt);
+                        if (string.IsNullOrEmpty(doc.DocumentType))
+                        {
+                            decryptedDoc.DocumentType = "folder";
+                        }
+                        else
+                        {
+                            decryptedDoc.DocumentType = encryptData.Decrypt(doc.DocumentType, AppData.Key, AppData.Salt);
+                        }
+
                         decryptedDocs.Add(decryptedDoc);
                     }
                     foreach (Documents doc in decryptedDocs)
@@ -202,7 +207,27 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                     try
                     {
                         LabelTituloRepositorio = currentfolder;
-                        AppData.listdocs = await _firebaseService.ListFiles("Users", AppData.UserUid, currentfolder);
+
+                        if (!currentfolder.Contains("/"))
+                        {
+                            AppData.listdocs = await _firebaseService.ListFiles("Users", AppData.UserUid, currentfolder);
+                        }
+                        else
+                        {
+                            string[] pathParts = currentfolder.Split("/");
+                            List<string> duplicatedParts = new List<string>();
+                            foreach (string part in pathParts)
+                            {
+                                duplicatedParts.Add(part);  // Adiciona o item original
+                                duplicatedParts.Add(part);  // Adiciona a duplicata
+                            }
+                            duplicatedParts.RemoveAt(duplicatedParts.Count - 1);
+
+                            string lastFolder = string.Join("/", duplicatedParts);
+                          
+                            AppData.listdocs = await _firebaseService.ListFiles("Users", AppData.UserUid, lastFolder);
+                        }
+
                         List<Documents> decryptedDocs = new List<Documents>();
                         foreach (Documents doc in AppData.listdocs)
                         {
@@ -265,7 +290,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         {
          if (string.IsNullOrEmpty(AppData.CurrentFolder))
             {
-                AppData.CurrentFolder = encryptData.Encrypt("Pasta inicial",key,salt:AppData.Salt);
+                AppData.CurrentFolder = "Pasta inicial";
             }
             string action = await Application.Current.MainPage.DisplayActionSheet(
                 "Escolha uma ação", "Cancelar", null, "Buscar no PC", "Scannear");
@@ -285,6 +310,29 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                 default:
                     break;
             }
+        }else if(item.DocumentType == "folder")
+        {
+            string action = await Application.Current.MainPage.DisplayActionSheet(
+                "Escolha uma ação", "Cancelar", null, "Abrir", "Excluir");
+
+            switch (action)
+            {
+                case "Abrir":
+                    AppData.CurrentFolder = nextfolder(AppData.CurrentFolder, item.Name);
+                    LabelTituloRepositorio = item.Name;
+                    await list_files(AppData.CurrentFolder);
+                    break;
+                case "Excluir":
+                    Folder_Files tempfolder = new Folder_Files
+                    {
+                        Name = item.Name
+                    };
+                    await DeleteFolder(tempfolder);
+                    break;
+                default:
+                    break;
+            }
+
         }
         else
         {
@@ -347,7 +395,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             switch (action)
             {
                 case "Abrir":
-                    AppData.CurrentFolder = string.Concat(AppData.CurrentFolder,"/",item.Name);
+                    AppData.CurrentFolder = nextfolder(AppData.CurrentFolder,item.Name);
                     LabelTituloRepositorio = item.Name;
                     await list_files(AppData.CurrentFolder);
                     break;
@@ -790,9 +838,21 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             IsVisibleDocumentCollection = true;
         }
     }
-    public string nextfolder(string previus, string next)
+    public string nextfolder(string previous, string pathfinal)
     {
-        return string.Join(previus, next);
+        if (!previous.Contains("/"))
+        {
+            return string.Concat(previous, "/", pathfinal);
+        }
+        else
+        {
+            string[] pathParts = previous.Split("/");
+            string lastFolder = pathParts[pathParts.Length - 1];
+            return string.Concat(previous, "/", pathfinal);
+        }
+
+
+
     }
     public string backfolder(string path)
     {
@@ -800,9 +860,10 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         string newpath = path.Substring(0, indexUltimaBarra);
         return newpath;        
     }
-    public string homefolder()
+    public async void homefolder()
     {
-        return "Pasta inicial";
+       AppData.CurrentFolder = "Pasta inicial";
+        list_files(AppData.CurrentFolder);
     }
     public bool IsRunningAsAdministrator()
     {

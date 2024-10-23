@@ -250,7 +250,7 @@ namespace EasyPaperWork.Services
 
                 CollectionReference collectionRef = _firestoreDb.Collection(colecaoUser).Document(IdUser).Collection(CurrentFolder);
                 QuerySnapshot snapshot = await collectionRef.GetSnapshotAsync();
-
+               
               
                     List<Documents> documentosList = new List<Documents>();
 
