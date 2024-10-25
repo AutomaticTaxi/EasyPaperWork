@@ -952,7 +952,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                                 documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
                                 documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
                                 documentsModel.UploadTime = encryptData.Encrypt(DateTime.UtcNow.ToString(), key, AppData.Salt);
-                                await _firebaseService.AddFiles("Users", AppData.UserUid, encryptData.Encrypt("Pasta inicial", key, AppData.Salt), documentsModel.Name, documentsModel);
+                                await _firebaseService.AddFiles("Users", AppData.UserUid, "Pasta inicial", documentsModel.Name, documentsModel);
                                 Documents doc2 = new Documents();
                                 doc2.Name = encryptData.Decrypt(documentsModel.Name, key, AppData.Salt);
                                 doc2.Image = encryptData.Decrypt(documentsModel.Image, key, AppData.Salt);
@@ -1052,7 +1052,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                             documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
                             documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
                             documentsModel.UploadTime = encryptData.Encrypt(DateTime.UtcNow.ToString(), key, AppData.Salt);
-                            await _firebaseService.AddFiles("Users", AppData.UserUid, encryptData.Encrypt(folder, key, AppData.Salt), documentsModel.Name, documentsModel);                          
+                            await _firebaseService.AddFiles("Users", AppData.UserUid,folder, documentsModel.Name, documentsModel);                          
                             await Application.Current.MainPage.DisplayAlert("Succsses", "Aquivo enviado para Pasta inicial", "Ok");                        
                        
                         stream.Dispose();
