@@ -113,6 +113,8 @@ namespace EasyPaperWork.Security
             inputStream.Close();
             cryptoStream.Dispose();
             cryptoStream.Close();
+            fileStream.Dispose();
+            fileStream.Close();
 
         }
         public void DecryptFile(string inputFilePath, string outputFilePath, string password)

@@ -113,6 +113,22 @@ namespace EasyPaperWork.Models
         {
             
         }
+        public override bool Equals(object obj)
+        {
+            if (obj is Documents otherDoc)
+            {
+                // Aqui você define o que significa "igualdade" entre dois documentos.
+                // Nesse caso, estamos comparando o nome e o tipo de documento.
+                return this.Name == otherDoc.Name && this.DocumentType == otherDoc.DocumentType;
+            }
+            return false;
+        }
+
+        // Sobrescreva GetHashCode para garantir que dois objetos iguais tenham o mesmo hash code
+        public override int GetHashCode()
+        {
+            return (Name + DocumentType).GetHashCode();
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public void OnPropertyChanged(string prop)
