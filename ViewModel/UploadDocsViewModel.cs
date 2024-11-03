@@ -149,7 +149,7 @@ namespace EasyPaperWork.ViewModel
                         string PathTemporaryEncryptFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), string.Concat("Encrypt", documentsModel.Name, ".pdf"));
                         try
                         {
-                            encryptData.EncryptFile(filepath, PathTemporaryEncryptFile, AppData.UserPassword, AppData.Salt);
+                            await encryptData.EncryptFile(filepath, PathTemporaryEncryptFile, AppData.UserPassword, AppData.Salt);
                             var stream = File.Open(PathTemporaryEncryptFile, FileMode.Open);
                             if (string.IsNullOrEmpty(AppData.CurrentFolder))
                             {

@@ -98,25 +98,34 @@ namespace EasyPaperWork.Security
             
             return srDecrypt.ReadToEnd();
         }
-        public void EncryptFile(string inputFilePath, string outputFilePath, string password, byte[] salt)
+        public async Task<string> EncryptFile(string inputFilePath, string outputFilePath, string password, byte[] salt)
         {
-            var aes = Aes.Create();
-            Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(password, salt, 10000);
-            aes.Key = key.GetBytes(aes.KeySize / 8);
-            aes.IV = key.GetBytes(aes.BlockSize / 8);
-            var fileStream = new FileStream(outputFilePath, FileMode.Create);     
-            fileStream.Write(salt, 0, salt.Length);
-            var cryptoStream = new CryptoStream(fileStream, aes.CreateEncryptor(), CryptoStreamMode.Write);
-            var inputStream = new FileStream(inputFilePath, FileMode.Open);
-            inputStream.CopyTo(cryptoStream); 
-            inputStream.Dispose();
-            inputStream.Close();
-            cryptoStream.Dispose();
-            cryptoStream.Close();
-            fileStream.Dispose();
-            fileStream.Close();
-
+            try
+            {
+                await Task.Run(() =>
+                {
+                    var aes = Aes.Create();
+                    Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(password, salt, 10000);
+                    aes.Key = key.GetBytes(aes.KeySize / 8);
+                    aes.IV = key.GetBytes(aes.BlockSize / 8);
+                    using (var fileStream = new FileStream(outputFilePath, FileMode.Create))
+                    {
+                        fileStream.Write(salt, 0, salt.Length);
+                        using (var cryptoStream = new CryptoStream(fileStream, aes.CreateEncryptor(), CryptoStreamMode.Write))
+                        using (var inputStream = new FileStream(inputFilePath, FileMode.Open))
+                        {
+                            inputStream.CopyTo(cryptoStream);
+                        }
+                    }
+                });
+                return "Success";
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
         }
+
         public void DecryptFile(string inputFilePath, string outputFilePath, string password)
         {
             var fileStream = new FileStream(inputFilePath, FileMode.Open);

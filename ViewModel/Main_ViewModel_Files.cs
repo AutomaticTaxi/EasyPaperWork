@@ -144,7 +144,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
 
     }
 
-    public async Task list_files(string currentfolder)
+    public async Task    list_files(string currentfolder)
     {
         IsVisibleDocumentCollection = false;
         IsVisibleGifLoading = true;
@@ -744,7 +744,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                         string PathTemporaryEncryptFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), string.Concat("Encrypt", documentsModel.Name, ".pdf"));
                         try
                         {
-                            encryptData.EncryptFile(filepath, PathTemporaryEncryptFile, AppData.UserPassword, AppData.Salt);
+                           await encryptData.EncryptFile(filepath, PathTemporaryEncryptFile, AppData.UserPassword, AppData.Salt);
                             var stream = File.Open(PathTemporaryEncryptFile, FileMode.Open);
                             if (string.IsNullOrEmpty(AppData.CurrentFolder))
                             {
@@ -934,7 +934,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                         {
 
 
-                            encryptData.EncryptFile(fileResult.FullPath, PathTemporaryEncryptFile, AppData.UserPassword, AppData.Salt);
+                            await encryptData.EncryptFile(fileResult.FullPath, PathTemporaryEncryptFile, AppData.UserPassword, AppData.Salt);
 
                             var stream = File.Open(PathTemporaryEncryptFile, FileMode.Open,FileAccess.ReadWrite);
                             if (string.IsNullOrEmpty(AppData.CurrentFolder))
@@ -1034,7 +1034,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                     {
 
 
-                    encryptData.EncryptFile(pathfile, PathTemporaryEncryptFile, AppData.UserPassword, AppData.Salt);
+                    await encryptData.EncryptFile(pathfile, PathTemporaryEncryptFile, AppData.UserPassword, AppData.Salt);
 
                     FileStream stream = new FileStream(pathfile, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
                     
@@ -1097,11 +1097,20 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                     { DevicePlatform.iOS, new[] { "com.adobe.pdf", "org.openxmlformats.wordprocessingml.document", "com.microsoft.word.doc", "com.microsoft.excel.xls", "org.openxmlformats.spreadsheetml.sheet", "org.openxmlformats.presentationml.presentation" } }
                 })
             });
+            if (!string.IsNullOrEmpty(fileResult.FileName))
+            {
+                string documentPathforVersion = fileResult.FullPath;
+                AddFolder(doc.Name, 2);
+                string path = await DownloadFile(doc, 1);
+                AppData.CurrentFolder = nextfolder(AppData.CurrentFolder, string.Concat(doc.Name, "Versions"));
+                
+                LabelTituloRepositorio = string.Concat(doc.Name, "Versions");
+                await list_files(AppData.CurrentFolder);
+                await PickAndShowFileAsync(null,null,null);
 
-            string documentPathforVersion = fileResult.FullPath;
-            AddFolder(doc.Name, 2);
-            string pathcollection = nextfolder(AppData.CurrentFolder, string.Concat(doc.Name, "Versions"));
-            PickAndShowFileAsync(documentPathforVersion, pathcollection ,doc);
+
+            }
+
 
         }
 
