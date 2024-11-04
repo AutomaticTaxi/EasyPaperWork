@@ -12,13 +12,14 @@ using System.Runtime.CompilerServices;
 using System.Security.Principal;
 using System.Web;
 using System.Windows.Input;
+using WIA;
 
 
 namespace EasyPaperWork.ViewModel;
 
 public  class Main_ViewModel_Files: INotifyPropertyChanged
 {
-    public ObservableCollection<Folder_Files> FolderCollection { get; set; }
+
 
     public ObservableCollection<Documents> DocumentCollection { get; set; }
     private Documents documentsModel;
@@ -138,7 +139,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         Folder_Files = new Folder_Files();
         
 
-        FolderCollection = new ObservableCollection<Folder_Files>();
+ 
      
         DocumentCollection = new ObservableCollection<Documents>();
        // list_files(AppData.CurrentFolder);
@@ -164,9 +165,8 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                 Debug.WriteLine(userModel.Id);
 
                 DocumentCollection.Clear();
-                DocumentCollection.Add(new Documents { Name = "Adicone um documento" });
-                FolderCollection.Clear();
-                FolderCollection.Add(new Folder_Files { Name = "Adicione uma pasta" });
+                DocumentCollection.Add(new Documents { Name = "Adicone um item" });
+                
 
 
                 if (string.IsNullOrEmpty(currentfolder))
@@ -199,12 +199,13 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                        list_folder = await _firebaseService.ListFolder("Users", AppData.UserUid,AppData.CurrentFolder);
                     foreach (Folder_Files folder in list_folder)
                     {
-                        Folder_Files decrypt_folder = new Folder_Files
+                        Documents decrypt_folder = new Documents
                         {
                             //Name = encryptData.Decrypt(folder.Name, key, AppData.Salt)
-                            Name= folder.Name,
+                            Name = folder.Name,
+                            DocumentType = "folder"
                         };
-                        FolderCollection.Add(decrypt_folder);
+                        DocumentCollection.Add(decrypt_folder);
                     }
                 }
                 else
@@ -257,12 +258,13 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                         list_folder = await _firebaseService.ListFolder("Users", AppData.UserUid, AppData.CurrentFolder);
                         foreach (Folder_Files folder in list_folder)
                         {
-                            Folder_Files decrypt_folder = new Folder_Files
+                            Documents decrypt_folder = new Documents
                             {
                                 //Name = encryptData.Decrypt(folder.Name, key, AppData.Salt)
                                 Name = folder.Name,
+                                DocumentType = "folder"
                             };
-                            FolderCollection.Add(decrypt_folder);
+                            DocumentCollection.Add(decrypt_folder);
                         }
                     }
                     catch(Exception ex)
@@ -334,11 +336,8 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                     await list_files(AppData.CurrentFolder);
                     break;
                 case "Excluir":
-                    Folder_Files tempfolder = new Folder_Files
-                    {
-                        Name = item.Name
-                    };
-                    await DeleteFolder(tempfolder);
+                
+                    await DeleteFolder(item);
                     break;
                 default:
                     break;
@@ -369,39 +368,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             }
         }
     }
-    public async void OnFolderItemTaped(Folder_Files item)
-    {
-        if(item.Name == "Adicione uma pasta")
-        {
-            string namefolder =  await Application.Current.MainPage.DisplayPromptAsync("Criação de pasta", "Digite o nome de sua pasta", "Ok", "Cancel");
-            AddFolder(namefolder,1);
-        }
-        else if(item.Name == "Logs")
-        {
-            await Shell.Current.GoToAsync("//Logs_Page");
-        }
-        else
-        {
-            string action = await Application.Current.MainPage.DisplayActionSheet("Escolha uma ação", "Cancelar", null, "Abrir", "Excluir");
 
-            switch (action)
-            {
-                case "Abrir":
-                    AppData.CurrentFolder = nextfolder(AppData.CurrentFolder,item.Name);
-                    LabelTituloRepositorio = item.Name;
-                    await list_files(AppData.CurrentFolder);
-                    break;
-               
-                case "Excluir":
-                    await DeleteFolder(item);
-                    await list_files("Pasta inicial");
-                    break;
-                default:
-                    break;
-            }
-            
-        }
-    }
     private async void AddFolder(string namefolder, int option)
     {
         if (option == 1)
@@ -409,11 +376,12 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             if (!string.IsNullOrEmpty(namefolder) && !string.Equals("Adicione uma pasta", namefolder))
             {
                 Folder_Files.Name = encryptData.Encrypt(namefolder, key, AppData.Salt);
-                Folder_Files Decrypt_folder = new Folder_Files
+                Documents Decrypt_folder = new Documents
                 {
-                    Name = namefolder
+                    Name = namefolder,
+                    DocumentType = "folder"
                 };
-                FolderCollection.Add(Decrypt_folder);
+                DocumentCollection.Add(Decrypt_folder);
 
                 await _firebaseService.AddFolder("Users", AppData.UserUid, AppData.CurrentFolder, Folder_Files.Name, Folder_Files);
 
@@ -424,11 +392,12 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         {
             namefolder = string.Concat(namefolder, "Versions");
             Folder_Files.Name = encryptData.Encrypt(namefolder, key, AppData.Salt);
-            Folder_Files Decrypt_folder = new Folder_Files
+            Documents Decrypt_folder = new Documents
             {
-                Name = namefolder
+                Name = namefolder,
+                DocumentType = "folder"
             };
-            FolderCollection.Add(Decrypt_folder);
+            DocumentCollection.Add(Decrypt_folder);
 
             await _firebaseService.AddFolder("Users", AppData.UserUid, AppData.CurrentFolder, Folder_Files.Name, Folder_Files);
         }
@@ -703,12 +672,12 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
         // Implementar a lógica para visualização
         return Task.CompletedTask;
     }
-    private async Task DeleteFolder(Folder_Files selectedItem)
+    private async Task DeleteFolder(Documents selectedItem)
     {
-        if (await _firebaseStorageService.DeleteFolderAsync(selectedItem.Name))
+        if (await _firebaseStorageService.DeleteFolderAsync(selectedItem.Name,AppData.CurrentFolder))
          {
              if (await _firebaseService.DeleteFolderAsync(selectedItem.Name))
-                 FolderCollection.Remove(selectedItem);
+                 DocumentCollection.Remove(selectedItem);
                  await Application.Current.MainPage.DisplayAlert("Succsses", "Pasta removida com sucesso", "Ok");
          }
          else { await Application.Current.MainPage.DisplayAlert("Error", "Falha em remover a pasta ", "Ok"); }
@@ -743,34 +712,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                 }
             }
     }
-    private async Task SearchFolder()
-    {
-        if (EntryArchiveName != null)
-            if (!string.IsNullOrEmpty(AppData.CurrentFolder))
-            {
-                var result = FolderCollection
-                 .Where(doc => doc.Name != null &&
-                               doc.Name.IndexOf(EntryArchiveName, StringComparison.OrdinalIgnoreCase) >= 0)
-                 .ToList();
-                FolderCollection.Clear();
-                foreach (Folder_Files folder in result)
-                {
-                    FolderCollection.Add(folder);
-                }
-            }
-            else
-            {
-                var result = FolderCollection
-                .Where(doc => doc.Name != null &&
-                              doc.Name.IndexOf(EntryArchiveName, StringComparison.OrdinalIgnoreCase) >= 0)
-                .ToList();
-                FolderCollection.Clear();
-                foreach (Folder_Files folder in result)
-                {
-                    FolderCollection.Add(folder);
-                }
-            }
-    }
+   
     private async Task ScanFileAsync()
     {
         try

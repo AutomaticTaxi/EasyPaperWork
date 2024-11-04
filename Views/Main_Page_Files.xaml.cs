@@ -52,13 +52,6 @@ public partial class Main_Page_Files : ContentPage
           
         }
     }
-    private void OnSelectionFolderChanged(object sender, SelectionChangedEventArgs e)
-    {
-        var folderselectedItem = e.CurrentSelection.FirstOrDefault() as Folder_Files;
-        if (folderselectedItem != null)
-        {
-            viewModel.OnFolderItemTaped(folderselectedItem);
-        }
-    }
+   
 
 }

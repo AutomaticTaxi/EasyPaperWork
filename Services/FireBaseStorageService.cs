@@ -6,16 +6,19 @@ using Firebase.Auth.Repository;
 using Firebase.Storage;
 using System.Diagnostics;
 using EasyPaperWork.Services;
+using EasyPaperWork.Security;
 
 public class FirebaseStorageService
 {
     private FirebaseAuthClient _authClient;
     private UserCredential userCredential;
     private FirebaseService firebaseService;
+    private EncryptData _encryptData;
     private HttpClient _httpClient;
     public FirebaseStorageService()
     {
         _httpClient = new HttpClient();
+        _encryptData = new EncryptData();
         var config = new FirebaseAuthConfig
         {
             ApiKey = "AIzaSyCIHw3fP1XoNiuIZK6eNs0LIwi1SDDAyao",
@@ -82,27 +85,41 @@ public class FirebaseStorageService
         }
 
     }
-    public async Task<bool> DeleteFolderAsync(string RootFolder)
+    public async Task<bool> DeleteFolderAsync(string folderName, string pathfolder)
     {
         try
         {
             List<Documents> documents = new List<Documents>();
-            documents = await ListFilesInFolderAsync(RootFolder);
+            documents = await ListFilesInFolderAsync(string.Concat(pathfolder,"/",folderName));
             foreach (Documents doc in documents) {
-                DeleteFileAsync(AppData.UserUid, RootFolder, doc.Name);
+                if (_encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt).Equals(doc.Name)) {
+                    await DeleteFileAsync(AppData.UserUid, pathfolder, doc.Name);
+                }
+               
             }
             return true;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Erro ao remover a pasta '{RootFolder}': {ex.Message}");
+            Debug.WriteLine($"Erro ao remover a pasta '{folderName}': {ex.Message}");
             return false;
         }
     }
     public async Task<List<Documents>> ListFilesInFolderAsync(string folderPath)
     {
         List<Documents> listOfFiles = new List<Documents>();
-        listOfFiles = await firebaseService.ListFiles("Users",AppData.UserUid,folderPath);
+        string[] pathParts = folderPath.Split("/");
+        List<string> duplicatedParts = new List<string>();
+        foreach (string part in pathParts)
+        {
+            duplicatedParts.Add(part);  // Adiciona o item original
+            duplicatedParts.Add(part);  // Adiciona a duplicata
+        }
+        duplicatedParts.RemoveAt(duplicatedParts.Count - 1);
+
+        string lastFolder = string.Join("/", duplicatedParts);
+
+        listOfFiles = await firebaseService.ListFiles("Users",AppData.UserUid,lastFolder);
         return listOfFiles;
     }
     public async Task<bool> DeleteFileAsync(string userid, string RootFolder ,string fileName )
