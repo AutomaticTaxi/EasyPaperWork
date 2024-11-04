@@ -6,60 +6,23 @@
   
     <ScrollView>
     <VerticalStackLayout Padding="20">
-     
-        <Label 
+
+            <Label 
             Text="{Binding LabelTituloRepositorio}"
             FontAttributes="Bold"
             FontSize="Title"
             VerticalOptions="Center" 
             HorizontalOptions="Center" />
+
             <HorizontalStackLayout>
-                <Entry Placeholder="Procure uma pasta" Text="{Binding EntryFolderName}"/>
-                <Button Text="Pesquisar" Command="{Binding BtSearchFolder}"/>
-                <Grid>
-                    <ImageButton Grid.Row="1" Grid.Column="1" Source="home_icon.png" Aspect="Center" WidthRequest="28" HeightRequest="28" Command="{Binding BtHome}"/>
-                </Grid>
-            </HorizontalStackLayout>
-            <ScrollView>
-                <CollectionView ItemsSource="{Binding FolderCollection}"
-                     SelectionMode="Single"
-                    SelectionChanged="OnSelectionFolderChanged">
-                    <CollectionView.ItemsLayout>
-                        <GridItemsLayout Orientation="Vertical" Span="5" />
-                    </CollectionView.ItemsLayout>
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Padding="10" ColumnSpacing="10" >
-
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <Image Grid.RowSpan="2"
-                        Source="{Binding Image}"
-                        Aspect="AspectFill"
-                        HeightRequest="60"
-                        WidthRequest="60" />
-                                <Label Grid.Column="1"
-                        Text="{Binding Name}"
-                        FontAttributes="Bold" />
-                            </Grid>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-
-            </ScrollView>
-            <HorizontalStackLayout>
-                <Entry Placeholder="Pesquise arquivos na Pasta" Text="{Binding EntryArchiveName}"/>
+                <Entry Placeholder="Pesquise" Text="{Binding EntryArchiveName}" HeightRequest="40" />
                 <Button Text="Pesquisar" Command="{Binding BtSearchFile}"/>
-                <Grid   >
-                    <ImageButton Grid.Column="1" Source="refresh_icon.png"  Aspect="Center" WidthRequest="28" HeightRequest="28"  Command="{Binding BtRefresh}"/>
-                   
+                <Grid ColumnDefinitions="Auto, Auto">
+                    <!-- Primeiro botão na primeira coluna e primeira linha -->
+                    <ImageButton Grid.Column="0" Source="home_icon.png" Aspect="Center" WidthRequest="10" HeightRequest="20" Command="{Binding BtHome}"/>
+
+                    <!-- Segundo botão na segunda coluna e primeira linha -->
+                    <ImageButton Grid.Column="1" Source="refresh_icon.png" Aspect="Center" WidthRequest="10" HeightRequest="20" Command="{Binding BtRefresh}"/>
                 </Grid>
 
 
@@ -94,11 +57,11 @@
                                 <Image Grid.RowSpan="2"
                                    Source="{Binding Image}"
                                    Aspect="AspectFill"
-                                   HeightRequest="60"
-                                   WidthRequest="60" />
+                                   HeightRequest="40"
+                                   WidthRequest="40" />
                                 <Label Grid.Column="1"
                                    Text="{Binding Name}"
-                                   FontAttributes="Bold" />
+                                    />
                                     </Grid> 
                         </DataTemplate>
                     </CollectionView.ItemTemplate>

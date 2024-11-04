@@ -19,19 +19,8 @@
         Shell.TabBarIsVisible="False"/>
     
 
-    <TabBar  Route="mainTabBar">
-      
-        <ShellContent
-            Title="Procurar"
-            ContentTemplate="{DataTemplate pages:SearchPage}"
-            Icon="searchicon.png"
-            Route="SearchPage"/>
-        <ShellContent
-            Title="Upload Documentos"
-            ContentTemplate="{DataTemplate pages:Page_Document_Upload}"
-            Icon="uploadicon.png"
-            Route="PageUUploadDocs"
-            />
+    <TabBar  Route="mainTabBar" >
+             
         <ShellContent
             Title="Documentos"
             ContentTemplate="{DataTemplate pages:Main_Page_Files}"
