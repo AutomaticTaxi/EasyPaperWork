@@ -16,7 +16,7 @@
             <HorizontalStackLayout>
                 <Entry Placeholder="Procure uma pasta" Text="{Binding EntryFolderName}"/>
                 <Button Text="Pesquisar" Command="{Binding BtSearchFolder}"/>
-                <Grid   >
+                <Grid>
                     <ImageButton Grid.Row="1" Grid.Column="1" Source="home_icon.png" Aspect="Center" WidthRequest="28" HeightRequest="28" Command="{Binding BtHome}"/>
                 </Grid>
             </HorizontalStackLayout>
@@ -69,7 +69,10 @@
             <ScrollView>
                 <CollectionView IsVisible="{Binding IsVisibleDocumentCollection}" ItemsSource="{Binding DocumentCollection}"
                 SelectionMode="Single"
-                SelectionChanged="OnSelectionDocumentChanged">
+                
+                SelectionChanged="OnSelectionDocumentChanged" >
+                    
+
                     <CollectionView.ItemsLayout>
                         <GridItemsLayout Orientation="Vertical" Span="5" />
                     </CollectionView.ItemsLayout>

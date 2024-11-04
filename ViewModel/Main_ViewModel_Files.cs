@@ -19,6 +19,7 @@ namespace EasyPaperWork.ViewModel;
 public  class Main_ViewModel_Files: INotifyPropertyChanged
 {
     public ObservableCollection<Folder_Files> FolderCollection { get; set; }
+
     public ObservableCollection<Documents> DocumentCollection { get; set; }
     private Documents documentsModel;
     private Scanner scanner;
@@ -118,6 +119,7 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
             OnPropertyChanged(nameof(_UidUser));
         }
     }
+
     private Folder_Files Folder_Files;
     public  Main_ViewModel_Files()
     {
@@ -303,14 +305,20 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                     if (IsRunningAsAdministrator())
                     {
                         await Application.Current.MainPage.DisplayAlert("Ação não permitida", "Re inicie o programa em modo não administrador", "Ok");
+                        item = null;
                     }
-                    else { await PickAndShowFileAsync(null,null,null); }
+                    else {
+                        await PickAndShowFileAsync(null,null,null);
+                        item = null;
+                    }
                     
                     break;
                 case "Scannear":
                     await ScanFileAsync();
+                    
                     break;
                 default:
+                    
                     break;
             }
         }else if(item.DocumentType == "folder")
@@ -439,8 +447,27 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                     Log newlog = new Log(selectedItem.Name, 4);
 
                     await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
-                    List<Documents> list = await _firebaseService.ListFiles("Users", AppData.UserUid, "Pasta inicial");
-                    foreach (Documents doc in list)
+                    if (AppData.CurrentFolder.Contains("/"))
+                    {
+                        AppData.listdocs = await _firebaseService.ListFiles("Users", AppData.UserUid, AppData.CurrentFolder);
+                    }
+                    else
+                    {
+                        string[] pathParts = AppData.CurrentFolder.Split("/");
+                        List<string> duplicatedParts = new List<string>();
+                        foreach (string part in pathParts)
+                        {
+                            duplicatedParts.Add(part);  // Adiciona o item original
+                            duplicatedParts.Add(part);  // Adiciona a duplicata
+                        }
+                        duplicatedParts.RemoveAt(duplicatedParts.Count - 1);
+
+                        string lastFolder = string.Join("/", duplicatedParts);
+
+                        AppData.listdocs = await _firebaseService.ListFiles("Users", AppData.UserUid, lastFolder);
+                    }
+
+                    foreach (Documents doc in AppData.listdocs)
                     {
                         if (encryptData.Decrypt(doc.Name, key, AppData.Salt) == selectedItem.Name)
                         {
@@ -453,8 +480,27 @@ public  class Main_ViewModel_Files: INotifyPropertyChanged
                 {
                     Log newlog = new Log(selectedItem.Name, 4);
                     await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
-                    List<Documents> list = await _firebaseService.ListFiles("Users", AppData.UserUid, AppData.CurrentFolder);
-                    foreach (Documents doc in list)
+                    if (!AppData.CurrentFolder.Contains("/"))
+                    {
+                        AppData.listdocs = await _firebaseService.ListFiles("Users", AppData.UserUid, AppData.CurrentFolder);
+                    }
+                    else
+                    {
+                        string[] pathParts = AppData.CurrentFolder.Split("/");
+                        List<string> duplicatedParts = new List<string>();
+                        foreach (string part in pathParts)
+                        {
+                            duplicatedParts.Add(part);  // Adiciona o item original
+                            duplicatedParts.Add(part);  // Adiciona a duplicata
+                        }
+                        duplicatedParts.RemoveAt(duplicatedParts.Count - 1);
+
+                        string lastFolder = string.Join("/", duplicatedParts);
+
+                        AppData.listdocs = await _firebaseService.ListFiles("Users", AppData.UserUid, lastFolder);
+                    }
+
+                    foreach (Documents doc in AppData.listdocs)
                     {
                         if (encryptData.Decrypt(doc.Name, key, AppData.Salt) == selectedItem.Name)
                         {

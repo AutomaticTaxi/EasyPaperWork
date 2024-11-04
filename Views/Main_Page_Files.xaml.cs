@@ -44,10 +44,12 @@ public partial class Main_Page_Files : ContentPage
     private void OnSelectionDocumentChanged(object sender, SelectionChangedEventArgs e)
     {
         var selectedItem = e.CurrentSelection.FirstOrDefault() as Documents;
+       
         if (selectedItem != null)
         {
             // Chame o método para manipular a seleção
             viewModel.OnDocumentItemTapped(selectedItem);
+          
         }
     }
     private void OnSelectionFolderChanged(object sender, SelectionChangedEventArgs e)
