@@ -92,9 +92,9 @@ public class FirebaseStorageService
             List<Documents> documents = new List<Documents>();
             documents = await ListFilesInFolderAsync(string.Concat(pathfolder,"/",folderName));
             foreach (Documents doc in documents) {
-                if (_encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt).Equals(doc.Name)) {
-                    await DeleteFileAsync(AppData.UserUid, pathfolder, doc.Name);
-                }
+               
+                await DeleteFileAsync(AppData.UserUid, string.Concat(pathfolder, "/", folderName), doc.Name);
+                
                
             }
             return true;
@@ -141,7 +141,7 @@ public class FirebaseStorageService
 
                   .Child(AppData.UserUid)
                     .Child(RootFolder)
-                        .Child(fileName)
+                    .Child(fileName)
                         .DeleteAsync();
             return true;
         }catch(Exception ex)
