@@ -128,7 +128,7 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
     public Main_ViewModel_Files()
     {
         BtSearchFile = new Command(async () => await SearchFile());
-        BtRefresh = new Command(async () => list_files(AppData.CurrentFolder));
+        BtRefresh = new Command(async () => await list_files(AppData.CurrentFolder));
         BtHome = new Command(async () => homefolder());
         service = new WindowsFileSavePickerService();
         scanner = new Scanner();
@@ -292,14 +292,14 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
         }
 
         Debug.WriteLine($"Item selecionado: {item.Name}");
-        if (item.Name == "Adicione um documento")
+        if (item.Name.Equals("Adicione um item"))
         {
             if (string.IsNullOrEmpty(AppData.CurrentFolder))
             {
                 AppData.CurrentFolder = "Pasta inicial";
             }
             string action = await Application.Current.MainPage.DisplayActionSheet(
-                "Escolha uma ação", "Cancelar", null, "Buscar no PC", "Scannear");
+                "Escolha uma ação", "Cancelar", null, "Adicionar arquivo do PC", "Scannear arquivo", "Adicionar pasta");
             switch (action)
             {
                 case "Buscar no PC":
@@ -318,6 +318,10 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
                 case "Scannear":
                     await ScanFileAsync();
 
+                    break;
+                case "Adicionar pasta":
+                    string nameFolder = await Application.Current.MainPage.DisplayPromptAsync("Adição de pasta", "Insira o nome da pasta", "Ok");
+                    AddFolder(nameFolder, 1);
                     break;
                 default:
 
@@ -345,6 +349,7 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
             }
 
         }
+       
         else
         {
             string action = await Application.Current.MainPage.DisplayActionSheet(
@@ -361,6 +366,7 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
                 case "Adicionar versão":
                     CreateVersion(item, 1);
                     break;
+               
                 case "Excluir":
                     await DeleteFile(item);
                     break;
