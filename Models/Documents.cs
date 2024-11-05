@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace EasyPaperWork.Models
 {
@@ -20,15 +15,15 @@ namespace EasyPaperWork.Models
             set
             {
                 _Name = value;
-                if(_Name == "Adicone um documento")
+                if (_Name == "Adicione um documento")
                 {
                     Image = "add_file.png";
                 }
-                
+
                 OnPropertyChanged(nameof(_Name));
             }
         }
-       
+
         private string _DocumentType;
         public string DocumentType
         {
@@ -111,7 +106,7 @@ namespace EasyPaperWork.Models
         }
         public Documents()
         {
-            
+
         }
         public override bool Equals(object obj)
         {

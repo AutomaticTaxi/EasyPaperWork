@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace EasyPaperWork.Models
+﻿namespace EasyPaperWork.Models
 {
     internal class AppData
     {
         private static string _UserUid;
-        public static string UserUid { get { return _UserUid;  } set { _UserUid = value; } }
+        public static string UserUid { get { return _UserUid; } set { _UserUid = value; } }
         private static string _UserPassword;
         public static string UserPassword { get { return _UserPassword; } set { _UserPassword = value; } }
         private static string _UserEmail;
@@ -20,8 +14,8 @@ namespace EasyPaperWork.Models
         public static string UserName { get { return _UserName; } set { _UserName = value; } }
         public static string CurrentFolder { get { return _UserName; } set { _UserName = value; } }
         private static byte[] _Salt;
-        public static byte [] Salt { get { return _Salt; } set { _Salt = value; } }
-      
+        public static byte[] Salt { get { return _Salt; } set { _Salt = value; } }
+
         private static byte[] _Key;
         public static byte[] Key { get { return _Key; } set { _Key = value; } }
         private static string _ServerResult;
@@ -29,5 +23,5 @@ namespace EasyPaperWork.Models
         private static List<Documents> _listdocs;
         public static List<Documents> listdocs { get { return _listdocs; } set { _listdocs = value; } }
     }
- 
+
 }

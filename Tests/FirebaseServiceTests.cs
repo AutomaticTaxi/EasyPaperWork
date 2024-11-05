@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using EasyPaperWork.Models;
-using EasyPaperWork.Services;
+﻿using EasyPaperWork.Services;
 using Google.Cloud.Firestore;
 using Moq;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace EasyPaperWork.Tests
@@ -57,7 +52,7 @@ namespace EasyPaperWork.Tests
             await Assert.ThrowsAsync<ArgumentException>(() => _firebaseService.AdicionarDocumentoAsync(colecao, documentoId, dados));
         }
 
-        
-        
+
+
     }
 }

@@ -10,7 +10,7 @@ using WinRT.Interop;
 
 namespace EasyPaperWork.Services
 {
-    public class WindowsFileSavePickerService 
+    public class WindowsFileSavePickerService
     {
         public async Task<string> SaveFileAsync(byte[] fileBytes, string suggestedFileName, string fileType)
         {

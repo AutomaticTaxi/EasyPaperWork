@@ -1,29 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using System.Collections.Generic;
-
-using FirebaseAdmin;
-using Google.Apis.Auth.OAuth2;
+﻿using EasyPaperWork.Models;
+using EasyPaperWork.Security;
 using Google.Cloud.Firestore;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using Microsoft.Maui.Controls.PlatformConfiguration;
-using EasyPaperWork.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
 namespace EasyPaperWork.Services
 {
-   public class FirebaseService
+    public class FirebaseService
     {
+        private EncryptData _encryptData;
         private readonly FirestoreDb _firestoreDb;
         public FirebaseService()
         {
             //Credecial colocada direto no códico F segurança 
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            _encryptData = new EncryptData();
 
             // Caminho relativo para o arquivo de credenciais
             string relativePath = @"Services\easypaperwork-firebase-firebase-adminsdk-4asf7-dc3b16ccbd.json";
@@ -62,14 +54,14 @@ namespace EasyPaperWork.Services
                 throw;
             }
         }
-        public async Task<bool> DeleteFileAsync(string usercolection, string userId, string rootfolder,string documentid)
+        public async Task<bool> DeleteFileAsync(string rootfolder, string documentid)
         {
             try
             {
-                DocumentReference document = _firestoreDb.Collection(usercolection).Document(userId).Collection(rootfolder).Document(documentid);
-                await document. DeleteAsync();
+                DocumentReference document = _firestoreDb.Collection("Users").Document(AppData.UserUid).Collection(rootfolder).Document(documentid);
+                await document.DeleteAsync();
                 return true;
-                Debug.WriteLine("Documento adicionado com sucesso!");
+             
             }
             catch (ArgumentException ex)
             {
@@ -80,52 +72,107 @@ namespace EasyPaperWork.Services
             {
                 Debug.WriteLine($"Exception: {ex.Message}");
                 return false;
-              
+
             }
-            
+
         }
-        public async Task<bool> DeleteFolderAsync( string rootfolder,int batchSize = 20)
+        public async Task<bool> DeleteFolderAsync(string rootfolder,string folder_name)
         {
             try
             {
-                CollectionReference collectionReference = _firestoreDb.Collection("Users").Document(AppData.UserUid).Collection(rootfolder);
-                QuerySnapshot snapshot;
-                do
+                List<Documents> listdocs = new List<Documents>();
+                List<Documents> listfolder = new List<Documents>();
+                rootfolder = Adjust_path_for_listing_in_folder(rootfolder);
+                listdocs = await ListFiles(rootfolder );
+                foreach (Documents doc in listdocs)
                 {
-                    snapshot = await collectionReference.Limit(batchSize).GetSnapshotAsync();
-                    foreach (DocumentSnapshot document in snapshot.Documents)
-                    {
-                        await RecursiveDeleteDocumentAsync(document.Reference);
-                    }
-                } while (snapshot.Count > 0);
-                Console.WriteLine($"Coleção {rootfolder} removida com sucesso.");
-                return true;
-               
-            }
-            catch (ArgumentException ex)
-            {
-                Debug.WriteLine($"ArgumentException: {ex.Message}");
-                return false;
-            }
-            catch (Exception ex) { 
-            
-                Debug.WriteLine($"Exception: {ex.Message}");
-                return false;
 
+                    if (_encryptData.Decrypt(doc.DocumentType, AppData.Key, AppData.Salt) != "folder")
+                    {
+                        await DeleteFileAsync(rootfolder, doc.Name);//remove arquivos dentro da pasta
+                        listfolder.Add(doc);//adiciona a uma lista de pastas dento da pasta original
+                    }
+                }
+                rootfolder= Adjust_path_for_listing_once_folder_back(rootfolder);
+                listdocs = await ListFiles(rootfolder);
+                foreach (Documents doc in listdocs)
+                {
+                    if(!string.IsNullOrEmpty(doc.Name)){
+                        if ( _encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt) == folder_name)
+                        {
+                            await DeleteFileAsync(rootfolder, doc.Name);//remove a pasta da pasta raiz
+
+                        }
+                    }
+                    
+                }
+
+                return true;
+
+
+            }
+
+            catch (Exception ex)
+            {
+
+                await Application.Current.MainPage.DisplayAlert("error", $"Exception: {ex.ToString()}", "Ok");
+                return false;
             }
 
         }
-        private async Task RecursiveDeleteDocumentAsync(DocumentReference documentRef)
+        public string Adjust_path_for_listing_in_folder(string rootfolder)
         {
-            // Recursively delete any subcollections
-            IAsyncEnumerable<CollectionReference> subcollections = documentRef.ListCollectionsAsync();
-            await foreach (var subcollection in subcollections)
+            string[] pathParts = rootfolder.Split("/");
+            List<string> duplicatedParts = new List<string>();
+            foreach (string part in pathParts)
             {
-                await DeleteFolderAsync(subcollection.Path);
+                duplicatedParts.Add(part);  // Adiciona o item original
+                duplicatedParts.Add(part);  // Adiciona a duplicata
             }
+            duplicatedParts.RemoveAt(duplicatedParts.Count - 1);
 
-            await documentRef.DeleteAsync();
-            Console.WriteLine($"Documento {documentRef.Id} removido com sucesso.");
+            string lastFolder = string.Join("/", duplicatedParts);
+            return lastFolder;
+        }
+        public string Adjust_path_for_listing_once_folder_back(string rootfolder)
+        {
+            string path = Normalize_path(rootfolder);
+            if (path.Contains("/"))
+            {
+                path = backfolder(path);
+                path = Adjust_path_for_listing_in_folder(path);
+            }
+           
+            return path;
+        }
+        public string backfolder(string path)
+        {
+            int indexUltimaBarra = path.LastIndexOf('/');
+            string newpath = path.Substring(0, indexUltimaBarra);
+            return newpath;
+        }
+        public string Normalize_path(string rootfolder)
+        {
+            string[] pathParts = rootfolder.Split("/");
+            List<string> listParts = new List<string>();
+            foreach (string part in pathParts)
+            {
+                if (listParts.Count < 1)
+                {
+                    listParts.Add(part);
+                }
+                else
+                {
+                    if (!pathParts.Contains(part))
+                    {
+                        listParts.Add(part);
+                    }
+                }
+            }
+            
+
+            string lastFolder = string.Join("/", listParts);
+            return lastFolder;
         }
 
         public async Task PrintBuscarDocumentoByIdAsync(string colecao, string documentoId)
@@ -151,9 +198,9 @@ namespace EasyPaperWork.Services
             try
             {
                 CollectionReference collection = _firestoreDb.Collection(colecao);
-            Query query = collection.WhereEqualTo(campo, valor);
-            QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
-          
+                Query query = collection.WhereEqualTo(campo, valor);
+                QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
+
                 foreach (DocumentSnapshot documentSnapshot in querySnapshot.Documents)
                 {
                     Dictionary<string, object> dados = documentSnapshot.ToDictionary();
@@ -181,14 +228,14 @@ namespace EasyPaperWork.Services
                     Dictionary<string, object> dados = snapshot.ToDictionary();
                     var userModel = new UserModel
                     {
-                        Id = dados.ContainsKey("Id") ? dados["Id"].ToString():string.Empty,
+                        Id = dados.ContainsKey("Id") ? dados["Id"].ToString() : string.Empty,
                         Name = dados.ContainsKey("Name") ? dados["Name"].ToString() : string.Empty,
                         Email = dados.ContainsKey("Email") ? dados["Email"].ToString() : string.Empty,
-                        Password = dados.ContainsKey ("Password")? dados["Password"].ToString():string.Empty,
-                        AccountType = dados.ContainsKey("AccountType") ? dados["AccountType"].ToString():string.Empty
-                        
-                       
-                        
+                        Password = dados.ContainsKey("Password") ? dados["Password"].ToString() : string.Empty,
+                        AccountType = dados.ContainsKey("AccountType") ? dados["AccountType"].ToString() : string.Empty
+
+
+
                     };
                     Debug.WriteLine(userModel);
                     return userModel;
@@ -206,7 +253,7 @@ namespace EasyPaperWork.Services
                 return null;
             }
         }
-        public async Task<Documents> BuscarDocumentosNaMainPageFilesAsync(string ColecaoUser, string IdUser,string ColecaoDocument,string IdDocument)
+        public async Task<Documents> BuscarDocumentosNaMainPageFilesAsync(string ColecaoUser, string IdUser, string ColecaoDocument, string IdDocument)
         {
             try
             {
@@ -241,31 +288,27 @@ namespace EasyPaperWork.Services
             }
         }
 
-        public async Task<List<Documents>> ListFiles(string colecaoUser,string IdUser,string CurrentFolder)
+        public async Task<List<Documents>> ListFiles( string CurrentFolder)
         {
             try
             {
-                if (string.IsNullOrEmpty(colecaoUser))
-                    throw new ArgumentException("A coleção não pode ser nula ou vazia.", nameof(colecaoUser));
 
-                CollectionReference collectionRef = _firestoreDb.Collection(colecaoUser).Document(IdUser).Collection(CurrentFolder);
+                CollectionReference collectionRef = _firestoreDb.Collection("Users").Document(AppData.UserUid).Collection(CurrentFolder);
                 QuerySnapshot snapshot = await collectionRef.GetSnapshotAsync();
-               
-              
-                    List<Documents> documentosList = new List<Documents>();
+                List<Documents> documentosList = new List<Documents>();
 
-                    foreach (DocumentSnapshot document in snapshot.Documents)
+                foreach (DocumentSnapshot document in snapshot.Documents)
+                {
+                    var documents = new Documents()
                     {
-                        var documents = new Documents()
-                        {
-                            Name = document.ContainsField("Name") ? document.GetValue<string>("Name") : null,
-                            DocumentType = document.ContainsField("DocumentType") ? document.GetValue<string>("DocumentType") : null
+                        Name = document.ContainsField("Name") ? document.GetValue<string>("Name") : null,
+                        DocumentType = document.ContainsField("DocumentType") ? document.GetValue<string>("DocumentType") : null
 
-                            // Adicione outros campos conforme necessário
-                        };
+                        // Adicione outros campos conforme necessário
+                    };
                     documentosList.Add(documents);
-                    }
-                    return documentosList;
+                }
+                return documentosList;
             }
             catch (ArgumentException ex)
             {
@@ -279,8 +322,8 @@ namespace EasyPaperWork.Services
                 return new List<Documents>();
             }
         }
-       
-        
+
+
         public async Task<List<Log>> ListLogs()
         {
             try
@@ -416,9 +459,9 @@ namespace EasyPaperWork.Services
             string json = JsonConvert.SerializeObject(objeto);
             Debug.Write(json);
             return JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
-            
+
         }
-        public async Task <string> GetSalt(string Uid)
+        public async Task<string> GetSalt(string Uid)
         {
             try
             {

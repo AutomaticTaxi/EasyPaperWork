@@ -6,11 +6,13 @@ namespace EasyPaperWork.Security
 {
     public class EncryptData
     {
-        public EncryptData() {
-        
-        
+        public EncryptData()
+        {
+
+
         }
-        public byte[] GetKey(byte[] salt,string password) {
+        public byte[] GetKey(byte[] salt, string password)
+        {
             byte[] key = GenerateKeyFromPasswordAndSalt(password, salt);
             return key;
         }
@@ -24,9 +26,9 @@ namespace EasyPaperWork.Security
             return Convert.FromBase64String(salt_string);
 
         }
-        
 
-        
+
+
         public string GenerateSaltString()
         {
             byte[] salt = new byte[32];
@@ -41,7 +43,7 @@ namespace EasyPaperWork.Security
         }
 
         // Renomear o método de EncryptData para Encrypt
-        public string EncryptObject(object obj, byte[] key, byte[]salt)
+        public string EncryptObject(object obj, byte[] key, byte[] salt)
         {
             string json = JsonConvert.SerializeObject(obj);
             json = Encrypt(json, key, salt);
@@ -80,7 +82,7 @@ namespace EasyPaperWork.Security
             //Conversão desfeita pois estes caracteres são sensíveis ao firebase           
             cipherText = cipherText.Replace("@", "/")
                 .Replace("#", "+")
-                .Replace("$", "=");          
+                .Replace("$", "=");
             byte[] fullCipher = Convert.FromBase64String(cipherText);
             var aes = Aes.Create();
             aes.Key = key;
@@ -95,7 +97,7 @@ namespace EasyPaperWork.Security
             var msDecrypt = new MemoryStream(cipherBytes);
             var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
             var srDecrypt = new StreamReader(csDecrypt);
-            
+
             return srDecrypt.ReadToEnd();
         }
         public async Task<string> EncryptFile(string inputFilePath, string outputFilePath, string password, byte[] salt)
@@ -130,7 +132,7 @@ namespace EasyPaperWork.Security
         {
             var fileStream = new FileStream(inputFilePath, FileMode.Open);
 
-            
+
             byte[] salt = new byte[32];
             fileStream.Read(salt, 0, salt.Length);
 
@@ -150,17 +152,17 @@ namespace EasyPaperWork.Security
             cryptoStream.Close();
             fileStream.Close();
         }
-        public  byte[] GenerateKeyFromPasswordAndSalt(string password, byte[] salt, int keySize = 32)
+        public byte[] GenerateKeyFromPasswordAndSalt(string password, byte[] salt, int keySize = 32)
         {
             var sha256 = SHA256.Create();
-            
+
             byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
             byte[] combinedBytes = new byte[passwordBytes.Length + salt.Length];
             Buffer.BlockCopy(passwordBytes, 0, combinedBytes, 0, passwordBytes.Length);
             Buffer.BlockCopy(salt, 0, combinedBytes, passwordBytes.Length, salt.Length);
 
             return sha256.ComputeHash(combinedBytes);
-            
+
         }
     }
 }

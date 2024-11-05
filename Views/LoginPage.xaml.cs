@@ -1,6 +1,5 @@
 
 using EasyPaperWork.Services;
-using Org.BouncyCastle.Cms;
 
 namespace EasyPaperWork.Views;
 
@@ -25,9 +24,9 @@ public partial class LoginPage : ContentPage
     public async Task OpenRegistrationPage()
     {
         await Application.Current.MainPage.Navigation.PushAsync(new Page_Register_User());
-      
+
     }
-    
+
     public async Task OpenEsqueceuSenha()
     {
         string action = await Application.Current.MainPage.DisplayActionSheet("Esqueceu a senha ?", "Cancelar", null, "Sim");
@@ -54,7 +53,8 @@ public partial class LoginPage : ContentPage
 
                 break;
         }
-     
+
+
 
     }
     protected override void OnAppearing()
@@ -68,13 +68,13 @@ public partial class LoginPage : ContentPage
     {
         // Defina a janela para tela cheia
 #if WINDOWS
-            var window = (Microsoft.UI.Xaml.Window)MauiWinUIApplication.Current.Application.Windows[0].Handler.PlatformView;
-            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-            var windowId = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd));
+        var window = (Microsoft.UI.Xaml.Window)MauiWinUIApplication.Current.Application.Windows[0].Handler.PlatformView;
+        var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+        var windowId = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd));
 
-            var displayArea = Microsoft.UI.Windowing.DisplayArea.GetFromWindowId(windowId.Id, Microsoft.UI.Windowing.DisplayAreaFallback.Nearest);
-            var fullScreenSize = displayArea.WorkArea;
-            windowId.MoveAndResize(new Windows.Graphics.RectInt32(0, 0, fullScreenSize.Width, fullScreenSize.Height));
+        var displayArea = Microsoft.UI.Windowing.DisplayArea.GetFromWindowId(windowId.Id, Microsoft.UI.Windowing.DisplayAreaFallback.Nearest);
+        var fullScreenSize = displayArea.WorkArea;
+        windowId.MoveAndResize(new Windows.Graphics.RectInt32(0, 0, fullScreenSize.Width, fullScreenSize.Height));
 #endif
     }
 }

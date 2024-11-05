@@ -1,21 +1,13 @@
 ﻿using Firebase.Auth;
 using Firebase.Auth.Providers;
 using Firebase.Auth.Repository;
-using Firebase.Auth.Requests;
-using FirebaseAdmin.Auth;
-using Microsoft.Maui.Graphics.Text;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EasyPaperWork.Services
 {
     public class FirebaseAuthServices
     {
-      
+
         private FirebaseAuthClient _authClient;
         public User user;
         private string UserTokenID;
@@ -30,7 +22,7 @@ namespace EasyPaperWork.Services
         }
         public FirebaseAuthServices()
         {
-            
+
 
             var config = new FirebaseAuthConfig
             {
@@ -45,8 +37,9 @@ namespace EasyPaperWork.Services
             try
             {
                 _authClient = new FirebaseAuthClient(config);
-            }catch(Exception ex) {Debug.WriteLine(ex.ToString());}
-           
+            }
+            catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
+
         }
         public async Task<string> SignInButton_Click(string email, string password)
         {
@@ -64,7 +57,7 @@ namespace EasyPaperWork.Services
                 Debug.WriteLine("Logado com sucesso");
                 return "success";
 
-                
+
 
             }
             catch (Firebase.Auth.FirebaseAuthException ex)
@@ -93,25 +86,25 @@ namespace EasyPaperWork.Services
 
             }
         }
-            public async Task<string> GetUidToken(string email, string password)
+        public async Task<string> GetUidToken(string email, string password)
+        {
+            try
             {
-                try
-                {
 
-                    userCredential = await _authClient.SignInWithEmailAndPasswordAsync(email, password);
+                userCredential = await _authClient.SignInWithEmailAndPasswordAsync(email, password);
 
-                    // Aqui você pode lidar com o usuário logado (userCredential.User)
-                    // Exemplo de como obter um token de ID
+                // Aqui você pode lidar com o usuário logado (userCredential.User)
+                // Exemplo de como obter um token de ID
 
-                    var idToken = userCredential.User.Uid.ToString();
-                    _UserTokenID = idToken;
-                    Debug.WriteLine("ID Token: " + idToken.ToString());
-                    Debug.WriteLine("Logado com sucesso");
-                    return idToken.ToString();
+                var idToken = userCredential.User.Uid.ToString();
+                _UserTokenID = idToken;
+                Debug.WriteLine("ID Token: " + idToken.ToString());
+                Debug.WriteLine("Logado com sucesso");
+                return idToken.ToString();
 
-              
 
-                }
+
+            }
             catch (Firebase.Auth.FirebaseAuthException ex)
             {
                 if (ex.Reason == Firebase.Auth.AuthErrorReason.InvalidEmailAddress)
@@ -124,17 +117,17 @@ namespace EasyPaperWork.Services
                     Debug.WriteLine("UnknownEmailAddress");
                     return "UnknownEmailAddress";
                 }
-                else if(ex.Reason == Firebase.Auth.AuthErrorReason.MissingEmail)
+                else if (ex.Reason == Firebase.Auth.AuthErrorReason.MissingEmail)
                 {
                     Debug.WriteLine("MissingEmail");
                     return "MissingEmail";
                 }
-                else if(ex.Reason == Firebase.Auth.AuthErrorReason.MissingPassword)
+                else if (ex.Reason == Firebase.Auth.AuthErrorReason.MissingPassword)
                 {
                     Debug.WriteLine("MissingPassword");
                     return "MissingPassword";
                 }
-                else if(ex.Reason == Firebase.Auth.AuthErrorReason.WrongPassword)
+                else if (ex.Reason == Firebase.Auth.AuthErrorReason.WrongPassword)
                 {
                     Debug.WriteLine("WrongPassword");
                     return "WrongPassword";
@@ -145,7 +138,7 @@ namespace EasyPaperWork.Services
                     return "TooManyAttemptsTryLater";
                 }
                 else { return "error"; }
-                
+
 
             }
         }
@@ -159,7 +152,7 @@ namespace EasyPaperWork.Services
                 return "UserCreated";
             }
             catch (Firebase.Auth.FirebaseAuthException ex)
-           {
+            {
 
                 if (ex.Reason == Firebase.Auth.AuthErrorReason.EmailExists)
                 {
@@ -186,7 +179,7 @@ namespace EasyPaperWork.Services
                     Debug.WriteLine("MissingPassword");
                     return "MissingPassword";
                 }
-              
+
 
                 return "error";
             }
@@ -196,7 +189,7 @@ namespace EasyPaperWork.Services
             try
             {
 
-                 await _authClient.ResetEmailPasswordAsync(email);
+                await _authClient.ResetEmailPasswordAsync(email);
                 return "Succsses";
 
             }
@@ -232,6 +225,6 @@ namespace EasyPaperWork.Services
         }
 
 
-   
+
     }
 }

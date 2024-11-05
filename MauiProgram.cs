@@ -1,6 +1,4 @@
-﻿using EasyPaperWork.Services;
-using Microsoft.Extensions.Logging;
-/* Alteração não mesclada do projeto 'EasyPaperWork (net8.0-maccatalyst)'
+﻿/* Alteração não mesclada do projeto 'EasyPaperWork (net8.0-maccatalyst)'
 Antes:
 using Microsoft.Maui.Controls.Hosting;
 using Microsoft.Maui.Hosting;
@@ -32,7 +30,6 @@ using Microsoft.Maui;
 using Microsoft.Maui.Controls.Hosting;
 using Microsoft.Maui.Hosting;
 */
-
 
 namespace EasyPaperWork
 {

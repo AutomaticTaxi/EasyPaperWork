@@ -1,6 +1,4 @@
-﻿using EasyPaperWork.ViewModel;
-using Moq;
-using Xunit;
+﻿using Xunit;
 
 namespace EasyPaperWork.Tests
 {
@@ -9,7 +7,7 @@ namespace EasyPaperWork.Tests
         [Fact]
         public void DroppingCommand_ShouldCallHandleFileDrop()
         {
-         
+
         }
     }
 }

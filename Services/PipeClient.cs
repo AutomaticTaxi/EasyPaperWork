@@ -30,7 +30,7 @@ public class PipeClient
                     if (!string.IsNullOrEmpty(messageFromServer))
                     {
                         Debug.WriteLine($"Mensagem recebida do servidor: {messageFromServer}");
-                        AppData.ServerResult= messageFromServer;
+                        AppData.ServerResult = messageFromServer;
                         return messageFromServer;
                     }
                     else

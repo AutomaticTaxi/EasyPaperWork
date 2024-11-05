@@ -1,12 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using PdfSharpCore.Drawing;  // Necessário para XGraphics e XImage
+using PdfSharpCore.Pdf;      // Necessário para PdfDocument e PdfPage
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using WIA;
 using WiaDeviceInfo = WIA.DeviceInfo;  // Alias para WIA.DeviceInfo
-using PdfSharpCore.Drawing;  // Necessário para XGraphics e XImage
-using PdfSharpCore.Pdf;      // Necessário para PdfDocument e PdfPage
 
 namespace EasyPaperWork.Services
 {
@@ -26,7 +22,7 @@ namespace EasyPaperWork.Services
                     WiaDeviceInfo deviceInfo = deviceManager.DeviceInfos[i];
                     if (deviceInfo.Type == WiaDeviceType.ScannerDeviceType)
                     {
-                        
+
                         //ToDo mostrar aos usuários scanners disponíveis
                         availableScanner = deviceInfo;
                         break;
@@ -95,11 +91,11 @@ namespace EasyPaperWork.Services
                                     break;
                                 case "Manter Ambos":
                                     PathTemporaryFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), $"{filename}{DateTime.Now}.pdf");
-                                    break;                             
+                                    break;
                                 default:
                                     break;
                             }
-                             
+
                         }
 
                         // Salva o PDF no caminho especificado
@@ -109,7 +105,7 @@ namespace EasyPaperWork.Services
                             await pdfStream.CopyToAsync(DocumentScannedSave);
                         }
 
-                        await Application.Current.MainPage.DisplayAlert("Sucesso","Documento escaneado e salvo com sucesso.","Ok");
+                        await Application.Current.MainPage.DisplayAlert("Sucesso", "Documento escaneado e salvo com sucesso.", "Ok");
                         return PathTemporaryFile;
                     }
                 }
@@ -124,7 +120,7 @@ namespace EasyPaperWork.Services
                     }
                     else
                     {
-                        await Application.Current.MainPage.DisplayAlert("Error",$"Erro desconhecido: {comEx.Message}", "ok");
+                        await Application.Current.MainPage.DisplayAlert("Error", $"Erro desconhecido: {comEx.Message}", "ok");
                     }
                 }
             }
@@ -132,9 +128,9 @@ namespace EasyPaperWork.Services
             {
                 if (ex.Message == "Acesso negado. (0x80070005 (E_ACCESSDENIED))")
                 {
-                   await Application.Current.MainPage.DisplayAlert("Error","Execute o aplicativo em modo administrador para realizar o escaneamento.","ok");
+                    await Application.Current.MainPage.DisplayAlert("Error", "Execute o aplicativo em modo administrador para realizar o escaneamento.", "ok");
                 }
-                await Application.Current.MainPage.DisplayAlert("Error",$"Erro ao escanear: {ex.Message}","ok");
+                await Application.Current.MainPage.DisplayAlert("Error", $"Erro ao escanear: {ex.Message}", "ok");
             }
 
             return null; // Retorna null em caso de erro

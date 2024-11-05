@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
+﻿using System.ComponentModel;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace EasyPaperWork.Models
 {
@@ -62,27 +57,28 @@ namespace EasyPaperWork.Models
                 OnPropertyChanged(nameof(Password));
             }
         }
-      /*  private DateTimeOffset _DateUserCreated { get; set; }
-        public DateTimeOffset DateUserCreated
-        {
-            get
-            {
-                return _DateUserCreated;
-            }
-            set
-            {
-                _DateUserCreated = value;
-                OnPropertyChanged(nameof(DateUserCreated));
-            }
-        }*/
+        /*  private DateTimeOffset _DateUserCreated { get; set; }
+          public DateTimeOffset DateUserCreated
+          {
+              get
+              {
+                  return _DateUserCreated;
+              }
+              set
+              {
+                  _DateUserCreated = value;
+                  OnPropertyChanged(nameof(DateUserCreated));
+              }
+          }*/
 
         private string _AccountType { get; set; }
         public string AccountType
         {
             get { return _AccountType; }
-            set {
+            set
+            {
                 _AccountType = value;
-                    OnPropertyChanged(nameof(AccountType));
+                OnPropertyChanged(nameof(AccountType));
             }
         }
         private string _Salt { get; set; }
@@ -97,7 +93,7 @@ namespace EasyPaperWork.Models
         }
         public UserModel JsonToObject(string json)
         {
-            UserModel model = new UserModel();  
+            UserModel model = new UserModel();
 
             model = JsonSerializer.Deserialize<UserModel>(json);
             return model;

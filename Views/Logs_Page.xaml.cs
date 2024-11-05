@@ -1,7 +1,3 @@
-
-
-using EasyPaperWork.Models;
-using EasyPaperWork.Services;
 using EasyPaperWork.ViewModel;
 
 namespace EasyPaperWork.Views;
@@ -9,11 +5,11 @@ namespace EasyPaperWork.Views;
 public partial class Logs_Page : ContentPage
 {
     private Logs_ViewModel viewModel;
-    
-	public Logs_Page()
-	{
+
+    public Logs_Page()
+    {
         InitializeComponent();
- 
+
         BindingContext = viewModel = new Logs_ViewModel();
     }
     protected override void OnNavigatedTo(NavigatedToEventArgs args)

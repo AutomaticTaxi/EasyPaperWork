@@ -1,11 +1,6 @@
 ﻿using EasyPaperWork.Models;
 using EasyPaperWork.Services;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EasyPaperWork.ViewModel
 {
@@ -23,7 +18,7 @@ namespace EasyPaperWork.ViewModel
         public async void List_LogsAsync()
         {
             LogsCollection.Clear();
-            List < Log > listLogs = await firebaseService.ListLogs();
+            List<Log> listLogs = await firebaseService.ListLogs();
             foreach (Log log in listLogs)
             {
                 LogsCollection.Add(log);
@@ -32,5 +27,5 @@ namespace EasyPaperWork.ViewModel
         }
 
     }
-    
+
 }

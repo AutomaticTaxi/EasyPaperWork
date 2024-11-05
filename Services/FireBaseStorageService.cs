@@ -1,12 +1,12 @@
 ﻿
 using EasyPaperWork.Models;
+using EasyPaperWork.Security;
+using EasyPaperWork.Services;
 using Firebase.Auth;
 using Firebase.Auth.Providers;
 using Firebase.Auth.Repository;
 using Firebase.Storage;
 using System.Diagnostics;
-using EasyPaperWork.Services;
-using EasyPaperWork.Security;
 
 public class FirebaseStorageService
 {
@@ -34,9 +34,10 @@ public class FirebaseStorageService
             _authClient = new FirebaseAuthClient(config);
         }
         catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
-        firebaseService =new FirebaseService();
+        firebaseService = new FirebaseService();
     }
-    public async void CreateFolderAsync(string NameofFolder) {
+    public async void CreateFolderAsync(string NameofFolder)
+    {
         var emptyBytes = new byte[0];
         userCredential = await _authClient.SignInWithEmailAndPasswordAsync(AppData.UserEmail, AppData.UserPassword);
         var task = new FirebaseStorage(
@@ -47,8 +48,8 @@ public class FirebaseStorageService
                  AuthTokenAsyncFactory = () => Task.FromResult(userCredential.User.Credential.IdToken),
                  ThrowOnCancel = true,
              }).Child(NameofFolder).PutAsync(new MemoryStream(emptyBytes));
-    } 
-    public async Task<string> UploadFileAsync(FileStream stream, string fileName,string RootFolder )
+    }
+    public async Task<string> UploadFileAsync(FileStream stream, string fileName, string RootFolder)
     {
         try
         {
@@ -79,8 +80,8 @@ public class FirebaseStorageService
         }
         catch (Exception ex)
         {
-            
-            await Application.Current.MainPage.DisplayAlert("Error", $"Erro ao enviar para o servidor de arquivo {ex.Message}","Ok");
+
+            await Application.Current.MainPage.DisplayAlert("Error", $"Erro ao enviar para o servidor de arquivo {ex.Message}", "Ok");
             return "error";
         }
 
@@ -90,12 +91,13 @@ public class FirebaseStorageService
         try
         {
             List<Documents> documents = new List<Documents>();
-            documents = await ListFilesInFolderAsync(string.Concat(pathfolder,"/",folderName));
-            foreach (Documents doc in documents) {
-               
+            documents = await ListFilesInFolderAsync(string.Concat(pathfolder, "/", folderName));
+            foreach (Documents doc in documents)
+            {
+
                 await DeleteFileAsync(AppData.UserUid, string.Concat(pathfolder, "/", folderName), doc.Name);
-                
-               
+
+
             }
             return true;
         }
@@ -119,10 +121,10 @@ public class FirebaseStorageService
 
         string lastFolder = string.Join("/", duplicatedParts);
 
-        listOfFiles = await firebaseService.ListFiles("Users",AppData.UserUid,lastFolder);
+        listOfFiles = await firebaseService.ListFiles(lastFolder);
         return listOfFiles;
     }
-    public async Task<bool> DeleteFileAsync(string userid, string RootFolder ,string fileName )
+    public async Task<bool> DeleteFileAsync(string userid, string RootFolder, string fileName)
     {
 
         try
@@ -144,7 +146,8 @@ public class FirebaseStorageService
                     .Child(fileName)
                         .DeleteAsync();
             return true;
-        }catch(Exception ex)
+        }
+        catch (Exception ex)
         {
             Debug.WriteLine(ex.ToString());
             return false;
@@ -152,11 +155,11 @@ public class FirebaseStorageService
 
     }
 
-    public async Task<byte[]> DownloadFileByNameAsync(string uid,string filepath, string fileName)
+    public async Task<byte[]> DownloadFileByNameAsync(string uid, string filepath, string fileName)
     {
         try
         {
-          
+
             userCredential = await _authClient.SignInWithEmailAndPasswordAsync(AppData.UserEmail, AppData.UserPassword);
 
             var task = new FirebaseStorage(
@@ -169,10 +172,10 @@ public class FirebaseStorageService
              })
 
               .Child(uid)
-              .Child (filepath)
+              .Child(filepath)
             .Child(fileName);
             // Faz o download do arquivo e o converte para um array de bytes
-          var fileBytes = await DownloadFileByUrlAsync(await task.GetDownloadUrlAsync());
+            var fileBytes = await DownloadFileByUrlAsync(await task.GetDownloadUrlAsync());
             if (fileBytes != null)
             {
 
@@ -186,7 +189,7 @@ public class FirebaseStorageService
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert("Error",$"Erro ao fazer download do arquivo: {ex.Message}","ok");
+            await Application.Current.MainPage.DisplayAlert("Error", $"Erro ao fazer download do arquivo: {ex.Message}", "ok");
             return null;
         }
 
@@ -201,7 +204,7 @@ public class FirebaseStorageService
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert("Error",$"Erro ao baixar o arquivo: {ex.Message}","Ok");
+            await Application.Current.MainPage.DisplayAlert("Error", $"Erro ao baixar o arquivo: {ex.Message}", "Ok");
             return null;
         }
     }

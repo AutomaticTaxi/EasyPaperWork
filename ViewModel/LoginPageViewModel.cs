@@ -1,32 +1,20 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.Windows.Input;
-using Firebase.Auth;
-using Firebase.Auth.Providers;
-using System.Windows;
-
-
-using Firebase.Auth.Repository;
-using Microsoft.Maui.Controls;
-using EasyPaperWork.Views;
+﻿using EasyPaperWork.Models;
 using EasyPaperWork.Services;
-using System.Web;
-using System.Text.Encodings.Web;
-using EasyPaperWork.Models;
-using EasyPaperWork.Security;
+using System.ComponentModel;
+using System.Windows.Input;
 
 namespace EasyPaperWork.ViewModel
 {
-   
+
     public class LoginPageViewModel : INotifyPropertyChanged
     {
         public string EntryEmail { get; set; }
-        
+
         public string EntryPassword { get; set; }
         public ICommand LoginCommand { get; set; }
         public ICommand CadastroCommand { get; set; }
         private FirebaseAuthServices _fireBaseAuthServices;
-      
+
 
         public LoginPageViewModel()
         {
@@ -35,13 +23,13 @@ namespace EasyPaperWork.ViewModel
             EntryPassword = "Abajur.857";
 
             _fireBaseAuthServices = new FirebaseAuthServices();
-          
+
         }
-      
 
-     
 
-   
+
+
+
 
         private async void Login()
         {
@@ -73,16 +61,16 @@ namespace EasyPaperWork.ViewModel
                     await Application.Current.MainPage.DisplayAlert("Erro", "Um erro inesperado aconteceu, tente novamente ", "ok");
                     break;
                 default:
-                 
+
                     AppData.UserEmail = EntryEmail;
                     AppData.UserPassword = EntryPassword;
                     AppData.UserUid = UserUid;
-                    
+
                     Shell.Current.GoToAsync("//mainTabBar/Main_Page_Files");
                     break;
             }
-         
-           
+
+
         }
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged(string prop)

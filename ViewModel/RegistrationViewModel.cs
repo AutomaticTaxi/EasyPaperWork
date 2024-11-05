@@ -1,15 +1,10 @@
 ﻿using EasyPaperWork.Models;
-using System;
+using EasyPaperWork.Security;
+using EasyPaperWork.Services;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using Microsoft.Maui.Graphics;
-using Microsoft.Maui.Controls;
-using EasyPaperWork.Services;
-using System.Diagnostics;
-using EasyPaperWork.Security;
-using Microsoft.Maui.Animations;
-using System.Data.SqlTypes;
 
 
 namespace EasyPaperWork.ViewModel
@@ -161,7 +156,7 @@ namespace EasyPaperWork.ViewModel
 
                                 User.Id = id;
                                 User.Salt = encryptData.GenerateSaltString();
-                              
+
                                 byte[] salt = encryptData.GetSaltBytes(User.Salt);
                                 byte[] key = encryptData.GetKey(salt, EntryPassword1);
                                 User.Email = encryptData.Encrypt(EntryEmail, key, salt);
@@ -185,5 +180,5 @@ namespace EasyPaperWork.ViewModel
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-    
+
 }

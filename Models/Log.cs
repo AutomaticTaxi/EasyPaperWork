@@ -1,26 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace EasyPaperWork.Models
+﻿namespace EasyPaperWork.Models
 {
     public class Log
     {
         private DateTime _dateTime;
         public DateTime? dateTime { get; set; }
-        
+
         private string _menssage;
         public string menssage { get { return _menssage; } set { _menssage = value; } }
-        public Log(string filename,int option)
+        public Log(string filename, int option)
         {
             switch (option)
             {
                 case '1':
                     _menssage = string.Concat("Documento adicionado. Nome = ", filename);
                     dateTime = DateTime.UtcNow;
-                break;
+                    break;
                 case '2':
                     _menssage = string.Concat("Documento Removido. Nome = ", filename);
                     _dateTime = DateTime.UtcNow;
@@ -33,9 +27,9 @@ namespace EasyPaperWork.Models
                     _menssage = string.Concat("Documento Baixado. Nome =  ", filename);
                     _dateTime = DateTime.UtcNow;
                     break;
-             
+
             }
         }
-        public Log() { }    
+        public Log() { }
     }
 }
