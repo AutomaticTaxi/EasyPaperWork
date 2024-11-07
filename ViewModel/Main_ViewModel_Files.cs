@@ -302,7 +302,7 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
                 "Escolha uma ação", "Cancelar", null, "Adicionar arquivo do PC", "Scannear arquivo", "Adicionar pasta");
             switch (action)
             {
-                case "Buscar no PC":
+                case "Adicionar arquivo do PC":
                     if (IsRunningAsAdministrator())
                     {
                         await Application.Current.MainPage.DisplayAlert("Ação não permitida", "Re inicie o programa em modo não administrador", "Ok");
@@ -315,7 +315,7 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
                     }
 
                     break;
-                case "Scannear":
+                case "Scannear arquivo":
                     await ScanFileAsync();
 
                     break;
@@ -507,6 +507,7 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
                     {
                         // Arquivo salvo com sucesso
                         Console.WriteLine($"Arquivo salvo em: {path}");
+                        
                         return CompletedPath;
                     }
                     else
@@ -1097,7 +1098,7 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
                     { DevicePlatform.iOS, new[] { "com.adobe.pdf", "org.openxmlformats.wordprocessingml.document", "com.microsoft.word.doc", "com.microsoft.excel.xls", "org.openxmlformats.spreadsheetml.sheet", "org.openxmlformats.presentationml.presentation" } }
                 })
             });
-            if (!string.IsNullOrEmpty(fileResult.FileName))
+            if (fileResult != null)
             {
                 string documentPathforVersion = fileResult.FullPath;
                 AddFolder(doc.Name, 2);

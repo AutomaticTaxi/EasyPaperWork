@@ -15,7 +15,7 @@ namespace EasyPaperWork.Models
             set
             {
                 _Name = value;
-                if (_Name == "Adicione um documento")
+                if (_Name == "Adicione um item")
                 {
                     Image = "add_file.png";
                 }

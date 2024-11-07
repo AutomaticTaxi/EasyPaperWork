@@ -87,6 +87,7 @@
 	  <None Remove="Resources\Fonts\Roboto-Regular.ttf" />
 	  <None Remove="Resources\Images\add_file.png" />
 	  <None Remove="Resources\Images\add_folder.png" />
+	  <None Remove="Resources\Images\add_item.svg" />
 	  <None Remove="Resources\Images\avatar.svg" />
 	  <None Remove="Resources\Images\doc_icon.png" />
 	  <None Remove="Resources\Images\folder_icon.png" />
