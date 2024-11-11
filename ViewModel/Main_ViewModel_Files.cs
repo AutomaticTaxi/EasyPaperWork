@@ -319,7 +319,7 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
                     }
                     else
                     {
-                        await PickAndShowFileAsync(null, null, null);
+                        await PickAndShowFileAsync(null, null, null,1);
                         item = null;
                     }
 
@@ -856,7 +856,7 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
             IsVisibleGifLoading = false;
         }
     }
-    private async Task PickAndShowFileAsync(string pathfile, string folder, Documents doc)
+    private async Task PickAndShowFileAsync(string pathfile, string folder, Documents doc,int opt)
     {
 
         try
@@ -882,7 +882,7 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
                 {
                     string PathTemporaryEncryptFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), $"{fileResult.FileName}");
 
-                    if (DocumentCollection.Count > 0)
+                    if (DocumentCollection.Count > 0 && opt == 1)
                     {
                         Documents tempdoc = new Documents();
                         tempdoc.Name = fileResult.FileName;
@@ -1142,9 +1142,9 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
                 AppData.CurrentFolder = nextfolder(AppData.CurrentFolder, string.Concat(doc.Name, "Versions"));
 
                 LabelTituloRepositorio = string.Concat(doc.Name, "Versions");
-            await PickAndShowFileAsync(path, AppData.CurrentFolder, doc);
+            await PickAndShowFileAsync(path, AppData.CurrentFolder, doc,2);
                 await list_files(AppData.CurrentFolder);
-                await PickAndShowFileAsync(null, null, null);
+                await PickAndShowFileAsync(null, null, null,2);
 
 
             
