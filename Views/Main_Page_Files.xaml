@@ -30,44 +30,51 @@
             <Image Source="loading2.gif" IsAnimationPlaying="True" Aspect="Center" IsVisible="{Binding IsVisibleGifLoading}"/>
             <Label Text="Aguarde" TextDecorations="Underline" FontSize="Subtitle" FontAttributes="Bold" IsVisible="{Binding IsVisibleGifLoading}" HorizontalOptions="Center" VerticalOptions="Center"/>
             <ScrollView>
-                <CollectionView IsVisible="{Binding IsVisibleDocumentCollection}" ItemsSource="{Binding DocumentCollection}"
-                SelectionMode="Single"
-                
-                SelectionChanged="OnSelectionDocumentChanged" >
-                    
+                <CollectionView IsVisible="{Binding IsVisibleDocumentCollection}"
+                    ItemsSource="{Binding DocumentCollection}"
+                    SelectionMode="Single"
+                    SelectionChanged="OnSelectionDocumentChanged">
 
                     <CollectionView.ItemsLayout>
                         <GridItemsLayout Orientation="Vertical" Span="5" />
                     </CollectionView.ItemsLayout>
 
-
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Grid Padding="10" ColumnSpacing="10" >
-
+                            <Grid Padding="10" ColumnSpacing="10">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
-
                                     <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <Image Grid.RowSpan="2"
-                                   Source="{Binding Image}"
-                                   Aspect="AspectFill"
-                                   HeightRequest="40"
-                                   WidthRequest="40" />
-                                <Label Grid.Column="1"
+
+                                <!-- Imagem ocupando duas linhas -->
+                                <Image Grid.Row="0" Grid.RowSpan="2"
+                           Source="{Binding Image}"
+                           Aspect="AspectFill"
+                           HeightRequest="40"
+                           WidthRequest="40" />
+
+                                <!-- Nome do documento -->
+                                <Label Grid.Row="0" Grid.Column="1"
                                    Text="{Binding Name}"
-                                    />
-                                    </Grid> 
+                                   VerticalOptions="Center"
+                                   LineBreakMode="TailTruncation" 
+                                   MaxLines="1" />          
+
+                                <!-- Data de upload -->
+                                <Label Grid.Row="1" Grid.Column="1"
+                           Text="{Binding UploadTime}"
+                           VerticalOptions="Center" />
+                            </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
+            </ScrollView>
 
-                </ScrollView>
 
         </VerticalStackLayout>
     </ScrollView>

@@ -1,6 +1,7 @@
 ﻿using EasyPaperWork.Models;
 using EasyPaperWork.Security;
 using EasyPaperWork.Services;
+using Microsoft.Maui.Storage;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -163,7 +164,7 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
                 Debug.WriteLine(userModel.Id);
 
                 DocumentCollection.Clear();
-                DocumentCollection.Add(new Documents { Name = "Adicione um item" });
+                DocumentCollection.Add(new Documents { Name = "Adicione um item", UploadTime = DateTime.UtcNow.ToString()});
 
 
 
@@ -178,6 +179,10 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
                         Documents decryptedDoc = new Documents();
 
                         decryptedDoc.Name = encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt);
+                        if (!string.IsNullOrEmpty(doc.UploadTime))
+                        {
+                            decryptedDoc.UploadTime = encryptData.Decrypt(doc.UploadTime, AppData.Key, AppData.Salt);
+                        }
                         if (string.IsNullOrEmpty(doc.DocumentType))
                         {
                             decryptedDoc.DocumentType = "folder";
@@ -238,6 +243,10 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
                             Documents decryptedDoc = new Documents();
 
                             decryptedDoc.Name = encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt);
+                            if (!string.IsNullOrEmpty(doc.UploadTime))
+                            {
+                                decryptedDoc.UploadTime = encryptData.Decrypt(doc.UploadTime, AppData.Key, AppData.Salt);
+                            }
                             if (string.IsNullOrEmpty(doc.DocumentType))
                             {
                                 decryptedDoc.DocumentType = "folder";
@@ -330,10 +339,10 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
         }
         else if (item.DocumentType == "folder")
         {
-            string action = await Application.Current.MainPage.DisplayActionSheet(
+            string action2 = await Application.Current.MainPage.DisplayActionSheet(
                 "Escolha uma ação", "Cancelar", null, "Abrir", "Excluir");
 
-            switch (action)
+            switch (action2)
             {
                 case "Abrir":
                     AppData.CurrentFolder = nextfolder(AppData.CurrentFolder, item.Name);
@@ -352,10 +361,10 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
        
         else
         {
-            string action = await Application.Current.MainPage.DisplayActionSheet(
+            string action3 = await Application.Current.MainPage.DisplayActionSheet(
                 "Escolha uma ação", "Cancelar", null, "Download", "Visualizar", "Adicionar versão", "Excluir");
 
-            switch (action)
+            switch (action3)
             {
                 case "Download":
                     await DownloadFile(item, 1);
@@ -368,10 +377,13 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
                     break;
                
                 case "Excluir":
-                    await DeleteFile(item);
-                    break;
-                default:
-                    break;
+                    string action4 = await Application.Current.MainPage.DisplayActionSheet("Deseja realmente excluir", "Cancelar", null, "Sim", "Não");
+                    if(action4 == "Sim")
+                    {
+                        await DeleteFile(item);
+                        break ;
+                    }
+                    else break;
             }
         }
     }
@@ -632,53 +644,69 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
     }
     private async Task<string> DeleteFile(Documents selectedItem)
     {
-
-        string action = await Application.Current.MainPage.DisplayActionSheet("Deseja remover o documento", "cancel", null, "sim");
-        if (action == "sim")
+        try
         {
-            foreach (Documents doc in AppData.listdocs)
-            {
-                if (encryptData.Decrypt(doc.Name, key, AppData.Salt) == selectedItem.Name)
+                foreach (Documents doc in AppData.listdocs)
                 {
-                    if (string.IsNullOrEmpty(AppData.CurrentFolder))
+                    if (encryptData.Decrypt(doc.Name, key, AppData.Salt) == selectedItem.Name)
                     {
-
-
-                        if (await _firebaseService.DeleteFileAsync("Pasta inicial", doc.Name))
+                        if (string.IsNullOrEmpty(AppData.CurrentFolder))
                         {
-                            if (await _firebaseStorageService.DeleteFileAsync(AppData.UserUid, "Pasta inicial", doc.Name))
+                            if (await _firebaseService.DeleteFileAsync("Pasta inicial", doc.Name))
+                            {
+                                if (await _firebaseStorageService.DeleteFileAsync(AppData.UserUid, "Pasta inicial", doc.Name))
+                                {
+                                    Log newlog = new Log(selectedItem.Name, 2);
+                                    await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
+                                    DocumentCollection.Remove(selectedItem);
+                                    await list_files("Pasta inicial");
+                                    Debug.WriteLine("Arquivo removido");
+                                    return "success";
+                                }
+                                else
+                                {
+                                    return "error";
+                                }
+                            }
+                            else
+                            {
+                                return "error";
+                            }
+                        }
+                        else if (await _firebaseService.DeleteFileAsync(AppData.CurrentFolder, doc.Name))
+                        {
+                            if (await _firebaseStorageService.DeleteFileAsync(AppData.UserUid, AppData.CurrentFolder, doc.Name))
                             {
                                 Log newlog = new Log(selectedItem.Name, 2);
-
                                 await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
                                 DocumentCollection.Remove(selectedItem);
-                                await list_files("Pasta inicial");
+                                await list_files(AppData.CurrentFolder);
                                 Console.WriteLine("Arquivo removido");
                                 return "success";
-                                
-                            }//Adicionar algoritimo para solucionar caso a exclusão falar em umas das partes 
+                            }
+                            else
+                            {
+                                return "error";
+                            }
+                        }
+                        else
+                        {
+                            return "error";
                         }
                     }
-                    else if (await _firebaseService.DeleteFileAsync(AppData.CurrentFolder, doc.Name))
-                    {
-                        if (await _firebaseStorageService.DeleteFileAsync(AppData.UserUid, AppData.CurrentFolder, doc.Name))
-                        {
-
-                            Log newlog = new Log(selectedItem.Name, 2);
-
-                            await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
-                            DocumentCollection.Remove(selectedItem);
-                            await list_files(AppData.CurrentFolder);
-                            Console.WriteLine("Arquivo removido");
-                            return "success";
-                        }
-                    }//Adicionar algoritimo para solucionar caso a exclusão falar em umas das partes 
                 }
-            }
-
+                // Caso o foreach termine sem encontrar o documento correspondente
+                return "error";
+            
+           
         }
-        return "error";
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Erro ao deletar arquivo: {ex.Message}");
+            return "error";
+        }
     }
+
 
     private Task VisualizarArquivo(Documents selectedItem)
     {
@@ -957,7 +985,7 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
                                 Documents doc2 = new Documents();
                                 doc2.Name = encryptData.Decrypt(documentsModel.Name, key, AppData.Salt);
                                 doc2.Image = encryptData.Decrypt(documentsModel.Image, key, AppData.Salt);
-                                DocumentCollection.Add(doc);
+                                DocumentCollection.Add(doc2);
                                 DateTime.UtcNow.ToString();
                                 await Application.Current.MainPage.DisplayAlert("Succsses", "Aquivo enviado para Pasta inicial", "Ok");
                             }
@@ -978,7 +1006,8 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
                                 Documents doc2 = new Documents();
                                 doc2.Name = encryptData.Decrypt(documentsModel.Name, key, AppData.Salt);
                                 doc2.Image = encryptData.Decrypt(documentsModel.Image, key, AppData.Salt);
-                                DocumentCollection.Add(doc);
+                                doc2.UploadTime= encryptData.Decrypt(documentsModel.UploadTime, key, AppData.Salt);
+                                DocumentCollection.Add(doc2);
                                 await Application.Current.MainPage.DisplayAlert("Succsses", $"Aquivo enviado para {AppData.CurrentFolder} ", "Ok");
                             }
                             stream.Dispose();
@@ -998,77 +1027,98 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
             }
             else
             {
+                string PathTemporaryEncryptFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), $"{string.Concat(doc.Name)}");
 
-
-
-                string PathTemporaryEncryptFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), $"{doc.Name}");
-
-
-                IsVisibleDocumentCollection = false;
-                IsVisibleGifLoading = true;
-                documentsModel.Name = doc.Name;
-                if (doc.Name.Contains(".docx") || doc.Name.Contains(".doc"))
-                {
-                    documentsModel.DocumentType = ".docx";
-                }
-                if (doc.Name.Contains(".pdf"))
-                {
-                    documentsModel.DocumentType = ".pdf";
-                }
-                if (doc.Name.Contains(".xls") || doc.Name.Contains(".xlsx"))
-                {
-                    documentsModel.DocumentType = ".xlsx";
-                }
-                if (doc.Name.Contains(".pptx"))
-                {
-                    documentsModel.DocumentType = ".pptx";
-                }
-                if (!string.IsNullOrEmpty(AppData.CurrentFolder))
-                {
-                    documentsModel.RootFolder = AppData.CurrentFolder;
-                }
-                else if (string.IsNullOrEmpty(AppData.CurrentFolder))
-                {
-                    documentsModel.RootFolder = "Pasta inicial";
-                }
-                if (!string.IsNullOrEmpty(doc.Name) && !string.Equals("Adicone um documento", doc.Name))
-                {
-
-
-                    await encryptData.EncryptFile(pathfile, PathTemporaryEncryptFile, AppData.UserPassword, AppData.Salt);
-
-                    FileStream stream = new FileStream(pathfile, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
-
-
-                    List<Folder_Files> listFolder = new List<Folder_Files>();
-                    listFolder = await _firebaseService.ListFolder("Users", AppData.UserUid, encryptData.Encrypt(folder, key, AppData.Salt));
-                    Log newlog = new Log(documentsModel.Name, 1);
-                    documentsModel.Name = encryptData.Encrypt(documentsModel.Name, key, AppData.Salt);
-                    documentsModel.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, documentsModel.Name, folder);
-
-                    await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
-
-                    documentsModel.RootFolder = encryptData.Encrypt(documentsModel.RootFolder, key, AppData.Salt);
-                    documentsModel.DocumentType = encryptData.Encrypt(documentsModel.DocumentType, key, AppData.Salt);
-                    documentsModel.Image = encryptData.Encrypt(documentsModel.Image, key, AppData.Salt);
-                    documentsModel.UrlDownload = encryptData.Encrypt(documentsModel.UrlDownload, key, AppData.Salt);
-                    documentsModel.UploadTime = encryptData.Encrypt(DateTime.UtcNow.ToString(), key, AppData.Salt);
-                    await _firebaseService.AddFiles("Users", AppData.UserUid, folder, documentsModel.Name, documentsModel);
-                    await Application.Current.MainPage.DisplayAlert("Succsses", "Aquivo enviado para Pasta inicial", "Ok");
-
-                    stream.Dispose();
-                    stream.Close();
-                    if (File.Exists(PathTemporaryEncryptFile))
+                    IsVisibleDocumentCollection = false;
+                    IsVisibleGifLoading = true;                   
+                    if (doc.Name.Contains(".docx") || doc.Name.Contains(".doc"))
                     {
-                        File.Delete(PathTemporaryEncryptFile);
+                        doc.DocumentType = ".docx";
                     }
+                    if (doc.Name.Contains(".pdf"))
+                    {
+                        doc.DocumentType = ".pdf";
+                    }
+                    if (doc.Name.Contains(".xls") || doc.Name.Contains(".xlsx"))
+                    {
+                        doc.DocumentType = ".xlsx";
+                    }
+                    if (doc.Name.Contains(".pptx"))
+                    {
+                        doc.DocumentType = ".pptx";
+                    }
+                    if (!string.IsNullOrEmpty(AppData.CurrentFolder))
+                    {
+                        doc.RootFolder = AppData.CurrentFolder;
+                    }
+                    else if (string.IsNullOrEmpty(AppData.CurrentFolder))
+                    {
+                        doc.RootFolder = "Pasta inicial";
+                    }
+                    if (!string.IsNullOrEmpty(doc.Name) && !string.Equals("Adicone um documento", doc.Name))
+                    {
 
+
+                        await encryptData.EncryptFile(pathfile, PathTemporaryEncryptFile, AppData.UserPassword, AppData.Salt);
+
+                        var stream = File.Open(PathTemporaryEncryptFile, FileMode.Open, FileAccess.ReadWrite);
+                        if (string.IsNullOrEmpty(AppData.CurrentFolder))
+                        {
+                            List<Folder_Files> listFolder = new List<Folder_Files>();
+                            listFolder = await _firebaseService.ListFolder("Users", AppData.UserUid, encryptData.Encrypt("Pasta inicial", key, AppData.Salt));
+                            doc.Name = encryptData.Encrypt(doc.Name, key, AppData.Salt);                         
+                            doc.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, doc.Name, "Pasta inicial");
+                            Log newlog = new Log(doc.Name, 1);
+                            await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
+
+                            doc.RootFolder = encryptData.Encrypt(doc.RootFolder, key, AppData.Salt);
+                            doc.DocumentType = encryptData.Encrypt(doc.DocumentType, key, AppData.Salt);
+                            doc.Image = encryptData.Encrypt(doc.Image, key, AppData.Salt);
+                            doc.UrlDownload = encryptData.Encrypt(doc.UrlDownload, key, AppData.Salt);
+                            doc.UploadTime = encryptData.Encrypt(DateTime.UtcNow.ToString(), key, AppData.Salt);
+                            await _firebaseService.AddFiles("Users", AppData.UserUid, "Pasta inicial", doc.Name, doc);
+                            Documents doc2 = new Documents();
+                            doc2.Name = encryptData.Decrypt(documentsModel.Name, key, AppData.Salt);
+                            doc2.Image = encryptData.Decrypt(documentsModel.Image, key, AppData.Salt);
+                            DocumentCollection.Add(doc2);                           
+                            await Application.Current.MainPage.DisplayAlert("Succsses", "Aquivo enviado para Pasta inicial", "Ok");
+                        }
+                        else
+                        {
+                            doc.Name = encryptData.Encrypt(doc.Name, key, AppData.Salt);
+                            doc.UrlDownload = await _firebaseStorageService.UploadFileAsync(stream, doc.Name, AppData.CurrentFolder);
+                            Log newlog = new Log(doc.Name, 1);
+                            await _firebaseService.AddFiles("Users", AppData.UserUid, "Logs", newlog.menssage, newlog);
+
+                            doc.RootFolder = encryptData.Encrypt(doc.RootFolder, key, AppData.Salt);
+                            doc.DocumentType = encryptData.Encrypt(doc.DocumentType, key, AppData.Salt);
+                            doc.Image = encryptData.Encrypt(doc.Image, key, AppData.Salt);
+                            doc.UrlDownload = encryptData.Encrypt(doc.UrlDownload, key, AppData.Salt);
+                            doc.UploadTime = encryptData.Encrypt(DateTime.UtcNow.ToString(), key, AppData.Salt);
+
+                            await _firebaseService.AddFiles("Users", AppData.UserUid, AppData.CurrentFolder, doc.Name, doc);
+                            Documents doc2 = new Documents();
+                            doc2.Name = encryptData.Decrypt(doc.Name, key, AppData.Salt);
+                            doc2.Image = encryptData.Decrypt(doc.Image, key, AppData.Salt);
+                            doc2.UploadTime = encryptData.Decrypt(doc.UploadTime, key, AppData.Salt);
+                            DocumentCollection.Add(doc2);
+                            await Application.Current.MainPage.DisplayAlert("Succsses", $"Aquivo enviado para {AppData.CurrentFolder} ", "Ok");
+                        }
+                        stream.Dispose();
+                        stream.Close();
+                        if (File.Exists(PathTemporaryEncryptFile))
+                        {
+                            File.Delete(PathTemporaryEncryptFile);
+                        }
+
+                    }
+                    else
+                    {
+                        await Application.Current.MainPage.DisplayAlert("Error", "O nome do arquivo  é  inválido", "Ok");
+                    }
                 }
-                else
-                {
-                    await Application.Current.MainPage.DisplayAlert("Error", "O nome do arquivo  é  inválido", "Ok");
-                }
-            }
+            
+        
 
         }
         catch (System.Exception ex)
@@ -1086,31 +1136,18 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
     public async void CreateVersion(Documents doc, int option)
     {
         if (option == 1)
-        {
-            var fileResult = await FilePicker.Default.PickAsync(new PickOptions
-            {
-                PickerTitle = "Por favor selecione um arquivo",
-                FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
-
-                {
-                    { DevicePlatform.WinUI, new[] { ".pdf", ".docx", ".doc", ".xls", ".xlsx", ".pptx" } },
-                    { DevicePlatform.Android, new[] { "application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/msword", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.openxmlformats-officedocument.presentationml.presentation" } },
-                    { DevicePlatform.iOS, new[] { "com.adobe.pdf", "org.openxmlformats.wordprocessingml.document", "com.microsoft.word.doc", "com.microsoft.excel.xls", "org.openxmlformats.spreadsheetml.sheet", "org.openxmlformats.presentationml.presentation" } }
-                })
-            });
-            if (fileResult != null)
-            {
-                string documentPathforVersion = fileResult.FullPath;
-                AddFolder(doc.Name, 2);
+        {               
                 string path = await DownloadFile(doc, 1);
+                await DeleteFile(doc);
                 AppData.CurrentFolder = nextfolder(AppData.CurrentFolder, string.Concat(doc.Name, "Versions"));
 
                 LabelTituloRepositorio = string.Concat(doc.Name, "Versions");
+            await PickAndShowFileAsync(path, AppData.CurrentFolder, doc);
                 await list_files(AppData.CurrentFolder);
                 await PickAndShowFileAsync(null, null, null);
 
 
-            }
+            
 
 
         }

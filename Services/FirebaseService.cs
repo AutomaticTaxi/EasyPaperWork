@@ -302,7 +302,8 @@ namespace EasyPaperWork.Services
                     var documents = new Documents()
                     {
                         Name = document.ContainsField("Name") ? document.GetValue<string>("Name") : null,
-                        DocumentType = document.ContainsField("DocumentType") ? document.GetValue<string>("DocumentType") : null
+                        DocumentType = document.ContainsField("DocumentType") ? document.GetValue<string>("DocumentType") : null,
+                        UploadTime = document.ContainsField("UploadTime")? document.GetValue<string>("UploadTime"): null
 
                         // Adicione outros campos conforme necessário
                     };
