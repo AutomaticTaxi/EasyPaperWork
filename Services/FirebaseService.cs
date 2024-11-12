@@ -431,7 +431,38 @@ namespace EasyPaperWork.Services
             }
         }
 
+        public async Task Update<T>(string colecaoUser, string idUser, string caminhoCompleto, string idDocument, T objFile)
+        {
+            try
+            {
+                // Converte o objeto em um dicionário
+                Dictionary<string, object> dados = ConvertToDictionary(objFile);
 
+                // Quebra o caminho de subcoleções e documentos (ex: "Pasta1/Pasta2/Pasta3")
+                var subPastas = caminhoCompleto.Split('/');
+
+                // Começa acessando a coleção principal
+                CollectionReference colecao = _firestoreDb.Collection(colecaoUser).Document(idUser).Collection(subPastas[0]);
+
+                // Itera através das subcoleções, criando o caminho dinamicamente
+                for (int i = 1; i < subPastas.Length; i++)
+                {
+                    // Acessa o próximo documento e subcoleção
+                    colecao = colecao.Document(subPastas[i - 1]).Collection(subPastas[i]);
+                }
+
+                // Acessa o documento dentro da última subcoleção e insere os dados
+                DocumentReference document = colecao.Document(idDocument);
+                await document.UpdateAsync(dados);
+
+                Console.WriteLine("Dados inseridos com sucesso!");
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao adicionar arquivo: {ex.Message}");
+            }
+        }
 
         public async Task AddFolder<T>(string ColecaoUser, string IdUser, string folder_path, string IdDocument, T objFile)
         {
