@@ -57,8 +57,8 @@ namespace EasyPaperWork.Models
                 OnPropertyChanged(nameof(Password));
             }
         }
-        /*  private DateTimeOffset _DateUserCreated { get; set; }
-          public DateTimeOffset DateUserCreated
+     private DateTime _DateUserCreated { get; set; }
+          public DateTime DateUserCreated
           {
               get
               {
@@ -69,18 +69,7 @@ namespace EasyPaperWork.Models
                   _DateUserCreated = value;
                   OnPropertyChanged(nameof(DateUserCreated));
               }
-          }*/
-
-        private string _AccountType { get; set; }
-        public string AccountType
-        {
-            get { return _AccountType; }
-            set
-            {
-                _AccountType = value;
-                OnPropertyChanged(nameof(AccountType));
-            }
-        }
+          }
         private string _Salt { get; set; }
         public string Salt
         {

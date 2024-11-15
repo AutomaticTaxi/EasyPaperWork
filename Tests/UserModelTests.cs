@@ -87,25 +87,8 @@ namespace EasyPaperWork.Tests
             Assert.True(wasCalled);
         }
 
-        [Fact]
-        public void SettingAccountType_ShouldTriggerPropertyChanged()
-        {
-            // Arrange
-            var userModel = new UserModel();
-            var wasCalled = false;
-            userModel.PropertyChanged += (sender, e) =>
-            {
-                if (e.PropertyName == nameof(UserModel.AccountType))
-                {
-                    wasCalled = true;
-                }
-            };
-
-            // Act
-            userModel.AccountType = "Premium";
-
-            // Assert
-            Assert.True(wasCalled);
-        }
+     
+     
+        
     }
 }

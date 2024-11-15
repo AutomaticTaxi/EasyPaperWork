@@ -21,75 +21,6 @@ namespace EasyPaperWork.ViewModel
         public string EntryEmail { get; set; }
         public string EntryPassword1 { get; set; }
         public string EntryPassword2 { get; set; }
-        private string AccountType { get; set; }
-
-        private bool _EnterpriseAccount;
-        public bool EnterpriseAccount
-        {
-            get { return _EnterpriseAccount; }
-            set
-            {
-                if (_EnterpriseAccount != value)
-                {
-                    _EnterpriseAccount = value;
-                    Debug.WriteLine("alterou");
-                    OnPropertyChanged(nameof(EnterpriseAccount));
-                }
-                if (_EnterpriseAccount)
-                {
-                    Debug.WriteLine("true");
-                    if (EmployeeAccount) { EmployeeAccount = false; }
-                    if (PersonalAccount) { PersonalAccount = false; }
-                    AccountType = "EnterpriseAccount";
-                }
-                else { Debug.WriteLine("false"); }
-            }
-        }
-        private bool _EmployeeAccount;
-        public bool EmployeeAccount
-        {
-            get { return _EmployeeAccount; }
-            set
-            {
-                if (_EmployeeAccount != value)
-                {
-                    _EmployeeAccount = value;
-                    Debug.WriteLine("alterou");
-                    OnPropertyChanged(nameof(EmployeeAccount));
-                }
-                if (_EmployeeAccount)
-                {
-                    Debug.WriteLine("trueEmployee");
-
-                    if (EnterpriseAccount) { EnterpriseAccount = false; }
-                    if (PersonalAccount) { PersonalAccount = false; }
-                    AccountType = "EmployeeAccount";
-                }
-                else { Debug.WriteLine("false"); }
-            }
-        }
-        public bool _PersonalAccount;
-        public bool PersonalAccount
-        {
-            get { return _PersonalAccount; }
-            set
-            {
-                if (_PersonalAccount != value)
-                {
-                    _PersonalAccount = value;
-                    OnPropertyChanged(nameof(PersonalAccount));
-                    Debug.WriteLine("Alterou");
-                }
-                if (_PersonalAccount)
-                {
-                    Debug.WriteLine("Alteroupersonal");
-                    if (EnterpriseAccount) { EnterpriseAccount = false; }
-                    if (EmployeeAccount) { EmployeeAccount = false; }
-                    AccountType = "PersonalAccount";
-                }
-                else { Debug.WriteLine("falsepersonal"); }
-            }
-        }
         FirebaseService FirebaseService { get; set; }
         FirebaseAuthServices _FirebaseAuthServices;
 
@@ -120,10 +51,8 @@ namespace EasyPaperWork.ViewModel
                     if (EntryPassword1 != EntryPassword2) { await Application.Current.MainPage.DisplayAlert("Erro", "As senhas são diferentes", "ok"); }
                     else
                     {
-                        if (string.IsNullOrEmpty(AccountType)) { await Application.Current.MainPage.DisplayAlert("Erro", "É necessário selecionar um tipo de conta para registro", "ok"); }
-                        else
-                        {
-                            // User.DateUserCreated = DateTimeOffset.UtcNow;
+                        
+                             User.DateUserCreated = DateTime.UtcNow;
 
                             string result = await _FirebaseAuthServices.RegiterUser(EntryEmail, EntryPassword1, EntryName);
                             switch (result)
@@ -162,13 +91,12 @@ namespace EasyPaperWork.ViewModel
                                 User.Email = encryptData.Encrypt(EntryEmail, key, salt);
                                 User.Name = encryptData.Encrypt(EntryName, key, salt);
                                 User.Password = encryptData.Encrypt(EntryPassword1, key, salt);
-                                User.AccountType = encryptData.Encrypt(AccountType, key, salt);
                                 await FirebaseService.AdicionarObjetoAsync("Users", User.Id, User);
                                 result = " ";
                                 await Shell.Current.GoToAsync("//Page_Login");
 
                             }
-                        }
+                        
                     }
                 }
             }

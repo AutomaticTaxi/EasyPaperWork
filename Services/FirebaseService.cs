@@ -61,7 +61,7 @@ namespace EasyPaperWork.Services
                 DocumentReference document = _firestoreDb.Collection("Users").Document(AppData.UserUid).Collection(rootfolder).Document(documentid);
                 await document.DeleteAsync();
                 return true;
-             
+
             }
             catch (ArgumentException ex)
             {
@@ -76,14 +76,14 @@ namespace EasyPaperWork.Services
             }
 
         }
-        public async Task<bool> DeleteFolderAsync(string rootfolder,string folder_name)
+        public async Task<bool> DeleteFolderAsync(string rootfolder, string folder_name)
         {
             try
             {
                 List<Documents> listdocs = new List<Documents>();
                 List<Documents> listfolder = new List<Documents>();
                 rootfolder = Adjust_path_for_listing_in_folder(rootfolder);
-                listdocs = await ListFiles(rootfolder );
+                listdocs = await ListFiles(rootfolder);
                 foreach (Documents doc in listdocs)
                 {
 
@@ -93,18 +93,19 @@ namespace EasyPaperWork.Services
                         listfolder.Add(doc);//adiciona a uma lista de pastas dento da pasta original
                     }
                 }
-                rootfolder= Adjust_path_for_listing_once_folder_back(rootfolder);
+                rootfolder = Adjust_path_for_listing_once_folder_back(rootfolder);
                 listdocs = await ListFiles(rootfolder);
                 foreach (Documents doc in listdocs)
                 {
-                    if(!string.IsNullOrEmpty(doc.Name)){
-                        if ( _encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt) == folder_name)
+                    if (!string.IsNullOrEmpty(doc.Name))
+                    {
+                        if (_encryptData.Decrypt(doc.Name, AppData.Key, AppData.Salt) == folder_name)
                         {
                             await DeleteFileAsync(rootfolder, doc.Name);//remove a pasta da pasta raiz
 
                         }
                     }
-                    
+
                 }
 
                 return true;
@@ -142,7 +143,7 @@ namespace EasyPaperWork.Services
                 path = backfolder(path);
                 path = Adjust_path_for_listing_in_folder(path);
             }
-           
+
             return path;
         }
         public string backfolder(string path)
@@ -169,7 +170,7 @@ namespace EasyPaperWork.Services
                     }
                 }
             }
-            
+
 
             string lastFolder = string.Join("/", listParts);
             return lastFolder;
@@ -232,7 +233,6 @@ namespace EasyPaperWork.Services
                         Name = dados.ContainsKey("Name") ? dados["Name"].ToString() : string.Empty,
                         Email = dados.ContainsKey("Email") ? dados["Email"].ToString() : string.Empty,
                         Password = dados.ContainsKey("Password") ? dados["Password"].ToString() : string.Empty,
-                        AccountType = dados.ContainsKey("AccountType") ? dados["AccountType"].ToString() : string.Empty
 
 
 
@@ -288,7 +288,7 @@ namespace EasyPaperWork.Services
             }
         }
 
-        public async Task<List<Documents>> ListFiles( string CurrentFolder)
+        public async Task<List<Documents>> ListFiles(string CurrentFolder)
         {
             try
             {
@@ -303,7 +303,7 @@ namespace EasyPaperWork.Services
                     {
                         Name = document.ContainsField("Name") ? document.GetValue<string>("Name") : null,
                         DocumentType = document.ContainsField("DocumentType") ? document.GetValue<string>("DocumentType") : null,
-                        UploadTime = document.ContainsField("UploadTime")? document.GetValue<string>("UploadTime"): null
+                        UploadTime = document.ContainsField("UploadTime") ? document.GetValue<string>("UploadTime") : null
 
                         // Adicione outros campos conforme necessário
                     };
@@ -339,7 +339,7 @@ namespace EasyPaperWork.Services
                     var documents = new Log()
                     {
                         menssage = document.ContainsField("menssage") ? document.GetValue<string>("menssage") : null,
-                        dateTime = document.ContainsField("dateTime") ? document.GetValue<DateTime?>("dateTime") : null // Alteração para DateTime?
+                        dateTime = document.ContainsField("dateTime") ? document.GetValue<string>("dateTime") : null // Alteração para DateTime?
 
                         // Adicione outros campos conforme necessário
                     };
@@ -478,7 +478,6 @@ namespace EasyPaperWork.Services
                         Name = dados.ContainsKey("Name") ? dados["Name"].ToString() : string.Empty,
                         Email = dados.ContainsKey("Email") ? dados["Email"].ToString() : string.Empty,
                         Password = dados.ContainsKey("Password") ? dados["Password"].ToString() : string.Empty,
-                        AccountType = dados.ContainsKey("AccountType") ? dados["AccountType"].ToString() : string.Empty,
                         Salt = dados.ContainsKey("Salt") ? dados["Salt"].ToString() : string.Empty
 
 

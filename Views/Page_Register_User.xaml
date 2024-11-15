@@ -23,24 +23,8 @@
         <Entry Placeholder="........." Margin="0,20,0,0" IsPassword="True" Text="{Binding EntryPassword1}"/>
         <Label Text="Confirme sua senha" FontSize="Subtitle"  Margin="0,20,0,0" HorizontalOptions="Start"/>
         <Entry Placeholder="........." Margin="0,20,0,0" IsPassword="True" Text="{Binding EntryPassword2}"/>
-        <Label Text="Tipo de conta"  FontSize="Subtitle" HorizontalOptions="Center"/>
-        <VerticalStackLayout>
-            <StackLayout Orientation="Horizontal">
-                <CheckBox IsChecked="{Binding EnterpriseAccount}"/>
-                <Label Text="Empresarial" VerticalOptions="Center" />
-            </StackLayout>
-            <StackLayout Orientation="Horizontal">
-                <CheckBox IsChecked="{Binding EmployeeAccount}"/>
 
-
-                <Label Text="Funcionário de uma empresa" VerticalOptions="Center" />
-            </StackLayout>
-            <StackLayout Orientation="Horizontal">
-                <CheckBox IsChecked="{Binding PersonalAccount}"/>
-                <Label Text="conta pessoal" VerticalOptions="Center" />
-            </StackLayout>
-        </VerticalStackLayout>
-        <Button Text="Cadastre-se" BackgroundColor="Blue" VerticalOptions="EndAndExpand" Command="{Binding RegistrationCommand}" />
+            <Button Text="Cadastre-se" BackgroundColor="#6F28CC"   MaximumWidthRequest="300" VerticalOptions="EndAndExpand" Command="{Binding RegistrationCommand}" />
         
 
     </VerticalStackLayout>
