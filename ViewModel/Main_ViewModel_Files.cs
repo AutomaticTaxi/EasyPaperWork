@@ -156,7 +156,7 @@ public class Main_ViewModel_Files : INotifyPropertyChanged
                 Debug.WriteLine(userModel.Id);
 
                 DocumentCollection.Clear();
-                DocumentCollection.Add(new Documents { Name = "Adicione um item", UploadTime = DateTime.UtcNow.ToString()});
+                DocumentCollection.Add(new Documents { Name = "Adicione um item"});
 
 
 
