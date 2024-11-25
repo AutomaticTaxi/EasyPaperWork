@@ -48,5 +48,6 @@
         </CollectionView>
 
         </ScrollView>
+        <Button Text="Baixar em PDF" Command="{Binding Download_logs_Command}" BackgroundColor="Red" MaximumWidthRequest="200" VerticalOptions="End"/>
     </VerticalStackLayout>
 </ContentPage>

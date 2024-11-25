@@ -1,5 +1,5 @@
-﻿using PdfSharpCore.Drawing;  // Necessário para XGraphics e XImage
-using PdfSharpCore.Pdf;      // Necessário para PdfDocument e PdfPage
+﻿using PdfSharpCore.Drawing;  
+using PdfSharpCore.Pdf;      
 using System.Runtime.InteropServices;
 using WIA;
 using WiaDeviceInfo = WIA.DeviceInfo;  // Alias para WIA.DeviceInfo
@@ -103,10 +103,16 @@ namespace EasyPaperWork.Services
                         {
                             pdfStream.Position = 0; // Reseta a posição do stream para o início
                             await pdfStream.CopyToAsync(DocumentScannedSave);
+                            DocumentScannedSave.Dispose();
+                            DocumentScannedSave.Close();
                         }
 
                         await Application.Current.MainPage.DisplayAlert("Sucesso", "Documento escaneado e salvo com sucesso.", "Ok");
+                        pdfStream.Dispose();
+                        pdfStream.Close();
+                      
                         return PathTemporaryFile;
+                        
                     }
                 }
                 catch (COMException comEx)
