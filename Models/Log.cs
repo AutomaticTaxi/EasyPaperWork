@@ -57,8 +57,11 @@ namespace EasyPaperWork.Models
                 // Itera sobre a coleção de logs
                 foreach (Log log in logs)
                 {
-                    string logEntry = $"Message: {log.menssage} | DateTime: {log.dateTime}";
-                    gfx.DrawString(logEntry, font, XBrushes.Black, new XPoint(40, yPosition));
+                    string logEntry1 = $"Message: {log.menssage}";
+                    gfx.DrawString(logEntry1, font, XBrushes.Black, new XPoint(40, yPosition));
+                    yPosition += 20;
+                    string logEntry2 = $"| DateTime: {log.dateTime}";
+                    gfx.DrawString(logEntry2, font, XBrushes.Black, new XPoint(40, yPosition));
 
                     // Incrementa a posição vertical
                     yPosition += 20;
